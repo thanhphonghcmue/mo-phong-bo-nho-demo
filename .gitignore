@@ -1,0 +1,9 @@
+# Temporary Microsoft Word lock files
+~$*.docx
+~$*.xlsx
+~$*.pptx
+
+# OS & Editor temp files
+Thumbs.db
+.DS_Store
+*.tmp

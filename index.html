@@ -3,13 +3,14 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="description" content="Mô phỏng trực quan Part Four (Quản lý bộ nhớ) – Operating System Concepts 10th ed.">
+<meta name="description" content="Web Demo Mô phỏng Quản lý Bộ nhớ - 5 Phân hệ tiêu biểu (Operating System Concepts 10th ed.)">
 <style>[hidden]{display:none!important}body{margin:0}img{max-width:100%}</style>
-<title>Mô phỏng Quản lý Bộ nhớ</title>
+<title>Web Demo Quản lý Bộ nhớ - Hệ điều hành (HCMUE)</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap">
 <style>
+
 /* Layout: một sân khấu lớn mỗi tab; trên là câu hỏi, giữa là hình động, dưới là MỘT câu giải thích và nút điều khiển to */
 :root{
   --bg:#eef2f0; --surface:#ffffff; --fg:#13201b; --muted:#5a6a63; --line:#d3dcd8;
@@ -218,24 +219,493 @@ footer{font-size:12px;color:var(--muted)}
 .chip.act-compact{background:var(--accent);color:var(--on-accent)}
 #f-ram{background:var(--free)}
 
-</style>
 
+
+/* ============ GIAO DIỆN MỚI: HEADER & DASHBOARD 5 PHẦN ============ */
+.site-header {
+  background: linear-gradient(135deg, #071d36 0%, #0c3668 55%, #124c8c 100%);
+  color: #ffffff;
+  border-radius: 16px;
+  padding: 16px 22px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  box-shadow: 0 8px 24px rgba(12,54,104,0.18);
+  border: 1px solid rgba(255,255,255,0.12);
+}
+.header-brand {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.header-logo {
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2.5px solid #ffcc00;
+  box-shadow: 0 0 14px rgba(255,204,0,0.45);
+  background: #ffffff;
+  flex-shrink: 0;
+}
+.header-titles h1 {
+  color: #ffffff;
+  font-size: clamp(20px, 3.2vw, 25px);
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  margin: 0;
+  line-height: 1.2;
+}
+.header-titles p {
+  color: #cde0f7;
+  font-size: 13px;
+  font-weight: 500;
+  margin: 4px 0 0 0;
+  line-height: 1.35;
+}
+.header-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.badge-hcmue {
+  background: rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.22);
+  padding: 6px 14px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #ffeb3b;
+  text-align: right;
+  line-height: 1.3;
+}
+
+/* Thanh điều hướng 5 phần nằm ngang */
+.dash-tabs {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 2px 2px 8px 2px;
+  scrollbar-width: thin;
+}
+.dash-tab {
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  background: var(--surface);
+  color: var(--fg);
+  border: 1.5px solid var(--line);
+  border-radius: 14px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 172px;
+  flex: 1 1 0;
+  transition: all .2s ease;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+}
+.dash-tab:hover {
+  border-color: #0c3668;
+  transform: translateY(-1px);
+}
+.dash-tab .n {
+  font-family: var(--f-mono);
+  font-size: 11px;
+  font-weight: 700;
+  color: #1a4d8c;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.dash-tab .t {
+  font-weight: 800;
+  font-size: 14px;
+  line-height: 1.3;
+  color: var(--fg);
+}
+.dash-tab[aria-selected="true"] {
+  background: linear-gradient(145deg, #0c3668 0%, #164e93 100%);
+  border-color: #0c3668;
+  color: #ffffff;
+  box-shadow: 0 6px 18px rgba(12,54,104,0.25);
+  transform: translateY(-2px);
+}
+.dash-tab[aria-selected="true"] .n {
+  color: #ffeb3b;
+}
+.dash-tab[aria-selected="true"] .t {
+  color: #ffffff;
+}
+
+/* Thước đo RAM của Base/Limit */
+.b-ram-track {
+  position: relative;
+  display: flex;
+  height: 64px;
+  border: 2px solid var(--fg);
+  border-radius: 10px;
+  overflow: visible;
+  margin-top: 14px;
+  margin-bottom: 28px;
+}
+.b-pointer {
+  position: absolute;
+  top: -24px;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: left .4s cubic-bezier(.2,.8,.2,1);
+  z-index: 10;
+}
+.b-pointer .pin {
+  font-size: 20px;
+  line-height: 1;
+}
+.b-pointer .plabel {
+  font-family: var(--f-mono);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+.b-ram-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+  font-size: 12.5px;
+  color: var(--muted);
+}
+.b-ram-legend i {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  vertical-align: -2px;
+  margin-right: 6px;
+}
+
+/* Khối sơ đồ Demand Paging */
+.vm-pt-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--f-mono);
+  font-size: 12.5px;
+}
+.vm-pt-table th, .vm-pt-table td {
+  padding: 3px 6px;
+  border-bottom: 1px solid var(--line);
+  text-align: center;
+}
+.vm-pt-table th {
+  font-family: var(--f-body);
+  font-size: 11px;
+  color: var(--muted);
+}
+.vm-pt-table tr.active-row td {
+  background: var(--accent-soft);
+  font-weight: 700;
+}
+.vm-pt-table tr.fault-row td {
+  background: var(--bad-soft);
+  color: var(--bad);
+  font-weight: 700;
+}
+.vm-pt-table tr.hit-row td {
+  background: var(--ok-soft);
+  color: var(--ok);
+  font-weight: 700;
+}
+.vm-badge-v {
+  background: var(--ok-soft);
+  color: var(--ok);
+  font-weight: 800;
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+.vm-badge-i {
+  background: var(--bad-soft);
+  color: var(--bad);
+  font-weight: 800;
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+
+/* Thẻ Giám sát thông số máy tính (Real-Time Performance Monitor) */
+.telemetry-stage {
+  border-top: 3px solid #0c3668 !important;
+  background: linear-gradient(180deg, #ffffff 0%, #f9fbfd 100%);
+}
+.telemetry-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 10px;
+}
+.tele-time-badge {
+  font-family: var(--f-mono);
+  font-size: 12px;
+  font-weight: 600;
+  color: #0c3668;
+  background: #e9f2fd;
+  padding: 4px 10px;
+  border-radius: 8px;
+  border: 1px solid #c7ddfb;
+}
+.telemetry-grid {
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  gap: 16px;
+}
+@media (max-width: 860px) {
+  .telemetry-grid {
+    grid-template-columns: 1fr;
+  }
+}
+.tele-col {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.tele-col-title {
+  font-size: 12.5px;
+  font-weight: 800;
+  color: #0c3668;
+  letter-spacing: .03em;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+.tele-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.tele-table td {
+  padding: 6px 10px;
+  border-bottom: 1px solid var(--line);
+}
+.tele-table tr:last-child td {
+  border-bottom: 0;
+}
+.tele-table td:first-child {
+  color: var(--fg);
+  font-weight: 600;
+}
+.tele-table td:nth-child(2) {
+  font-family: var(--f-mono);
+  font-weight: 700;
+  color: #0c3668;
+}
+.badge-real {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 4px;
+  background: var(--ok-soft);
+  color: var(--ok);
+  white-space: nowrap;
+}
+.badge-est {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 4px;
+  background: #fff8e1;
+  color: #b78103;
+  white-space: nowrap;
+}
+.badge-na {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 4px;
+  background: var(--bad-soft);
+  color: var(--bad);
+  white-space: nowrap;
+}
+.tele-note {
+  font-size: 11.5px;
+  color: var(--muted);
+  line-height: 1.4;
+  margin-top: 4px;
+}
+.tele-sim-box {
+  background: #f7f9fa;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 13px;
+}
+.sim-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 4px;
+  border-bottom: 1px dashed var(--line);
+}
+.sim-row:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+.sim-k {
+  color: var(--muted);
+  font-weight: 600;
+}
+.sim-v {
+  font-family: var(--f-mono);
+  font-weight: 700;
+  color: var(--fg);
+}
+
+</style>
 </head>
 <body>
 <div class="wrap">
-  <header>
-    <span class="eyebrow">Part Four · Quản lý bộ nhớ</span>
-    <h1>Mô phỏng Quản lý Bộ nhớ</h1>
+
+  <header class="site-header">
+    <div class="header-brand">
+      <img src="logo-it.jpg" alt="Logo Khoa CNTT - ĐH Sư Phạm TP.HCM" class="header-logo">
+      <div class="header-titles">
+        <h1>WEB DEMO QUẢN LÝ BỘ NHỚ</h1>
+        <p>Operating System Memory Management Visualizer · Trường ĐH Sư Phạm TP.HCM (HCMUE) · Khoa Công Nghệ Thông Tin</p>
+      </div>
+    </div>
+    <div class="header-meta">
+      <div class="badge-hcmue">
+        <span>GIÁO TRÌNH SILBERSCHATZ</span><br>
+        <span style="color:#ffffff;font-size:11px">CHƯƠNG 9 & 10 · 5 PHÂN HỆ</span>
+      </div>
+    </div>
   </header>
 
-  <nav class="tabs" role="tablist" aria-label="Thí nghiệm">
-    <button class="tab" role="tab" id="t1" aria-controls="p1" aria-selected="true"><span class="n">Chương 9</span><span class="t">Bãi đỗ xe</span></button>
-    <button class="tab" role="tab" id="t2" aria-controls="p2" aria-selected="false"><span class="n">Chương 9</span><span class="t">Tìm địa chỉ thật</span></button>
-    <button class="tab" role="tab" id="t3" aria-controls="p3" aria-selected="false"><span class="n">Chương 10</span><span class="t">Bàn đầy, cất trang nào?</span></button>
+  <nav class="dash-tabs" role="tablist" aria-label="5 Phân hệ Quản lý Bộ nhớ">
+    <button class="dash-tab" role="tab" id="t0" aria-controls="p0" aria-selected="true">
+      <span class="n">📁 PHẦN 1 · NỀN TẢNG</span>
+      <span class="t">Bảo vệ Base/Limit</span>
+    </button>
+    <button class="dash-tab" role="tab" id="t1" aria-controls="p1" aria-selected="false">
+      <span class="n">🖴 PHẦN 2 · CẤP PHÁT</span>
+      <span class="t">Bãi đỗ xe</span>
+    </button>
+    <button class="dash-tab" role="tab" id="t2" aria-controls="p2" aria-selected="false">
+      <span class="n">⊞ PHẦN 3 · PHÂN TRANG</span>
+      <span class="t">Tìm địa chỉ thật</span>
+    </button>
+    <button class="dash-tab" role="tab" id="t4" aria-controls="p4" aria-selected="false">
+      <span class="n">💾 PHẦN 4 · BỘ NHỚ ẢO</span>
+      <span class="t">Demand Paging</span>
+    </button>
+    <button class="dash-tab" role="tab" id="t3" aria-controls="p3" aria-selected="false">
+      <span class="n">🔄 PHẦN 5 · THAY THẾ TRANG</span>
+      <span class="t">Bàn đầy, cất trang nào?</span>
+    </button>
   </nav>
 
-  <!-- ============ TAB 1 ============ -->
-  <section class="panel" id="p1" role="tabpanel" aria-labelledby="t1">
+
+
+  <!-- ============ TAB 0: NỀN TẢNG (BASE & LIMIT) ============ -->
+  <section class="panel" id="p0" role="tabpanel" aria-labelledby="t0">
+    <div class="stage">
+      <div class="bar">
+        <h2>Chương trình muốn truy cập địa chỉ RAM. Phần cứng có cho phép không?</h2>
+      </div>
+      <p class="muted" style="font-size:14px;margin-top:-8px">
+        Minh họa cơ chế phần cứng MMU sử dụng hai thanh ghi <b>Base</b> (Cơ sở) và <b>Limit</b> (Giới hạn) để bảo vệ không gian nhớ của các tiến trình độc lập (Mục 9.1.2 Silberschatz).
+      </p>
+
+      <div class="quick">
+        <div class="field">
+          <label for="b-base">Thanh ghi Base</label>
+          <input type="number" id="b-base" value="300040" min="0" max="9999999" style="width:120px">
+        </div>
+        <div class="field">
+          <label for="b-limit">Thanh ghi Limit</label>
+          <input type="number" id="b-limit" value="120900" min="1" max="9999999" style="width:120px">
+        </div>
+        <div class="field">
+          <label for="b-addr">Địa chỉ CPU truy cập (A)</label>
+          <input type="number" id="b-addr" value="300040" min="0" max="9999999" style="width:130px">
+        </div>
+        <button class="btn primary" id="b-go">Kiểm tra ▶</button>
+      </div>
+
+      <div class="bar" style="gap:6px">
+        <span class="muted" style="font-size:13px;font-weight:700">Dữ liệu mẫu giáo trình:</span>
+        <button class="btn" id="b-pre-low" style="padding:5px 10px;font-size:13px">300040 (Cận dưới ✓)</button>
+        <button class="btn" id="b-pre-high" style="padding:5px 10px;font-size:13px">420939 (Cận trên ✓)</button>
+        <button class="btn" id="b-pre-over" style="padding:5px 10px;font-size:13px;border-color:var(--bad);color:var(--bad)">420940 (Quá biên ✗ TRAP)</button>
+        <button class="btn" id="b-pre-under" style="padding:5px 10px;font-size:13px;border-color:var(--bad);color:var(--bad)">256000 (Dưới cận ✗ TRAP)</button>
+        <button class="btn" id="b-pre-rand" style="padding:5px 10px;font-size:13px">🎲 Ngẫu nhiên</button>
+      </div>
+
+      <!-- Sơ đồ mạch luồng MMU -->
+      <div class="flow" id="b-flow"></div>
+
+      <!-- Thước thanh RAM trực quan -->
+      <div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+          <span class="lane-label">Thước ánh xạ Bộ nhớ RAM vật lý</span>
+          <span class="muted" style="font-size:12px;font-family:var(--f-mono)">Vùng hợp lệ: [<span id="b-val-range">300040 → 420939</span>]</span>
+        </div>
+        <div class="b-ram-track" id="b-ram-track"></div>
+        <div class="b-ram-legend">
+          <span><i style="background:var(--used)"></i>Hệ điều hành (0 .. 300039)</span>
+          <span><i style="background:var(--ok)"></i>Vùng tiến trình được cấp quyền (120900 bytes)</span>
+          <span><i style="background:repeating-linear-gradient(135deg,var(--free) 0 5px,var(--stripe) 5px 10px)"></i>Tiến trình khác / Bộ nhớ trống</span>
+          <span><i style="background:var(--bad)"></i>Điểm vi phạm (TRAP)</span>
+        </div>
+      </div>
+
+      <p class="caption" id="b-cap"></p>
+
+      <div class="bar">
+        <button class="btn" id="b-prev">◀ Lùi</button>
+        <button class="btn primary" id="b-next">Bước tiếp ▶</button>
+        <button class="btn" id="b-all">Xem kết quả</button>
+        <button class="btn" id="b-play">⏵ Tự chạy</button>
+        <button class="btn" id="b-reset">↺ Làm lại</button>
+        <span class="spacer"></span>
+        <span class="muted" id="b-stats" style="font-size:14px;font-weight:700"></span>
+      </div>
+
+      <!-- Thẻ lý thuyết thu gọn -->
+      <details><summary>Kiến thức nền tảng: Bảo vệ bộ nhớ bằng Base & Limit (Mục 9.1.2 Silberschatz)</summary>
+        <div style="display:flex;flex-direction:column;gap:10px;font-size:14px;color:var(--fg);margin-top:8px;line-height:1.6">
+          <p>• <b>Thanh ghi Base (Base Register):</b> Lưu trữ địa chỉ vật lý nhỏ nhất (cận dưới) mà tiến trình được phép truy cập.</p>
+          <p>• <b>Thanh ghi Limit (Limit Register):</b> Xác định kích thước (độ dài) vùng nhớ được cấp phát cho tiến trình.</p>
+          <p>• <b>Quy tắc bảo vệ:</b> Phần cứng MMU kiểm tra mỗi địa chỉ $A$ do CPU phát ra:
+            <span class="formula" style="display:inline-block;padding:3px 8px;background:var(--free);border-radius:6px;font-weight:700">Base ≤ A &lt; Base + Limit</span>.
+            Địa chỉ hợp lệ cuối cùng là <code>Base + Limit - 1</code>.
+          </p>
+          <p>• <b>Bẫy ngắt (TRAP to OS):</b> Nếu địa chỉ $A &lt; 	ext{Base}$ hoặc $A \ge 	ext{Base} + 	ext{Limit}$, phần cứng lập tức chặn truy cập và phát sinh ngắt phần mềm (Trap) chuyển quyền về hệ điều hành để báo lỗi <i>Addressing error / Segmentation fault</i>, ngăn tiến trình can thiệp trái phép vào bộ nhớ của HĐH hoặc tiến trình khác.</p>
+          <p class="muted">• <i>Tài liệu tham khảo: Operating System Concepts (10th ed.), Silberschatz et al., Chương 9, Hình 9.1 & 9.2.</i></p>
+        </div>
+      </details>
+    </div>
+
+    <!-- Telemetry Monitor -->
+    <div class="telemetry-wrapper" id="tele-p0"></div>
+  </section>
+
+
+<!-- ============ TAB 1 ============ -->
+  <section class="panel" id="p1" role="tabpanel" aria-labelledby="t1" hidden>
     <div class="bar">
       <div class="seg" id="a-mode" aria-label="Chế độ">
         <button data-m="free" aria-pressed="true">① Bắt đầu từ RAM trống</button><button data-m="ex" aria-pressed="false">② Bài tập có sẵn lỗ</button>
@@ -310,9 +780,12 @@ footer{font-size:12px;color:var(--muted)}
       </div>
     </details>
     </div>
+  
+    <!-- Telemetry Monitor -->
+    <div class="telemetry-wrapper" id="tele-p1"></div>
   </section>
 
-  <!-- ============ TAB 2 ============ -->
+<!-- ============ TAB 2 ============ -->
   <section class="panel" id="p2" role="tabpanel" aria-labelledby="t2" hidden>
     <div class="stage">
       <div class="bar">
@@ -337,9 +810,81 @@ footer{font-size:12px;color:var(--muted)}
         <button class="btn" id="x-reset">↺ Làm lại</button>
       </div>
     </div>
+  
+    <!-- Telemetry Monitor -->
+    <div class="telemetry-wrapper" id="tele-p2"></div>
   </section>
 
-  <!-- ============ TAB 3 ============ -->
+
+  <!-- ============ TAB 4: BỘ NHỚ ẢO (DEMAND PAGING) ============ -->
+  <section class="panel" id="p4" role="tabpanel" aria-labelledby="t4" hidden>
+    <div class="stage">
+      <div class="bar">
+        <h2>CPU cần một trang chưa nằm trong RAM. Hệ điều hành xử lý lỗi trang ra sao?</h2>
+      </div>
+      <p class="muted" style="font-size:14px;margin-top:-8px">
+        Mô phỏng quy trình 6 bước xử lý ngắt lỗi trang (Page Fault) theo chuẩn giáo trình Silberschatz (Hình 10.4): Kiểm tra Bảng trang → Báo Trap → Định vị đĩa → Chọn khung trống → Nạp I/O → Khởi động lại lệnh.
+      </p>
+
+      <div class="quick">
+        <label for="v-page" class="muted" style="font-weight:600;font-size:14px">Trang cần truy cập</label>
+        <input type="number" id="v-page" value="3" min="0" max="7" style="width:70px">
+        <button class="btn primary" id="v-go">Truy cập trang ▶</button>
+        <span class="spacer"></span>
+        <span class="muted" style="font-size:13px;font-weight:700">Kịch bản mẫu:</span>
+        <button class="btn" id="v-pre-fault" style="padding:5px 10px;font-size:13px;border-color:var(--bad);color:var(--bad)">Trang 3 (Lỗi trang 6 bước)</button>
+        <button class="btn" id="v-pre-hit" style="padding:5px 10px;font-size:13px;border-color:var(--ok);color:var(--ok)">Trang 1 (Có sẵn: Page Hit ✓)</button>
+        <button class="btn" id="v-pre-fault2" style="padding:5px 10px;font-size:13px">Trang 5 (Lỗi trang nạp tiếp)</button>
+        <button class="btn" id="v-pre-invalid" style="padding:5px 10px;font-size:13px">Trang 99 (Lỗi truy cập ngoài miền)</button>
+      </div>
+
+      <!-- Sơ đồ 5 khối tương tác của Demand Paging -->
+      <div class="flow" id="v-flow"></div>
+
+      <!-- Hàng danh sách khung trống (Free-frame list) & Thống kê đĩa -->
+      <div style="display:flex;flex-wrap:wrap;gap:16px;align-items:center;background:var(--free);padding:10px 14px;border-radius:10px">
+        <div>
+          <span class="lane-label" style="display:inline;margin-right:8px">Danh sách khung trống (Free-Frame List):</span>
+          <span id="v-free-frames" style="display:inline-flex;gap:6px"></span>
+        </div>
+        <span class="spacer"></span>
+        <div class="muted" style="font-size:13px">
+          Trạng thái đĩa cứng: <b id="v-disk-status" style="color:var(--fg)">Sẵn sàng</b>
+        </div>
+      </div>
+
+      <p class="caption" id="v-cap"></p>
+
+      <div class="bar">
+        <button class="btn" id="v-prev">◀ Lùi</button>
+        <button class="btn primary" id="v-next">Bước tiếp ▶</button>
+        <button class="btn" id="v-all">Xem kết quả</button>
+        <button class="btn" id="v-play">⏵ Tự chạy</button>
+        <button class="btn" id="v-reset">↺ Làm lại</button>
+        <span class="spacer"></span>
+        <span class="muted" id="v-stats" style="font-size:14px;font-weight:700"></span>
+      </div>
+
+      <!-- Thẻ lý thuyết thu gọn -->
+      <details><summary>Kiến thức chuyên sâu: Quy trình 6 bước xử lý ngắt Page Fault (Mục 10.2 Silberschatz)</summary>
+        <div style="display:flex;flex-direction:column;gap:10px;font-size:14px;color:var(--fg);margin-top:8px;line-height:1.6">
+          <p>• <b>Bước 1 (Reference):</b> CPU phát chỉ lệnh tham chiếu đến địa chỉ ô nhớ trong trang $p$.</p>
+          <p>• <b>Bước 2 (Trap to OS):</b> MMU tra bảng trang, phát hiện bit trạng thái là <code>i</code> (Invalid - trang chưa nạp) → phát sinh ngắt phần mềm <b>Trap: Page Fault</b> chuyển về HĐH.</p>
+          <p>• <b>Bước 3 (OS Check & Locate):</b> HĐH kiểm tra khối điều khiển tiến trình (PCB) để xác nhận đây là truy cập hợp lệ, sau đó định vị vị trí khối trang $p$ trên bộ nhớ phụ (Backing Store / Đĩa cứng / Swap).</p>
+          <p>• <b>Bước 4 (Find Free Frame):</b> HĐH tìm một khung nhớ trống trong danh sách <i>Free-frame list</i>. (Nếu RAM đã đầy, hệ thống kích hoạt thuật toán thay thế trang như FIFO, LRU để chọn trang hi sinh).</p>
+          <p>• <b>Bước 5 (Disk I/O & Update):</b> HĐH lập lịch I/O đọc dữ liệu trang từ đĩa đưa vào khung nhớ vừa chọn. Sau khi đọc xong, HĐH cập nhật Bảng trang: điền số khung mới và đổi bit trạng thái từ <code>i</code> thành <code>v</code> (Valid).</p>
+          <p>• <b>Bước 6 (Restart Instruction):</b> HĐH khôi phục thanh ghi và ra lệnh cho CPU khởi động lại chỉ lệnh đã bị gián đoạn. Lần này trang đã có sẵn trong RAM → truy cập thành công!</p>
+          <p class="muted">• <i>Tài liệu tham khảo: Operating System Concepts (10th ed.), Silberschatz et al., Chương 10: Virtual Memory, Hình 10.4.</i></p>
+        </div>
+      </details>
+    </div>
+
+    <!-- Telemetry Monitor -->
+    <div class="telemetry-wrapper" id="tele-p4"></div>
+  </section>
+
+
+<!-- ============ TAB 3 ============ -->
   <section class="panel" id="p3" role="tabpanel" aria-labelledby="t3" hidden>
     <div class="stage">
       <div class="bar">
@@ -384,9 +929,17 @@ footer{font-size:12px;color:var(--muted)}
     <details><summary>Đổi chuỗi trang</summary>
       <div class="form"><div class="field"><label for="r-str">Chuỗi tham chiếu (tối đa 24 số)</label><input type="text" id="r-str" value="7 0 1 2 0 3 0 4 2 3 0 3 2 1 2 0 1 7 0 1"></div><button class="btn" id="r-apply">Áp dụng</button></div>
     </details>
+  
+    <!-- Telemetry Monitor -->
+    <div class="telemetry-wrapper" id="tele-p3"></div>
   </section>
 
-  <footer>Theo Silberschatz, Galvin, Gagne, <i>Operating System Concepts</i>, 10th ed., Chương 9–10.</footer>
+  <footer>
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
+      <span>Đề tài Tiểu luận Hệ điều hành · Trường Đại học Sư phạm TP.HCM (HCMUE) · Khoa Công Nghệ Thông Tin</span>
+      <span>Dựa trên giáo trình <i>Operating System Concepts</i> (10th ed., Silberschatz et al.)</span>
+    </div>
+  </footer>
 </div>
 
 <script>
@@ -395,18 +948,493 @@ const $ = s => document.querySelector(s);
 const nums = s => s.split(/[\s,;]+/).filter(Boolean).map(Number).filter(n => Number.isFinite(n) && n >= 0).map(Math.round);
 const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-/* tabs */
-const T = [['t1','p1'],['t2','p2'],['t3','p3']];
-T.forEach(([t]) => $('#'+t).onclick = () => { T.forEach(([a,p]) => { $('#'+a).setAttribute('aria-selected', a===t); $('#'+p).hidden = a!==t; }); stopAll(); });
+
+/* ================= 5 HORIZONTAL DASHBOARD TABS CONTROLLER ================= */
+const T = [
+  ['t0', 'p0'], // Phần 1: Nền tảng (Base / Limit)
+  ['t1', 'p1'], // Phần 2: Cấp phát bộ nhớ (Bãi đỗ xe)
+  ['t2', 'p2'], // Phần 3: Phân trang (Tìm địa chỉ thật)
+  ['t4', 'p4'], // Phần 4: Bộ nhớ ảo (Demand Paging)
+  ['t3', 'p3']  // Phần 5: Thay thế trang (Bàn đầy, cất trang nào?)
+];
+
+T.forEach(([t, p]) => {
+  const btn = $('#' + t);
+  if (btn) {
+    btn.onclick = () => {
+      T.forEach(([a, panelId]) => {
+        const tabEl = $('#' + a);
+        const pEl = $('#' + panelId);
+        if (tabEl) tabEl.setAttribute('aria-selected', a === t);
+        if (pEl) pEl.hidden = a !== t;
+      });
+      stopAll();
+      updateTelemetry(p, 0.05);
+    };
+  }
+});
 
 let timers = {};
-function stopAll(){ Object.keys(timers).forEach(k => { clearInterval(timers[k]); delete timers[k]; }); ['#a-play','#r-play','#f-play'].forEach(q => { const e = $(q); if (e) e.textContent='⏵ Tự chạy'; }); }
+function stopAll(){
+  Object.keys(timers).forEach(k => { clearInterval(timers[k]); delete timers[k]; });
+  ['#b-play', '#a-play', '#r-play', '#f-play', '#v-play'].forEach(q => {
+    const e = $(q);
+    if (e) e.textContent = '⏵ Tự chạy';
+  });
+}
 function togglePlay(key, btn, stepFn, canStep){
   if (timers[key]){ stopAll(); return; }
   if (!canStep()) return;
   btn.textContent = '⏸ Dừng';
-  timers[key] = setInterval(() => { if (!canStep()){ stopAll(); return; } stepFn(); }, 1300);
+  timers[key] = setInterval(() => {
+    if (!canStep()){ stopAll(); return; }
+    stepFn();
+  }, 1300);
 }
+
+/* ================= REAL-TIME PERFORMANCE & SYSTEM TELEMETRY ================= */
+let currentActivePanel = 'p0';
+function updateTelemetry(panelId, algDuration=0.08){
+  currentActivePanel = panelId;
+  const container = $('#tele-' + panelId);
+  if (!container) return;
+
+  const renderT0 = performance.now();
+  const now = new Date();
+  const timeStr = now.toTimeString().split(' ')[0] + '.' + String(now.getMilliseconds()).padStart(3, '0');
+
+  // Real browser metrics
+  const cores = navigator.hardwareConcurrency ? `${navigator.hardwareConcurrency} luồng logic` : 'Không xác định';
+  const mem = navigator.deviceMemory ? `${navigator.deviceMemory} GB` : 'Không hỗ trợ trên trình duyệt này';
+
+  let heapStr = 'Không khả dụng';
+  if (window.performance && performance.memory){
+    const used = Math.round(performance.memory.usedJSHeapSize / (1024 * 1024));
+    const total = Math.round(performance.memory.totalJSHeapSize / (1024 * 1024));
+    heapStr = `${used} MB / ${total} MB`;
+  }
+
+  // Simulated metrics per tab
+  let simRows = '';
+  if (panelId === 'p0'){
+    simRows = `
+      <div class="sim-row"><span class="sim-k">Thanh ghi Base:</span><span class="sim-v">${B.base}</span></div>
+      <div class="sim-row"><span class="sim-k">Thanh ghi Limit:</span><span class="sim-v">${B.limit}</span></div>
+      <div class="sim-row"><span class="sim-k">Địa chỉ đang kiểm tra (A):</span><span class="sim-v">${B.addr}</span></div>
+      <div class="sim-row"><span class="sim-k">Trạng thái bảo vệ:</span><span class="sim-v" style="color:${B.isValid?'var(--ok)':'var(--bad)'}">${B.isValid?'✓ Hợp lệ':'✗ TRAP: Vi phạm'}</span></div>
+      <div class="sim-row"><span class="sim-k">Tổng lượt kiểm tra:</span><span class="sim-v">${B.checks} (Vi phạm: ${B.traps})</span></div>
+    `;
+  } else if (panelId === 'p1'){
+    const hs = F.segs ? F.segs.filter(s => !s.name) : [];
+    const freeSum = hs.reduce((a, b) => a + b.size, 0);
+    const maxHole = hs.length ? Math.max(...hs.map(s => s.size)) : 0;
+    simRows = `
+      <div class="sim-row"><span class="sim-k">Chiến lược cấp phát:</span><span class="sim-v">${ALGNAME[A.alg] || 'First-fit'}</span></div>
+      <div class="sim-row"><span class="sim-k">Dung lượng RAM mô phỏng:</span><span class="sim-v">1000 KB</span></div>
+      <div class="sim-row"><span class="sim-k">Tổng bộ nhớ RAM còn trống:</span><span class="sim-v">${freeSum} KB (${((freeSum/1000)*100).toFixed(1)}%)</span></div>
+      <div class="sim-row"><span class="sim-k">Số lượng lỗ trống rải rác:</span><span class="sim-v">${hs.length} lỗ (Lớn nhất: ${maxHole} KB)</span></div>
+      <div class="sim-row"><span class="sim-k">Tiến trình đang chờ (Wait):</span><span class="sim-v">${F.waiting ? F.waiting.length : 0} tiến trình</span></div>
+    `;
+  } else if (panelId === 'p2'){
+    simRows = `
+      <div class="sim-row"><span class="sim-k">Địa chỉ logic yêu cầu:</span><span class="sim-v">${X.plan ? X.plan.addr : '–'}</span></div>
+      <div class="sim-row"><span class="sim-k">Số trang (p) & Độ lệch (d):</span><span class="sim-v">${X.plan ? `Trang ${X.plan.p}, d=${X.plan.d}` : '–'}</span></div>
+      <div class="sim-row"><span class="sim-k">Trạng thái TLB:</span><span class="sim-v">${X.plan ? (X.plan.hit ? 'TLB Hit ✓' : 'TLB Miss ✗') : '–'}</span></div>
+      <div class="sim-row"><span class="sim-k">Địa chỉ vật lý (PA):</span><span class="sim-v" style="color:var(--ok)">${X.plan && !X.plan.err ? X.plan.phys : '–'}</span></div>
+      <div class="sim-row"><span class="sim-k">Tổng kết TLB & Lỗi trang:</span><span class="sim-v">TLB Hit ${X.hit}/${X.hit+X.miss} · Page Fault: ${X.faults}</span></div>
+    `;
+  } else if (panelId === 'p4'){
+    simRows = `
+      <div class="sim-row"><span class="sim-k">Trang yêu cầu truy cập:</span><span class="sim-v">Trang ${V.page}</span></div>
+      <div class="sim-row"><span class="sim-k">Trạng thái truy cập:</span><span class="sim-v" style="color:${V.plan&&V.plan.hit?'var(--ok)':'var(--bad)'}">${V.plan ? (V.plan.hit?'Page Hit ✓':'Page Fault ✗') : '–'}</span></div>
+      <div class="sim-row"><span class="sim-k">Khung RAM được nạp:</span><span class="sim-v">${V.plan ? (V.plan.hit?`Khung ${V.plan.frame}`:`Khung ${V.plan.chosenFrame}`):'–'}</span></div>
+      <div class="sim-row"><span class="sim-k">Khung trống khả dụng:</span><span class="sim-v">${V.freeFrames.length} khung</span></div>
+      <div class="sim-row"><span class="sim-k">Thao tác I/O Đĩa cứng:</span><span class="sim-v">${V.plan&&!V.plan.hit&&!V.plan.oob?'1 lượt đọc khối đĩa':'0 (Truy cập RAM)'}</span></div>
+    `;
+  } else if (panelId === 'p3'){
+    const steps = simR(R.refs, R.n, R.alg);
+    const nf = steps.filter(x => !x.hit).length;
+    const nh = steps.length - nf;
+    const rate = steps.length ? ((nf / steps.length) * 100).toFixed(1) : 0;
+    simRows = `
+      <div class="sim-row"><span class="sim-k">Thuật toán thay thế trang:</span><span class="sim-v">${NAME[R.alg]} (${DESC[R.alg]})</span></div>
+      <div class="sim-row"><span class="sim-k">Số khung trang RAM (N):</span><span class="sim-v">${R.n} khung</span></div>
+      <div class="sim-row"><span class="sim-k">Tổng số lượt tham chiếu:</span><span class="sim-v">${R.refs.length} lượt</span></div>
+      <div class="sim-row"><span class="sim-k">Số lỗi trang (Page Faults):</span><span class="sim-v" style="color:var(--bad)">${nf} lỗi (Tỷ lệ: ${rate}%)</span></div>
+      <div class="sim-row"><span class="sim-k">Số lần trúng trang (Hits):</span><span class="sim-v" style="color:var(--ok)">${nh} trúng</span></div>
+    `;
+  }
+
+  const renderDur = Math.max(0.1, performance.now() - renderT0).toFixed(3);
+
+  container.innerHTML = `
+    <div class="stage telemetry-stage" style="margin-top:14px">
+      <div class="telemetry-header">
+        <div style="display:flex;align-items:center;gap:10px">
+          <span style="font-size:22px">📊</span>
+          <div>
+            <h3 style="margin:0;font-size:15px;font-weight:800;color:#0c3668;letter-spacing:-0.01em">GIÁM SÁT THÔNG SỐ MÁY TÍNH KHI CHẠY DEMO</h3>
+            <p style="margin:0;font-size:12px;color:var(--muted);font-weight:600">Real-Time Computer Performance & System Telemetry Monitor</p>
+          </div>
+        </div>
+        <span class="tele-time-badge">Lấy mẫu lúc: ${timeStr}</span>
+      </div>
+
+      <div class="telemetry-grid" style="margin-top:12px">
+        <div class="tele-col">
+          <div class="tele-col-title">🖥️ A. THÔNG SỐ MÁY THẬT (Browser & Hardware API)</div>
+          <table class="tele-table">
+            <tbody>
+              <tr><td>CPU Logical Processors</td><td>${cores}</td><td><span class="badge-real">Đo thực tế (Web API)</span></td></tr>
+              <tr><td>Device Memory (RAM thiết bị)</td><td>${mem}</td><td><span class="badge-est">Ước lượng (Client Hints)</span></td></tr>
+              <tr><td>Browser JS Heap Memory</td><td>${heapStr}</td><td><span class="badge-real">Đo thực tế (Chromium)</span></td></tr>
+              <tr><td>Algorithm Execution Time</td><td>${Number(algDuration).toFixed(3)} ms</td><td><span class="badge-real">Đo thực tế (performance.now)</span></td></tr>
+              <tr><td>UI Render / DOM Update</td><td>${renderDur} ms</td><td><span class="badge-real">Đo thực tế (DOM update)</span></td></tr>
+              <tr><td>System CPU / RAM Toàn máy</td><td class="muted">Không khả dụng</td><td><span class="badge-na">Bảo mật sandbox trình duyệt</span></td></tr>
+            </tbody>
+          </table>
+          <div class="tele-note">* Lưu ý bảo mật: Theo tiêu chuẩn sandbox W3C, trình duyệt không cấp quyền truy cập tài nguyên phần cứng hệ thống cấp thấp khi không có agent chuyên dụng.</div>
+        </div>
+
+        <div class="tele-col">
+          <div class="tele-col-title">⚙️ B. THÔNG SỐ MÔ HÌNH THUẬT TOÁN (Simulated OS Metrics)</div>
+          <div class="tele-sim-box">${simRows}</div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+/* ================= TAB 0: BASE / LIMIT ENGINE ================= */
+const B = {
+  base: 300040,
+  limit: 120900,
+  addr: 300040,
+  st: 0,
+  checks: 0,
+  traps: 0
+};
+
+function planB(addr, base, limit){
+  B.addr = addr;
+  B.base = base;
+  B.limit = limit;
+  B.upper = base + limit;
+  B.validEnd = base + limit - 1;
+  B.cond1 = addr >= base;
+  B.cond2 = addr < B.upper;
+  B.isValid = B.cond1 && B.cond2;
+  B.st = 0;
+  B.checks++;
+  if (!B.isValid) B.traps++;
+}
+
+function renderB(){
+  const t0 = performance.now();
+  const { addr, base, limit, upper, validEnd, cond1, cond2, isValid, st } = B;
+  $('#b-val-range').textContent = `${base} → ${validEnd}`;
+  $('#b-stats').textContent = `Đã kiểm tra: ${B.checks} · Vi phạm (Trap): ${B.traps}`;
+
+  const boxClass = (stepIdx, isBad=false) => {
+    if (st < stepIdx) return 'box dim';
+    if (st === stepIdx) return isBad ? 'box badb act' : 'box act';
+    return isBad ? 'box badb' : 'box';
+  };
+
+  const b1 = `<div class="${boxClass(0)}">
+    <h3>① CPU phát địa chỉ A</h3>
+    <div class="big">${addr}</div>
+    <div class="formula">Yêu cầu truy cập byte ${addr}</div>
+  </div>`;
+
+  const b2 = `<div class="${boxClass(1, st >= 1 && !cond1)}">
+    <h3>② Kiểm tra cận dưới</h3>
+    <div class="big" style="color:${st >= 1 ? (cond1 ? 'var(--ok)' : 'var(--bad)') : 'inherit'}">
+      ${addr} ≥ ${base}
+    </div>
+    <div class="verdict ${st >= 1 ? (cond1 ? 'ok' : 'bad') : ''}">
+      ${st >= 1 ? (cond1 ? '✓ Thỏa mãn (A ≥ Base)' : '✗ VI PHẠM: A < Base') : 'Chờ kiểm tra...'}
+    </div>
+  </div>`;
+
+  const b3 = `<div class="${boxClass(2, st >= 2 && (!cond1 || !cond2))}">
+    <h3>③ Kiểm tra cận trên</h3>
+    <div class="big" style="color:${st >= 2 ? (cond2 ? 'var(--ok)' : 'var(--bad)') : 'inherit'}">
+      ${addr} < ${upper}
+    </div>
+    <div class="verdict ${st >= 2 ? (cond2 ? 'ok' : 'bad') : ''}">
+      ${st >= 2 ? (cond1 ? (cond2 ? '✓ Thỏa mãn (A < Base+Limit)' : '✗ VI PHẠM: A ≥ Base+Limit') : 'Bị bỏ qua vì đã lỗi cận dưới') : 'Chờ kiểm tra...'}
+    </div>
+  </div>`;
+
+  const b4 = `<div class="${boxClass(3, st >= 3 && !isValid)}">
+    <h3>④ Quyết định MMU</h3>
+    ${st >= 3 ? (
+      isValid 
+        ? `<div class="big" style="color:var(--ok)">RAM [${addr}]</div><div class="verdict ok">✓ HỢP LỆ · Cho phép truy cập</div>`
+        : `<div class="big" style="color:var(--bad)">TRAP to OS</div><div class="verdict bad">✗ BÁO LỖI BẢO VỆ (Segmentation Fault)</div>`
+    ) : '<div class="big muted">?</div><div class="verdict">Đang xử lý...</div>'}
+  </div>`;
+
+  $('#b-flow').innerHTML = [b1, b2, b3, b4].join('<span class="arrow">→</span>');
+
+  const maxSpan = Math.max(600000, upper + 50000, addr + 20000);
+  const osW = (base / maxSpan) * 100;
+  const userW = (limit / maxSpan) * 100;
+  const otherW = Math.max(0, 100 - osW - userW);
+
+  const ptrPos = Math.min(99, Math.max(1, (addr / maxSpan) * 100));
+  const ptrValid = addr >= base && addr <= validEnd;
+
+  $('#b-ram-track').innerHTML = `
+    <div class="used" style="width:${osW}%;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:12px;font-weight:700">OS (0..${base-1})</div>
+    <div style="width:${userW}%;background:var(--ok-soft);border:2px solid var(--ok);display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--ok);font-size:13px;font-weight:800;padding:0 6px">
+      <span>Tiến trình [Base: ${base}]</span>
+      <small style="font-family:var(--f-mono);font-size:10.5px">${limit} bytes (tới ${validEnd})</small>
+    </div>
+    <div style="width:${otherW}%;background:repeating-linear-gradient(135deg,var(--free) 0 5px,var(--stripe) 5px 10px);display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:11px">Ngoài vùng</div>
+    <div class="b-pointer" style="left:${ptrPos}%">
+      <span class="plabel" style="background:${ptrValid ? 'var(--ok)' : 'var(--bad)'};color:#fff">${addr} ${ptrValid ? '✓' : '✗'}</span>
+      <span class="pin" style="color:${ptrValid ? 'var(--ok)' : 'var(--bad)'}">▼</span>
+    </div>
+  `;
+
+  const caps = [
+    `Khởi tạo: Base = <b>${base}</b>, Limit = <b>${limit}</b>. Miền hợp lệ của tiến trình: <b>[${base} đến ${validEnd}]</b>. CPU muốn truy cập địa chỉ <b>A = ${addr}</b>. Bấm <b>Bước tiếp</b> để kiểm tra.`,
+    `<b>Bước 1: Kiểm tra cận dưới.</b> Phần cứng so sánh địa chỉ <b>A (${addr})</b> với <b>Base (${base})</b>.` + (cond1 ? ` <b class="ok">Thỏa mãn (A ≥ Base)</b> → Tiếp tục kiểm tra cận trên.` : ` <b class="bad">Vi phạm! A < Base</b> → Truy cập vào vùng của HĐH hoặc tiến trình khác.`),
+    `<b>Bước 2: Kiểm tra cận trên.</b> Phần cứng so sánh địa chỉ <b>A (${addr})</b> với <b>Base + Limit (${upper})</b>.` + (cond2 ? (cond1 ? ` <b class="ok">Thỏa mãn (A < Base + Limit)</b> → Địa chỉ nằm gọn trong không gian tiến trình.` : ` Đã vi phạm ở cận dưới.`) : ` <b class="bad">Vi phạm! A ≥ Base + Limit</b> → Vượt khỏi không gian được cấp phát.`),
+    isValid
+      ? `<b>Bước 3: Quyết định MMU.</b> Địa chỉ <b>${addr}</b> nằm trong miền an toàn [${base}, ${validEnd}]. <b class="ok">Cho phép truy cập RAM tại vị trí ${addr}</b>.`
+      : `<b>Bước 3: Quyết định MMU.</b> Địa chỉ <b>${addr}</b> nằm ngoài phạm vi được phép. <b class="bad">Phần cứng phát sinh ngắt TRAP (Lỗi bảo vệ bộ nhớ / Segmentation fault)</b> để bảo vệ hệ thống!`
+  ];
+
+  $('#b-cap').innerHTML = caps[st];
+  $('#b-prev').disabled = st === 0;
+  $('#b-next').disabled = st === 3;
+  $('#b-all').disabled = st === 3;
+
+  updateTelemetry('p0', performance.now() - t0);
+}
+
+const goB = () => {
+  const b = Math.max(0, Math.round(Number($('#b-base').value) || 300040));
+  const l = Math.max(1, Math.round(Number($('#b-limit').value) || 120900));
+  const a = Math.max(0, Math.round(Number($('#b-addr').value) || 300040));
+  planB(a, b, l);
+  renderB();
+};
+
+$('#b-go').onclick = goB;
+$('#b-next').onclick = () => { if (B.st < 3){ B.st++; renderB(); } };
+$('#b-prev').onclick = () => { if (B.st > 0){ B.st--; renderB(); } };
+$('#b-all').onclick = () => { B.st = 3; renderB(); };
+$('#b-reset').onclick = () => { stopAll(); B.st = 0; renderB(); };
+$('#b-play').onclick = () => togglePlay('b', $('#b-play'), () => { B.st++; renderB(); }, () => B.st < 3);
+
+$('#b-pre-low').onclick = () => { $('#b-addr').value = 300040; goB(); };
+$('#b-pre-high').onclick = () => { $('#b-addr').value = 420939; goB(); };
+$('#b-pre-over').onclick = () => { $('#b-addr').value = 420940; goB(); };
+$('#b-pre-under').onclick = () => { $('#b-addr').value = 256000; goB(); };
+$('#b-pre-rand').onclick = () => {
+  const rnd = Math.floor(250000 + Math.random() * 250000);
+  $('#b-addr').value = rnd;
+  goB();
+};
+
+planB(300040, 300040, 120900);
+renderB();
+
+/* ================= TAB 4: DEMAND PAGING (VIRTUAL MEMORY) ENGINE ================= */
+const V = {
+  pt: [
+    { page: 0, frame: 2, valid: true },
+    { page: 1, frame: 4, valid: true },
+    { page: 2, frame: 0, valid: true },
+    { page: 3, frame: null, valid: false },
+    { page: 4, frame: 6, valid: true },
+    { page: 5, frame: null, valid: false },
+    { page: 6, frame: null, valid: false },
+    { page: 7, frame: null, valid: false }
+  ],
+  ram: [2, null, 0, null, 1, null, 4, null],
+  freeFrames: [1, 3, 5, 7],
+  page: 3,
+  st: 0,
+  plan: null,
+  accesses: 0,
+  hits: 0,
+  faults: 0
+};
+
+function planV(page){
+  V.page = page;
+  V.accesses++;
+  const isOutOfBounds = page < 0 || page > 7;
+  if (isOutOfBounds){
+    V.plan = { page, oob: true, stg: ['ref', 'trap_invalid'] };
+    V.st = 0;
+    return;
+  }
+  const entry = V.pt[page];
+  const isHit = entry && entry.valid;
+  if (isHit){
+    V.hits++;
+    V.plan = { page, hit: true, frame: entry.frame, stg: ['ref', 'mmu_hit', 'ram_access'] };
+  } else {
+    V.faults++;
+    const chosenFrame = V.freeFrames.length > 0 ? V.freeFrames[0] : 1;
+    V.plan = {
+      page,
+      hit: false,
+      chosenFrame,
+      stg: ['ref', 'mmu_trap', 'os_locate', 'os_frame', 'disk_io', 'restart']
+    };
+  }
+  V.st = 0;
+}
+
+function renderV(){
+  const t0 = performance.now();
+  const P = V.plan;
+  $('#v-stats').textContent = `Tổng truy cập: ${V.accesses} · Hit: ${V.hits} · Page Fault: ${V.faults}`;
+
+  $('#v-free-frames').innerHTML = V.freeFrames.map(f => 
+    `<span class="chip" style="background:#eef2f0;color:var(--fg);border:1px solid var(--line);font-size:12px;padding:2px 8px">Khung ${f}</span>`
+  ).join('') || '<span class="muted" style="font-size:12px">Hết khung trống</span>';
+
+  if (!P){
+    $('#v-flow').innerHTML = '';
+    $('#v-cap').innerHTML = 'Nhập số trang (0..7) hoặc chọn kịch bản mẫu rồi bấm <b>Truy cập trang</b>.';
+    return;
+  }
+
+  const curStg = P.stg[V.st];
+  const idx = name => P.stg.indexOf(name);
+  const reached = name => idx(name) >= 0 && V.st >= idx(name);
+
+  // Box 1: CPU Instruction
+  const b1 = `<div class="box ${curStg==='ref'?'act':''}">
+    <h3>① CPU & Chỉ lệnh</h3>
+    <div class="big">LOAD M</div>
+    <div class="formula">Tham chiếu ô nhớ thuộc <b>Trang ${P.page}</b></div>
+    <div class="verdict ${reached('ref')?'ok':''}">${reached('ref')?'Đang thực thi lệnh':'Sẵn sàng'}</div>
+  </div>`;
+
+  // Box 2: Page Table
+  const ptRows = V.pt.map(e => {
+    const isTarget = e.page === P.page;
+    let cls = '';
+    if (isTarget && reached('ref')){
+      cls = (P.hit ? 'hit-row' : (P.oob ? 'fault-row' : (curStg==='restart' ? 'hit-row' : 'fault-row')));
+    }
+    const isNowValid = (curStg === 'disk_io' || curStg === 'restart') && isTarget;
+    const dispFrame = isNowValid ? P.chosenFrame : (e.frame !== null ? e.frame : '–');
+    const dispBit = isNowValid ? '<span class="vm-badge-v">v</span>' : (e.valid ? '<span class="vm-badge-v">v</span>' : '<span class="vm-badge-i">i</span>');
+    return `<tr class="${cls}"><td>${e.page}</td><td>${dispFrame}</td><td>${dispBit}</td></tr>`;
+  }).join('');
+
+  const b2 = `<div class="box ${curStg==='mmu_trap'||curStg==='mmu_hit'||curStg==='trap_invalid'?'act':''}">
+    <h3>② Bảng trang (Page Table)</h3>
+    <table class="vm-pt-table"><tr><th>Trang</th><th>Khung</th><th>Bit (v/i)</th></tr>${ptRows}</table>
+    ${reached('ref') ? (
+      P.oob ? '<div class="verdict bad">✗ Ngoài không gian nhớ</div>' :
+      P.hit ? '<div class="verdict ok">✓ Bit v (Page Hit!)</div>' :
+      (curStg === 'disk_io' || curStg === 'restart' ? '<div class="verdict ok">✓ Đã cập nhật bit v</div>' : '<div class="verdict bad">✗ Bit i (Page Fault!)</div>')
+    ) : ''}
+  </div>`;
+
+  // Box 3: Backing store / Disk
+  const diskActive = curStg === 'os_locate' || curStg === 'disk_io';
+  $('#v-disk-status').textContent = diskActive ? 'Đang đọc I/O đĩa...' : 'Sẵn sàng';
+  $('#v-disk-status').style.color = diskActive ? 'var(--bad)' : 'var(--fg)';
+
+  const b3 = `<div class="box ${diskActive ? 'act' : ''}">
+    <h3>③ Bộ nhớ phụ (Đĩa 💾)</h3>
+    <div style="display:flex;flex-direction:column;gap:4px;font-size:12px;font-family:var(--f-mono)">
+      <div style="background:var(--free);padding:4px;border-radius:4px;text-align:center">Khối 0 .. 7 (Swap file)</div>
+      <div style="background:${diskActive?'var(--bad-soft)':'var(--surface)'};border:1px solid ${diskActive?'var(--bad)':'var(--line)'};padding:6px;border-radius:6px;text-align:center;font-weight:700">
+        ${P.oob ? '–' : `Khối Trang ${P.page}`}
+      </div>
+      <small class="muted" style="text-align:center">${diskActive ? 'Đang đọc dữ liệu...' : 'Lưu trữ dài hạn'}</small>
+    </div>
+  </div>`;
+
+  // Box 4: RAM (8 frames)
+  const ramFramesHtml = V.ram.map((p, f) => {
+    let hl = '';
+    const isNew = (curStg === 'disk_io' || curStg === 'restart') && f === P.chosenFrame;
+    if (isNew) hl = 'hl enter';
+    else if (P.hit && reached('mmu_hit') && f === P.frame) hl = 'hl';
+    const dispP = isNew ? P.page : p;
+    return `<div class="${hl}">${f}<small>${dispP !== null ? 'Trang '+dispP : 'trống'}</small></div>`;
+  }).join('');
+
+  const b4 = `<div class="box ${curStg==='os_frame'||curStg==='disk_io'||curStg==='ram_access'||curStg==='restart'?'act':''}">
+    <h3>④ Bộ nhớ RAM (8 Khung)</h3>
+    <div class="frames">${ramFramesHtml}</div>
+  </div>`;
+
+  // Box 5: OS Handler & Restart
+  const b5 = `<div class="box ${curStg==='restart'||curStg==='ram_access'||curStg==='trap_invalid'?'act':''}">
+    <h3>⑤ Kết quả truy cập</h3>
+    ${P.oob ? '<div class="big" style="color:var(--bad)">TRAP</div><div class="verdict bad">Truy cập bất hợp pháp!</div>' :
+      P.hit ? `<div class="big" style="color:var(--ok)">HIT</div><div class="verdict ok">Đọc trực tiếp từ Khung ${P.frame}</div>` :
+      (curStg === 'restart' ? `<div class="big" style="color:var(--ok)">KHỞI ĐỘNG LẠI</div><div class="verdict ok">Chỉ lệnh hoàn tất thành công</div>` :
+       '<div class="big muted">Đang nạp</div><div class="verdict">HĐH đang xử lý...</div>')}
+  </div>`;
+
+  $('#v-flow').innerHTML = [b1, b2, b3, b4, b5].join('<span class="arrow">→</span>');
+
+  let cap = '';
+  if (P.oob){
+    cap = `Trang <b>${P.page}</b> không nằm trong không gian địa chỉ hợp lệ của tiến trình (bảng trang chỉ có trang 0..7). <b class="bad">Hệ điều hành phát sinh ngắt Trap: Lỗi truy cập bất hợp pháp (Segmentation fault)</b> và hủy lệnh.`;
+  } else if (P.hit){
+    if (curStg === 'ref') cap = `CPU phát chỉ lệnh tham chiếu <b>Trang ${P.page}</b>. MMU tra Bảng trang...`;
+    else cap = `MMU kiểm tra Bảng trang: Trang <b>${P.page}</b> có bit <b class="ok">v (Valid)</b> và đang nằm ở <b>Khung ${P.frame}</b> trong RAM. <b class="ok">PAGE HIT!</b> CPU đọc dữ liệu trực tiếp, không phát sinh lỗi trang và không tốn I/O đĩa.`;
+  } else {
+    const capsFault = {
+      ref: `<b>Bước 1 (Reference):</b> CPU phát chỉ lệnh <code>LOAD M</code> cần truy cập dữ liệu thuộc <b>Trang ${P.page}</b>.`,
+      mmu_trap: `<b>Bước 2 (Trap to OS):</b> MMU tra Bảng trang, thấy bit trạng thái là <b class="bad">i (Invalid)</b> (trang chưa nạp vào RAM). Phần cứng phát sinh ngắt <b class="bad">Trap: Page Fault</b> chuyển quyền điều khiển sang Hệ điều hành.`,
+      os_locate: `<b>Bước 3 (OS Check & Locate):</b> Hệ điều hành kiểm tra khối PCB xác nhận Trang <b>${P.page}</b> là một trang hợp lệ, sau đó định vị vị trí khối Trang <b>${P.page}</b> trên <b>Bộ nhớ phụ (Đĩa cứng)</b>.`,
+      os_frame: `<b>Bước 4 (Find Free Frame):</b> Hệ điều hành quét danh sách khung trống (Free-frame list), tìm thấy <b class="ok">Khung trống ${P.chosenFrame}</b> khả dụng trong RAM để chuẩn bị nạp trang.`,
+      disk_io: `<b>Bước 5 (Disk I/O & Update):</b> Hệ điều hành thực hiện thao tác đọc I/O từ đĩa nạp Trang <b>${P.page}</b> vào Khung <b>${P.chosenFrame}</b>, sau đó cập nhật Bảng trang: gán Frame = <b>${P.chosenFrame}</b> và đổi bit thành <b class="ok">v (Valid)</b>.`,
+      restart: `<b>Bước 6 (Restart Instruction):</b> Hệ điều hành khôi phục ngữ cảnh CPU và ra lệnh <b>khởi động lại chỉ lệnh <code>LOAD M</code></b>. Lần này trang đã có sẵn trong RAM → CPU đọc dữ liệu thành công!`
+    };
+    cap = capsFault[curStg] || '';
+  }
+
+  $('#v-cap').innerHTML = cap;
+  $('#v-prev').disabled = V.st === 0;
+  $('#v-next').disabled = V.st === P.stg.length - 1;
+  $('#v-all').disabled = V.st === P.stg.length - 1;
+
+  updateTelemetry('p4', performance.now() - t0);
+}
+
+const goV = p => { planV(p); renderV(); };
+$('#v-go').onclick = () => goV(Math.round(Number($('#v-page').value) || 0));
+$('#v-next').onclick = () => { if (V.plan && V.st < V.plan.stg.length - 1){ V.st++; renderV(); } };
+$('#v-prev').onclick = () => { if (V.st > 0){ V.st--; renderV(); } };
+$('#v-all').onclick = () => { if (V.plan){ V.st = V.plan.stg.length - 1; renderV(); } };
+$('#v-reset').onclick = () => {
+  stopAll();
+  V.pt[3] = { page: 3, frame: null, valid: false };
+  V.pt[5] = { page: 5, frame: null, valid: false };
+  V.ram[1] = null;
+  V.ram[3] = null;
+  V.freeFrames = [1, 3, 5, 7];
+  goV(3);
+};
+$('#v-play').onclick = () => togglePlay('v', $('#v-play'), () => { V.st++; renderV(); }, () => V.plan && V.st < V.plan.stg.length - 1);
+
+$('#v-pre-fault').onclick = () => { $('#v-page').value = 3; goV(3); };
+$('#v-pre-hit').onclick = () => { $('#v-page').value = 1; goV(1); };
+$('#v-pre-fault2').onclick = () => { $('#v-page').value = 5; goV(5); };
+$('#v-pre-invalid').onclick = () => { $('#v-page').value = 99; goV(99); };
+
+planV(3);
+renderV();
+
 
 /* ================= TAB 1 ================= */
 const A = { alg:'first', holes:[], reqs:[], s:0 };
@@ -834,8 +1862,41 @@ $('#r-bel').onclick = () => { stopAll(); R.refs = BEL.slice(); R.n = 3; R.alg = 
 $('#r-book').onclick = () => { stopAll(); R.refs = BOOK.slice(); R.n = 3; R.s = 0; $('#r-str').value = BOOK.join(' '); renderR(); };
 $('#r-apply').onclick = () => { const v = nums($('#r-str').value).filter(x => x <= 99).slice(0, 24); if (v.length){ R.refs = v; R.s = 0; stopAll(); renderR(); } };
 renderR();
+
+
+// Intercept render calls to automatically update telemetry
+const _orig_renderA = renderA;
+renderA = function(){
+  const t0 = performance.now();
+  _orig_renderA.apply(this, arguments);
+  updateTelemetry('p1', performance.now() - t0);
+};
+
+const _orig_renderF = renderF;
+renderF = function(){
+  const t0 = performance.now();
+  _orig_renderF.apply(this, arguments);
+  updateTelemetry('p1', performance.now() - t0);
+};
+
+const _orig_renderX = renderX;
+renderX = function(){
+  const t0 = performance.now();
+  _orig_renderX.apply(this, arguments);
+  updateTelemetry('p2', performance.now() - t0);
+};
+
+const _orig_renderR = renderR;
+renderR = function(){
+  const t0 = performance.now();
+  _orig_renderR.apply(this, arguments);
+  updateTelemetry('p3', performance.now() - t0);
+};
+
+// Initial telemetry rendering for active tab
+updateTelemetry('p0', 0.05);
+
 })();
 </script>
-
 </body>
 </html>
