@@ -4,7 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="description" content="Web Demo Mô phỏng Quản lý Bộ nhớ - 5 Phân hệ tiêu biểu (Operating System Concepts 10th ed.)">
-<style>[hidden]{display:none!important}body{margin:0}img{max-width:100%}</style>
+<style>[hidden]{display:none!important}body{margin:0}img{max-width:100%}
+</style>
 <title>Web Demo Quản lý Bộ nhớ - Hệ điều hành (HCMUE)</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -573,6 +574,112 @@ footer{font-size:12px;color:var(--muted)}
   color: var(--fg);
 }
 
+
+/* ============ NÚT CHUYỂN ĐỔI CHẾ ĐỘ SÁNG / TỐI (THEME TOGGLE) ============ */
+.theme-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.18);
+  border: 1.5px solid rgba(255, 255, 255, 0.4);
+  color: #ffffff;
+  padding: 8px 16px;
+  border-radius: 99px;
+  font-family: var(--f-body);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  backdrop-filter: blur(8px);
+  user-select: none;
+}
+.theme-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+  border-color: #ffeb3b;
+  transform: translateY(-1px);
+}
+.theme-btn .theme-icon {
+  font-size: 15px;
+  line-height: 1;
+}
+
+/* ============ TỐI ƯU GIAO DIỆN DARK MODE ============ */
+:root[data-theme="dark"] .site-header {
+  background: linear-gradient(135deg, #050d18 0%, #091a32 55%, #102a4e 100%);
+  border-color: #1c3d69;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.55);
+}
+:root[data-theme="dark"] .dash-tab {
+  background: var(--surface);
+  color: var(--fg);
+  border-color: var(--line);
+}
+:root[data-theme="dark"] .dash-tab .n {
+  color: var(--accent);
+}
+:root[data-theme="dark"] .dash-tab .t {
+  color: var(--fg);
+}
+:root[data-theme="dark"] .dash-tab:hover {
+  border-color: var(--accent);
+}
+:root[data-theme="dark"] .dash-tab[aria-selected="true"] {
+  background: linear-gradient(145deg, #0b3866 0%, #135392 100%);
+  border-color: #38bdf8;
+  color: #ffffff;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45);
+}
+:root[data-theme="dark"] .dash-tab[aria-selected="true"] .n {
+  color: #ffeb3b;
+}
+:root[data-theme="dark"] .dash-tab[aria-selected="true"] .t {
+  color: #ffffff;
+}
+
+:root[data-theme="dark"] .telemetry-stage {
+  border-top: 3px solid var(--accent) !important;
+  background: linear-gradient(180deg, var(--surface) 0%, #101614 100%);
+}
+:root[data-theme="dark"] .telemetry-header h3 {
+  color: var(--accent);
+}
+:root[data-theme="dark"] .tele-col-title {
+  color: var(--accent);
+}
+:root[data-theme="dark"] .tele-table td:nth-child(2) {
+  color: var(--accent);
+}
+:root[data-theme="dark"] .tele-sim-box {
+  background: #101614;
+  border-color: var(--line);
+}
+:root[data-theme="dark"] .tele-time-badge {
+  background: #163a33;
+  color: var(--accent);
+  border-color: #28554b;
+}
+:root[data-theme="dark"] .badge-est {
+  background: #3e3100;
+  color: #ffc107;
+}
+
+:root[data-theme="dark"] .b-ram-track {
+  border-color: var(--line);
+}
+:root[data-theme="dark"] .b-ram-track .used {
+  background: #24302a;
+  color: var(--muted);
+}
+:root[data-theme="dark"] .theme-btn {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.25);
+  color: #e3ebe7;
+}
+:root[data-theme="dark"] .theme-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: #ffeb3b;
+}
+
 </style>
 </head>
 <body>
@@ -589,30 +696,34 @@ footer{font-size:12px;color:var(--muted)}
     <div class="header-meta">
       <div class="badge-hcmue">
         <span>GIÁO TRÌNH SILBERSCHATZ</span><br>
-        <span style="color:#ffffff;font-size:11px">CHƯƠNG 9 & 10 · 5 PHÂN HỆ</span>
+        <span style="color:#ffffff;font-size:11px">CHƯƠNG 9 & 10 · 5 DEMO TIÊU BIỂU</span>
       </div>
+      <button id="theme-toggle" class="theme-btn" aria-label="Chuyển chế độ Sáng / Tối" title="Chuyển chế độ Sáng / Tối">
+        <span class="theme-icon">🌙</span>
+        <span class="theme-text">Chế độ tối</span>
+      </button>
     </div>
   </header>
 
-  <nav class="dash-tabs" role="tablist" aria-label="5 Phân hệ Quản lý Bộ nhớ">
+  <nav class="dash-tabs" role="tablist" aria-label="5 Demo Quản lý Bộ nhớ">
     <button class="dash-tab" role="tab" id="t0" aria-controls="p0" aria-selected="true">
-      <span class="n">📁 PHẦN 1 · NỀN TẢNG</span>
+      <span class="n">📁 DEMO 1 · NỀN TẢNG</span>
       <span class="t">Bảo vệ Base/Limit</span>
     </button>
     <button class="dash-tab" role="tab" id="t1" aria-controls="p1" aria-selected="false">
-      <span class="n">🖴 PHẦN 2 · CẤP PHÁT</span>
+      <span class="n">🖴 DEMO 2 · CẤP PHÁT</span>
       <span class="t">Bãi đỗ xe</span>
     </button>
     <button class="dash-tab" role="tab" id="t2" aria-controls="p2" aria-selected="false">
-      <span class="n">⊞ PHẦN 3 · PHÂN TRANG</span>
+      <span class="n">⊞ DEMO 3 · PHÂN TRANG</span>
       <span class="t">Tìm địa chỉ thật</span>
     </button>
     <button class="dash-tab" role="tab" id="t4" aria-controls="p4" aria-selected="false">
-      <span class="n">💾 PHẦN 4 · BỘ NHỚ ẢO</span>
+      <span class="n">💾 DEMO 4 · BỘ NHỚ ẢO</span>
       <span class="t">Demand Paging</span>
     </button>
     <button class="dash-tab" role="tab" id="t3" aria-controls="p3" aria-selected="false">
-      <span class="n">🔄 PHẦN 5 · THAY THẾ TRANG</span>
+      <span class="n">🔄 DEMO 5 · THAY THẾ TRANG</span>
       <span class="t">Bàn đầy, cất trang nào?</span>
     </button>
   </nav>
@@ -1895,6 +2006,38 @@ renderR = function(){
 
 // Initial telemetry rendering for active tab
 updateTelemetry('p0', 0.05);
+
+
+/* ================= THEME CONTROLLER (DARK / LIGHT MODE) ================= */
+function applyTheme(theme) {
+  document.documentElement.setAttribute('data-theme', theme);
+  localStorage.setItem('os-demo-theme', theme);
+  const btn = $('#theme-toggle');
+  if (btn) {
+    if (theme === 'dark') {
+      btn.innerHTML = '<span class="theme-icon">☀️</span><span class="theme-text">Chế độ sáng</span>';
+      btn.setAttribute('title', 'Chuyển sang nền trắng (Light mode)');
+      btn.setAttribute('aria-pressed', 'true');
+    } else {
+      btn.innerHTML = '<span class="theme-icon">🌙</span><span class="theme-text">Chế độ tối</span>';
+      btn.setAttribute('title', 'Chuyển sang nền đen (Dark mode)');
+      btn.setAttribute('aria-pressed', 'false');
+    }
+  }
+}
+
+function initTheme() {
+  const saved = localStorage.getItem('os-demo-theme') || (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+  applyTheme(saved);
+  const btn = $('#theme-toggle');
+  if (btn) {
+    btn.onclick = () => {
+      const current = document.documentElement.getAttribute('data-theme') || 'light';
+      applyTheme(current === 'dark' ? 'light' : 'dark');
+    };
+  }
+}
+initTheme();
 
 })();
 </script>
