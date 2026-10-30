@@ -1,0 +1,841 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Mô phỏng trực quan Part Four (Quản lý bộ nhớ) – Operating System Concepts 10th ed.">
+<style>[hidden]{display:none!important}body{margin:0}img{max-width:100%}</style>
+<title>Mô phỏng Quản lý Bộ nhớ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+/* Layout: một sân khấu lớn mỗi tab; trên là câu hỏi, giữa là hình động, dưới là MỘT câu giải thích và nút điều khiển to */
+:root{
+  --bg:#eef2f0; --surface:#ffffff; --fg:#13201b; --muted:#5a6a63; --line:#d3dcd8;
+  --accent:#0d6b5f; --accent-soft:#d6ebe6; --on-accent:#ffffff;
+  --ok:#1f7a45; --ok-soft:#d8efe0; --bad:#b9400f; --bad-soft:#fbe2d4;
+  --used:#9aa8a2; --free:#e5ebe8; --stripe:#d3dcd8;
+  --c1:#0d6b5f; --c2:#c2570c; --c3:#4f5bd5; --c4:#8a7a12;
+  --p1:#2c7a9e; --p2:#b5527a; --p3:#5f8a22; --p4:#8a5cc2; --p5:#b87510; --p6:#2f8f7d; --on-p:#ffffff;
+  --f-body:'Be Vietnam Pro',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --f-mono:'JetBrains Mono',ui-monospace,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0e1412; --surface:#162019; --fg:#e3ebe7; --muted:#95a69f; --line:#2c3935;
+  --accent:#4cc2ae; --accent-soft:#163a33; --on-accent:#0b1210;
+  --ok:#62d08d; --ok-soft:#163528; --bad:#f08d58; --bad-soft:#3d2316;
+  --used:#46534e; --free:#1e2825; --stripe:#28342f;
+  --c1:#4cc2ae; --c2:#f0914f; --c3:#949cf2; --c4:#d3c24d;
+  --p1:#62b6da; --p2:#e38db2; --p3:#a5c862; --p4:#b997ec; --p5:#e8ad4f; --p6:#6ccab5; --on-p:#0b1210;
+  color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#0e1412; --surface:#162019; --fg:#e3ebe7; --muted:#95a69f; --line:#2c3935;
+  --accent:#4cc2ae; --accent-soft:#163a33; --on-accent:#0b1210;
+  --ok:#62d08d; --ok-soft:#163528; --bad:#f08d58; --bad-soft:#3d2316;
+  --used:#46534e; --free:#1e2825; --stripe:#28342f;
+  --c1:#4cc2ae; --c2:#f0914f; --c3:#949cf2; --c4:#d3c24d;
+  --p1:#62b6da; --p2:#e38db2; --p3:#a5c862; --p4:#b997ec; --p5:#e8ad4f; --p6:#6ccab5; --on-p:#0b1210;
+  color-scheme:dark }
+
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:16px;line-height:1.5}
+.wrap{max-width:1000px;margin:0 auto;padding-inline:16px;padding-block:20px 48px;display:flex;flex-direction:column;gap:18px}
+h1{font-size:clamp(22px,3.6vw,30px);margin:0;line-height:1.2;text-wrap:balance}
+h2{font-size:clamp(20px,3vw,26px);margin:0;line-height:1.25;text-wrap:balance}
+p{margin:0}
+.mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.muted{color:var(--muted)}
+.eyebrow{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:700}
+
+.tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.tab{font:inherit;text-align:left;cursor:pointer;background:var(--surface);color:var(--fg);border:1px solid var(--line);border-radius:12px;padding:10px 14px;display:flex;flex-direction:column;gap:0}
+.tab .n{font-family:var(--f-mono);font-size:12px;color:var(--muted)}
+.tab .t{font-weight:700;font-size:15px;line-height:1.3}
+.tab[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.tab[aria-selected="true"] .n{color:var(--on-accent);opacity:.85}
+@media (max-width:560px){.tab .t{font-size:13px}}
+
+.panel{display:flex;flex-direction:column;gap:14px}
+.stage{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:18px;display:flex;flex-direction:column;gap:18px;min-width:0}
+.caption{font-size:clamp(16px,2.2vw,19px);font-weight:500;padding:14px 16px;border-radius:12px;background:var(--accent-soft);min-height:56px}
+.caption b.bad{color:var(--bad)} .caption b.ok{color:var(--ok)}
+.bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.btn{font:inherit;font-weight:700;font-size:15px;padding:10px 16px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--fg);cursor:pointer}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--on-accent);padding-inline:22px}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.spacer{flex:1}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--surface)}
+.seg button{font:inherit;font-weight:700;font-size:14px;padding:9px 14px;border:0;border-right:1px solid var(--line);background:none;color:var(--muted);cursor:pointer}
+.seg button:last-child{border-right:0}
+.seg button[aria-pressed="true"]{background:var(--fg);color:var(--bg)}
+button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+details{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 14px}
+summary{cursor:pointer;font-weight:600;font-size:14px;color:var(--muted)}
+details[open] summary{margin-bottom:10px}
+.form{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:flex-end}
+.field{display:flex;flex-direction:column;gap:4px;min-width:0}
+.field label{font-size:12px;font-weight:700;color:var(--muted)}
+input[type=text],input[type=number]{font-family:var(--f-mono);font-size:15px;background:var(--bg);color:var(--fg);border:1px solid var(--line);border-radius:8px;padding:8px 10px;min-width:0}
+input[type=text]{width:min(360px,100%)}
+input[type=number]{width:120px}
+.scroll{overflow-x:auto;max-width:100%}
+.legend{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:13px;color:var(--muted)}
+.legend i{display:inline-block;width:14px;height:14px;border-radius:4px;vertical-align:-2px;margin-right:6px}
+
+@keyframes drop{from{transform:translateY(-46px) scale(.85);opacity:0}to{transform:none;opacity:1}}
+@keyframes out{from{transform:translateX(-50px);opacity:0}to{transform:none;opacity:1}}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 transparent}50%{box-shadow:0 0 0 6px var(--accent-soft)}}
+.enter{animation:drop .5s cubic-bezier(.2,.8,.2,1) both}
+.gone{animation:out .5s ease-out both}
+@media (prefers-reduced-motion:reduce){.enter,.gone{animation:none}}
+
+/* ---------- Tab 1 ---------- */
+.lane{min-width:620px;display:flex;flex-direction:column;gap:10px}
+.lane-label{font-size:12px;font-weight:700;color:var(--muted);letter-spacing:.04em;text-transform:uppercase}
+.req{height:54px;border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--on-p);font-weight:800;font-size:15px;white-space:nowrap;overflow:visible;padding:0 8px}
+.req small{font-family:var(--f-mono);font-weight:500;margin-left:6px;opacity:.9}
+.req-row{display:flex;align-items:center;gap:12px;min-height:54px}
+.ram{display:flex;height:96px;border:2px solid var(--fg);border-radius:10px;overflow:visible;background:var(--used)}
+.used{background:repeating-linear-gradient(135deg,var(--used) 0 7px,var(--line) 7px 14px);border-radius:0}
+.hole{position:relative;display:flex;min-width:0;border-left:2px solid var(--fg);border-right:2px solid var(--fg);background:var(--free)}
+.hole .pc{display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--on-p);font-weight:800;font-size:14px;min-width:0;overflow:hidden;border-right:2px solid var(--surface)}
+.hole .pc small{font-family:var(--f-mono);font-weight:500;font-size:11px}
+.hole .fr{display:flex;align-items:center;justify-content:center;font-family:var(--f-mono);font-weight:700;font-size:15px;color:var(--fg);min-width:0;overflow:hidden}
+.hole.fit{background:var(--ok-soft)} .hole.fit .fr{color:var(--ok)}
+.hole.nofit{background:var(--bad-soft)} .hole.nofit .fr{color:var(--bad);opacity:.8}
+.hole.chosen{outline:4px solid var(--accent);outline-offset:-2px;z-index:2}
+.hole.chosen::before{content:"▼";position:absolute;top:-26px;left:50%;transform:translateX(-50%);color:var(--accent);font-size:20px;line-height:1}
+.hole .lbl{position:absolute;bottom:-22px;left:0;right:0;text-align:center;font-size:12px;color:var(--muted);font-weight:600;white-space:nowrap}
+.queue{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:16px}
+.chip{font-family:var(--f-body);font-size:13px;font-weight:700;padding:4px 10px;border-radius:99px;color:var(--on-p)}
+.chip.done{opacity:.35}
+.chip.wait{background:var(--bad)!important;color:#fff}
+.compare{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.cmp{border:1px solid var(--line);border-radius:10px;padding:10px 12px;display:flex;flex-direction:column;gap:2px;background:var(--surface)}
+.cmp.on{border-color:var(--fg);box-shadow:inset 0 0 0 1px var(--fg)}
+.cmp .k{font-size:13px;font-weight:700}
+.cmp .v{font-size:15px;font-weight:700}
+.cmp .v.bad{color:var(--bad)} .cmp .v.ok{color:var(--ok)}
+@media (max-width:560px){.compare{grid-template-columns:1fr}}
+
+/* ---------- Tab 2 ---------- */
+.flow{display:flex;align-items:stretch;gap:8px;flex-wrap:nowrap}
+.arrow{align-self:center;font-size:24px;color:var(--muted);flex:0 0 auto}
+.box{flex:1 1 0;min-width:0;border:2px solid var(--line);border-radius:12px;padding:10px;display:flex;flex-direction:column;gap:8px;transition:opacity .25s,border-color .25s;background:var(--surface)}
+.box.dim{opacity:.3}
+.box.act{border-color:var(--accent);animation:pulse 1.4s ease-in-out 2}
+.box.badb{border-color:var(--bad)}
+.box h3{margin:0;font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
+.big{font-family:var(--f-mono);font-size:clamp(24px,3.4vw,32px);font-weight:700;line-height:1.1}
+.split{display:flex;gap:4px}
+.split div{flex:1;border-radius:8px;padding:6px 8px;text-align:center}
+.split .pg{background:var(--accent);color:var(--on-accent)}
+.split .of{background:var(--free)}
+.split b{display:block;font-family:var(--f-mono);font-size:22px}
+.split span{font-size:11px;font-weight:600}
+.mini{width:100%;border-collapse:collapse;font-family:var(--f-mono);font-size:13px}
+.mini td,.mini th{padding:3px 6px;border-bottom:1px solid var(--line);text-align:center}
+.mini th{font-family:var(--f-body);font-size:11px;color:var(--muted)}
+.mini tr.hit td{background:var(--ok-soft);color:var(--ok);font-weight:700}
+.mini tr.miss td{background:var(--bad-soft);color:var(--bad);font-weight:700}
+.mini td.no{color:var(--bad)}
+.verdict{font-weight:800;font-size:14px;text-align:center;border-radius:6px;padding:3px}
+.verdict.ok{background:var(--ok-soft);color:var(--ok)} .verdict.bad{background:var(--bad-soft);color:var(--bad)}
+.frames{display:grid;grid-template-columns:repeat(4,1fr);gap:4px}
+.frames div{border-radius:5px;font-family:var(--f-mono);font-size:11px;text-align:center;padding:4px 0;background:var(--free);color:var(--muted);line-height:1.2}
+.frames div.mine{background:var(--accent-soft);color:var(--fg);font-weight:700}
+.frames div.other{background:repeating-linear-gradient(135deg,var(--free) 0 5px,var(--stripe) 5px 10px)}
+.frames div.hl{background:var(--accent);color:var(--on-accent)}
+.frames small{display:block;font-size:9px;opacity:.8}
+.formula{font-family:var(--f-mono);font-size:12px;color:var(--muted)}
+@media (max-width:820px){.flow{flex-direction:column}.arrow{transform:rotate(90deg)}}
+.quick{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+
+/* ---------- Tab 3 ---------- */
+.refs{display:flex;gap:6px;flex-wrap:wrap;align-items:flex-end}
+.ref{display:flex;flex-direction:column;align-items:center;gap:3px}
+.ref b{font-family:var(--f-mono);width:30px;height:30px;border-radius:7px;display:flex;align-items:center;justify-content:center;background:var(--free);font-size:14px}
+.ref.past b{opacity:.5}
+.ref.now b{background:var(--fg);color:var(--bg);width:40px;height:40px;font-size:19px;opacity:1}
+.ref i{width:8px;height:8px;border-radius:50%;background:transparent}
+.ref i.f{background:var(--bad)} .ref i.h{background:var(--ok)}
+.scene{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:18px;align-items:center}
+@media (max-width:720px){.scene{grid-template-columns:1fr}}
+.need{display:flex;flex-direction:column;align-items:center;gap:6px}
+.card{width:76px;height:96px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-family:var(--f-mono);font-size:36px;font-weight:700;background:var(--surface);border:2px solid var(--fg);box-shadow:0 3px 0 var(--line)}
+.need .card{background:var(--fg);color:var(--bg)}
+.pill{font-size:13px;font-weight:800;padding:3px 10px;border-radius:99px}
+.pill.ok{background:var(--ok-soft);color:var(--ok)} .pill.bad{background:var(--bad-soft);color:var(--bad)}
+.ramzone{border:2px dashed var(--line);border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.zone-t{font-size:12px;font-weight:800;color:var(--muted);letter-spacing:.05em;text-transform:uppercase}
+.slots{display:flex;gap:10px;flex-wrap:wrap}
+.slot{display:flex;flex-direction:column;align-items:center;gap:4px;width:84px}
+.slot .card.empty{border-style:dashed;border-color:var(--line);color:var(--line);box-shadow:none;font-size:14px}
+.slot .card.new{border-color:var(--ok);background:var(--ok-soft);color:var(--ok)}
+.slot .card.victim{border-color:var(--bad);background:var(--bad-soft);color:var(--bad);position:relative}
+.slot .card.victim::after{content:"✕";position:absolute;top:-10px;right:-10px;width:24px;height:24px;border-radius:50%;background:var(--bad);color:#fff;font-size:13px;display:flex;align-items:center;justify-content:center}
+.slot .card.hitc{border-color:var(--ok);box-shadow:0 0 0 4px var(--ok-soft)}
+.hint{font-size:11px;font-weight:600;color:var(--muted);text-align:center;line-height:1.25;min-height:28px}
+.hint.ptr{color:var(--c3)}
+.disk{display:flex;flex-direction:column;align-items:center;gap:6px;min-width:110px}
+.disk .icon{width:92px;height:64px;border-radius:10px;border:2px solid var(--muted);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;color:var(--muted);background:repeating-linear-gradient(0deg,var(--surface) 0 10px,var(--free) 10px 12px)}
+.disk .card{width:52px;height:64px;font-size:24px;border-color:var(--bad);color:var(--bad)}
+.counts{display:flex;gap:10px;flex-wrap:wrap}
+.count{border-radius:12px;padding:8px 16px;display:flex;align-items:baseline;gap:8px;font-weight:700}
+.count .mono{font-size:28px}
+.count.bad{background:var(--bad-soft);color:var(--bad)} .count.ok{background:var(--ok-soft);color:var(--ok)}
+.bars{display:flex;flex-direction:column;gap:8px}
+.brow{display:grid;grid-template-columns:70px minmax(0,1fr) 40px;gap:10px;align-items:center;font-size:14px;font-weight:700;cursor:pointer;background:none;border:0;color:var(--fg);font-family:inherit;padding:2px 0;text-align:left}
+.brow .track{height:22px;border-radius:6px;background:var(--free);overflow:hidden}
+.brow .fill{height:100%;border-radius:6px;transition:width .4s}
+.brow.on{outline:2px solid var(--fg);outline-offset:3px;border-radius:6px}
+.brow .num{font-family:var(--f-mono);text-align:right}
+.belady{border-radius:12px;background:var(--bad-soft);padding:12px 16px;display:flex;flex-direction:column;gap:8px}
+.belady b{color:var(--bad)}
+.bl2{display:flex;gap:16px;align-items:flex-end}
+.bl2 div{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:13px;font-weight:700}
+.bl2 span{width:56px;background:var(--bad);border-radius:6px 6px 0 0}
+.tgrid{border-collapse:collapse;font-family:var(--f-mono);font-size:13px}
+.tgrid td,.tgrid th{border:1px solid var(--line);width:30px;height:30px;text-align:center;padding:0}
+.tgrid th.r,.tgrid td.r{width:auto;padding:0 8px;font-family:var(--f-body);font-size:12px;color:var(--muted);text-align:left}
+.tgrid td.n{background:var(--bad-soft);color:var(--bad);font-weight:700}
+.tgrid td.F{color:var(--bad);font-weight:700} .tgrid td.H{color:var(--ok);font-weight:700}
+footer{font-size:12px;color:var(--muted)}
+.ruler{position:relative;height:18px;margin-top:20px;font-family:var(--f-mono);font-size:11px;color:var(--muted)}
+.ruler span{position:absolute;transform:translateX(-50%);white-space:nowrap}
+.ruler span:first-child{transform:none}.ruler span:last-child{transform:translateX(-100%)}
+.blk{font:inherit;border:0;border-right:2px solid var(--surface);display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--on-p);font-weight:800;font-size:16px;min-width:0;overflow:hidden;cursor:pointer;padding:0;position:relative}
+.blk small{font-family:var(--f-mono);font-weight:500;font-size:11px}
+.blk:hover::after{content:"tắt";position:absolute;top:3px;right:4px;font-size:10px;font-weight:700;background:rgba(0,0,0,.35);color:#fff;padding:0 4px;border-radius:3px}
+.hole.merged{box-shadow:inset 0 0 0 3px var(--accent)}
+.stats-line{display:flex;flex-wrap:wrap;gap:6px 20px;font-size:14px;color:var(--muted)}
+.stats-line b{color:var(--fg);font-family:var(--f-mono)}
+.chip.next{outline:2px solid var(--fg);outline-offset:1px}
+.chip.act-close{background:var(--used);color:var(--fg)}
+.chip.act-compact{background:var(--accent);color:var(--on-accent)}
+#f-ram{background:var(--free)}
+
+</style>
+
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <span class="eyebrow">Part Four · Quản lý bộ nhớ</span>
+    <h1>Mô phỏng Quản lý Bộ nhớ</h1>
+  </header>
+
+  <nav class="tabs" role="tablist" aria-label="Thí nghiệm">
+    <button class="tab" role="tab" id="t1" aria-controls="p1" aria-selected="true"><span class="n">Chương 9</span><span class="t">Bãi đỗ xe</span></button>
+    <button class="tab" role="tab" id="t2" aria-controls="p2" aria-selected="false"><span class="n">Chương 9</span><span class="t">Tìm địa chỉ thật</span></button>
+    <button class="tab" role="tab" id="t3" aria-controls="p3" aria-selected="false"><span class="n">Chương 10</span><span class="t">Bàn đầy, cất trang nào?</span></button>
+  </nav>
+
+  <!-- ============ TAB 1 ============ -->
+  <section class="panel" id="p1" role="tabpanel" aria-labelledby="t1">
+    <div class="bar">
+      <div class="seg" id="a-mode" aria-label="Chế độ">
+        <button data-m="free" aria-pressed="true">① Bắt đầu từ RAM trống</button><button data-m="ex" aria-pressed="false">② Bài tập có sẵn lỗ</button>
+      </div>
+      <span class="spacer"></span>
+      <span class="muted" style="font-size:14px">Hệ điều hành chọn lỗ theo</span>
+      <div class="seg" id="a-alg" aria-label="Chiến lược">
+        <button data-a="first" aria-pressed="true">First-fit</button><button data-a="best" aria-pressed="false">Best-fit</button><button data-a="worst" aria-pressed="false">Worst-fit</button>
+      </div>
+    </div>
+
+    <div id="f-wrap" class="panel">
+      <div class="stage">
+        <h2>Mở và tắt chương trình: lỗ trống tự xuất hiện</h2>
+        <div>
+          <span class="lane-label">Kịch bản</span>
+          <div class="queue" id="f-script" style="margin-top:6px"></div>
+        </div>
+        <div class="scroll"><div class="lane">
+          <span class="lane-label">Chương trình đang xin chỗ</span>
+          <div class="req-row" id="f-req"></div>
+          <span class="lane-label" style="margin-top:22px">RAM · 1000 KB</span>
+          <div class="ram" id="f-ram"></div>
+          <div class="ruler" id="f-ruler"></div>
+        </div></div>
+        <div class="stats-line" id="f-stats"></div>
+        <p class="caption" id="f-cap"></p>
+        <div class="bar">
+          <button class="btn" id="f-prev">◀ Lùi</button>
+          <button class="btn primary" id="f-next">Bước tiếp ▶</button>
+          <button class="btn" id="f-play">⏵ Tự chạy</button>
+          <button class="btn" id="f-reset">↺ RAM trống lại</button>
+        </div>
+      </div>
+      <div class="stage" style="gap:12px">
+        <h3 style="margin:0;font-size:16px">Tự thử</h3>
+        <div class="form">
+          <div class="field"><label for="f-size">Mở chương trình mới (KB)</label><input type="number" id="f-size" value="150" min="10" max="1000"></div>
+          <button class="btn primary" id="f-open">Mở</button>
+          <button class="btn" id="f-compact">Dồn nén RAM</button>
+        </div>
+        <p class="muted" style="font-size:14px">Bấm vào một chương trình trên thanh RAM để <b>tắt</b> nó. Chỗ của nó trở thành lỗ trống, và nếu sát một lỗ khác thì hai lỗ tự gộp lại.</p>
+      </div>
+    </div>
+
+    <div id="e-wrap" class="panel" hidden>
+    <div class="stage">
+      <h2>Giả sử RAM đã có sẵn các lỗ này. Đặt tiến trình vào đâu?</h2>
+      <p class="muted" style="font-size:14px">Các lỗ là “ảnh chụp” RAM sau một thời gian chương trình mở rồi tắt. Đề bài cho sẵn để tập trung vào cách chọn lỗ.</p>
+      <div class="scroll"><div class="lane">
+        <span class="lane-label">Tiến trình đang xin</span>
+        <div class="req-row" id="a-req"></div>
+        <span class="lane-label" style="margin-top:22px">RAM</span>
+        <div class="ram" id="a-ram"></div>
+        <div class="queue" id="a-queue"></div>
+      </div></div>
+      <div class="legend"><span><i style="background:var(--ok-soft);border:1px solid var(--ok)"></i>đủ chỗ</span><span><i style="background:var(--bad-soft);border:1px solid var(--bad)"></i>không đủ</span><span><i style="background:var(--used)"></i>đã có chương trình khác</span></div>
+      <p class="caption" id="a-cap"></p>
+      <div class="bar">
+        <button class="btn" id="a-prev">◀ Lùi</button>
+        <button class="btn primary" id="a-next">Bước tiếp ▶</button>
+        <button class="btn" id="a-play">⏵ Tự chạy</button>
+        <button class="btn" id="a-reset">↺ Làm lại</button>
+      </div>
+    </div>
+    <div class="compare" id="a-cmp"></div>
+    <details><summary>Đổi dữ liệu</summary>
+      <div class="form">
+        <div class="field"><label for="a-holes">Lỗ trống (KB)</label><input type="text" id="a-holes" value="100, 500, 200, 300, 600"></div>
+        <div class="field"><label for="a-reqs">Tiến trình xin (KB)</label><input type="text" id="a-reqs" value="212, 417, 112, 426"></div>
+        <button class="btn" id="a-apply">Áp dụng</button>
+      </div>
+    </details>
+    </div>
+  </section>
+
+  <!-- ============ TAB 2 ============ -->
+  <section class="panel" id="p2" role="tabpanel" aria-labelledby="t2" hidden>
+    <div class="stage">
+      <div class="bar">
+        <h2>Chương trình nói “địa chỉ 10000”, RAM thật ở đâu?</h2>
+      </div>
+      <div class="quick">
+        <label for="x-addr" class="muted" style="font-weight:600;font-size:14px">Địa chỉ logic</label>
+        <input type="number" id="x-addr" value="10000" min="0" max="32767">
+        <button class="btn primary" id="x-go">Dịch ▶</button>
+        <button class="btn" id="x-rand">🎲 Ngẫu nhiên</button>
+        <button class="btn" id="x-fault">Thử lỗi trang</button>
+        <span class="muted" style="font-size:13px">Trang 4 KB · 8 trang · RAM 16 khung</span>
+      </div>
+      <div class="flow" id="x-flow"></div>
+      <p class="caption" id="x-cap"></p>
+      <div class="bar">
+        <button class="btn" id="x-prev">◀ Lùi</button>
+        <button class="btn primary" id="x-next">Bước tiếp ▶</button>
+        <button class="btn" id="x-all">Xem kết quả</button>
+        <span class="spacer"></span>
+        <span class="muted" id="x-stats" style="font-size:14px"></span>
+        <button class="btn" id="x-reset">↺ Làm lại</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ TAB 3 ============ -->
+  <section class="panel" id="p3" role="tabpanel" aria-labelledby="t3" hidden>
+    <div class="stage">
+      <div class="bar">
+        <h2>RAM chỉ có <span id="r-nlabel">3</span> chỗ. Hết chỗ thì đuổi trang nào?</h2>
+        <span class="spacer"></span>
+        <div class="seg" id="r-alg">
+          <button data-a="FIFO" aria-pressed="true">FIFO</button><button data-a="LRU" aria-pressed="false">LRU</button><button data-a="OPT" aria-pressed="false">OPT</button><button data-a="CLOCK" aria-pressed="false">Clock</button>
+        </div>
+      </div>
+      <div>
+        <span class="lane-label">Chương trình lần lượt cần các trang</span>
+        <div class="refs" id="r-refs" style="margin-top:6px"></div>
+      </div>
+      <div class="scene">
+        <div class="need" id="r-need"></div>
+        <div class="ramzone"><span class="zone-t">RAM · bàn học</span><div class="slots" id="r-slots"></div></div>
+        <div class="disk"><span class="zone-t">Ổ cứng · tủ sách</span><div class="icon">💾</div><div id="r-out"></div></div>
+      </div>
+      <p class="caption" id="r-cap"></p>
+      <div class="bar">
+        <button class="btn" id="r-prev">◀ Lùi</button>
+        <button class="btn primary" id="r-next">Bước tiếp ▶</button>
+        <button class="btn" id="r-play">⏵ Tự chạy</button>
+        <button class="btn" id="r-reset">↺ Làm lại</button>
+        <span class="spacer"></span>
+        <div class="counts" id="r-counts"></div>
+      </div>
+    </div>
+
+    <div class="stage">
+      <div class="bar"><h2>Cùng chuỗi này, 4 cách cho kết quả</h2><span class="spacer"></span>
+        <span class="muted" style="font-size:14px">Số chỗ trong RAM</span>
+        <div class="seg" id="r-n"><button data-n="2">2</button><button data-n="3">3</button><button data-n="4">4</button><button data-n="5">5</button></div>
+      </div>
+      <div class="bars" id="r-bars"></div>
+      <p class="muted" style="font-size:14px">Thanh càng ngắn càng tốt (ít lần phải chạy ra ổ cứng). OPT luôn ngắn nhất nhưng không làm được thật, vì máy không biết trước tương lai.</p>
+      <div id="r-belady"></div>
+      <div class="bar"><button class="btn" id="r-bel">Thử Belady's anomaly</button><button class="btn" id="r-book">Chuỗi trong giáo trình</button></div>
+    </div>
+
+    <details><summary>Bảng đầy đủ kiểu giáo trình (để luyện tính tay)</summary><div class="scroll"><table class="tgrid" id="r-grid"></table></div></details>
+    <details><summary>Đổi chuỗi trang</summary>
+      <div class="form"><div class="field"><label for="r-str">Chuỗi tham chiếu (tối đa 24 số)</label><input type="text" id="r-str" value="7 0 1 2 0 3 0 4 2 3 0 3 2 1 2 0 1 7 0 1"></div><button class="btn" id="r-apply">Áp dụng</button></div>
+    </details>
+  </section>
+
+  <footer>Theo Silberschatz, Galvin, Gagne, <i>Operating System Concepts</i>, 10th ed., Chương 9–10.</footer>
+</div>
+
+<script>
+(function(){
+const $ = s => document.querySelector(s);
+const nums = s => s.split(/[\s,;]+/).filter(Boolean).map(Number).filter(n => Number.isFinite(n) && n >= 0).map(Math.round);
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* tabs */
+const T = [['t1','p1'],['t2','p2'],['t3','p3']];
+T.forEach(([t]) => $('#'+t).onclick = () => { T.forEach(([a,p]) => { $('#'+a).setAttribute('aria-selected', a===t); $('#'+p).hidden = a!==t; }); stopAll(); });
+
+let timers = {};
+function stopAll(){ Object.keys(timers).forEach(k => { clearInterval(timers[k]); delete timers[k]; }); ['#a-play','#r-play','#f-play'].forEach(q => { const e = $(q); if (e) e.textContent='⏵ Tự chạy'; }); }
+function togglePlay(key, btn, stepFn, canStep){
+  if (timers[key]){ stopAll(); return; }
+  if (!canStep()) return;
+  btn.textContent = '⏸ Dừng';
+  timers[key] = setInterval(() => { if (!canStep()){ stopAll(); return; } stepFn(); }, 1300);
+}
+
+/* ================= TAB 1 ================= */
+const A = { alg:'first', holes:[], reqs:[], s:0 };
+const USED = 70;
+function simA(holes, reqs, alg){
+  const free = holes.slice(), pieces = holes.map(() => []), ev = [];
+  reqs.forEach((r, k) => {
+    const fits = []; let idx = -1;
+    free.forEach((f, i) => { if (f >= r) fits.push(i); });
+    fits.forEach(i => { if (idx < 0 || (alg==='best' && free[i] < free[idx]) || (alg==='worst' && free[i] > free[idx])) idx = i; });
+    ev.push({ k, r, fits, idx, freeBefore: free.slice(), piecesBefore: pieces.map(a => a.slice()) });
+    if (idx >= 0){ pieces[idx].push({ k, r }); free[idx] -= r; }
+  });
+  return { ev, free, pieces };
+}
+function loadA(){
+  const h = nums($('#a-holes').value).filter(n => n > 0).slice(0, 7), r = nums($('#a-reqs').value).filter(n => n > 0).slice(0, 6);
+  A.holes = h.length ? h : [100,500,200,300,600]; A.reqs = r.length ? r : [212,417,112,426]; A.s = 0; renderA();
+}
+const pc = k => `var(--p${(k%6)+1})`;
+function renderA(){
+  const sim = simA(A.holes, A.reqs, A.alg), n = A.reqs.length, S = 2*n, s = A.s;
+  const k = Math.min(Math.floor(s/2), n-1), picking = s % 2 === 1, done = s === S;
+  // which state to show: after placing floor(s/2) processes
+  const placed = Math.floor(s/2);
+  const state = placed < n ? { free: sim.ev[placed].freeBefore, pieces: sim.ev[placed].piecesBefore } : { free: sim.free, pieces: sim.pieces };
+  const total = A.holes.reduce((a,b)=>a+b,0) + USED*(A.holes.length+1);
+  const pct = v => (v/total*100)+'%';
+  // request block (same scale as RAM)
+  const cur = !done ? sim.ev[placed] : null;
+  $('#a-req').innerHTML = cur
+    ? `<div class="req ${picking ? '' : 'enter'}" style="width:${pct(cur.r)};min-width:70px;background:${pc(cur.k)}">P${cur.k+1}<small>${cur.r} KB</small></div><span class="muted" style="font-size:14px">← cùng tỉ lệ với RAM bên dưới</span>`
+    : `<span class="muted">Hết tiến trình.</span>`;
+  const lastPlaced = placed > 0 ? sim.ev[placed-1] : null;
+  let html = `<div class="used" style="width:${pct(USED)}"></div>`;
+  A.holes.forEach((size, i) => {
+    let cls = '';
+    if (picking && cur){ cls = cur.fits.includes(i) ? 'fit' : 'nofit'; if (cur.idx === i) cls += ' chosen'; }
+    const segs = state.pieces[i].map(p => `<div class="pc ${lastPlaced && !picking && p.k===lastPlaced.k ? 'enter' : ''}" style="flex:${p.r} 1 0;background:${pc(p.k)}">P${p.k+1}<small>${p.r}</small></div>`).join('');
+    const fr = state.free[i] > 0 ? `<div class="fr" style="flex:${state.free[i]} 1 0">${state.free[i]}</div>` : '';
+    html += `<div class="hole ${cls}" style="width:${pct(size)}">${segs}${fr}<span class="lbl">Lỗ ${i+1}</span></div><div class="used" style="width:${pct(USED)}"></div>`;
+  });
+  $('#a-ram').innerHTML = html;
+  $('#a-queue').innerHTML = '<span class="lane-label">Hàng đợi</span>' + A.reqs.map((r, i) => {
+    const e = sim.ev[i], waited = i < placed && e.idx < 0;
+    return `<span class="chip ${i < placed && !waited ? 'done' : ''} ${waited ? 'wait' : ''}" style="background:${pc(i)}">P${i+1} · ${r}${waited ? ' · phải chờ' : ''}</span>`;
+  }).join('');
+  // caption
+  const name = { first:'First-fit', best:'Best-fit', worst:'Worst-fit' }[A.alg];
+  let cap;
+  if (s === 0) cap = `RAM còn ${A.holes.length} lỗ trống (ô sáng, số là KB còn trống). Bấm <b>Bước tiếp</b> để P1 xin chỗ.`;
+  else if (picking){
+    if (cur.idx < 0) cap = `P${cur.k+1} cần <b>${cur.r} KB</b>. <b class="bad">Không lỗ nào đủ!</b> Dù tổng RAM trống vẫn còn ${cur.freeBefore.reduce((a,b)=>a+b,0)} KB, nó bị vụn thành nhiều mảnh nhỏ.`;
+    else {
+      const why = A.alg==='first' ? 'lỗ đủ chỗ <b>đầu tiên</b> từ trái sang' : A.alg==='best' ? 'lỗ đủ chỗ <b>nhỏ nhất</b> (vừa khít nhất)' : 'lỗ <b>to nhất</b>';
+      cap = `P${cur.k+1} cần <b>${cur.r} KB</b>. Các lỗ màu xanh đủ chỗ. ${name} chọn ${why}: <b>Lỗ ${cur.idx+1}</b>.`;
+    }
+  } else {
+    const e = sim.ev[placed-1];
+    cap = e.idx < 0 ? `<b class="bad">P${e.k+1} phải chờ</b> đến khi có tiến trình khác trả RAM. Đây là <b>phân mảnh ngoài</b>.`
+      : `Đặt P${e.k+1} vào Lỗ ${e.idx+1}. Phần thừa còn <b>${e.freeBefore[e.idx]-e.r} KB</b> trống.`;
+    if (done){ const w = sim.ev.filter(x => x.idx<0).length; cap += w ? ` <b class="bad">Kết thúc: ${w} tiến trình phải chờ.</b>` : ` <b class="ok">Kết thúc: tất cả đều có chỗ.</b>`; }
+  }
+  $('#a-cap').innerHTML = cap;
+  $('#a-prev').disabled = s === 0; $('#a-next').disabled = done;
+  // compare
+  $('#a-cmp').innerHTML = [['first','First-fit','lỗ đầu tiên'],['best','Best-fit','lỗ vừa khít nhất'],['worst','Worst-fit','lỗ to nhất']].map(([a, nm, d]) => {
+    const w = simA(A.holes, A.reqs, a).ev.filter(x => x.idx < 0);
+    return `<div class="cmp ${a===A.alg?'on':''}"><span class="k">${nm} <span class="muted" style="font-weight:500">· ${d}</span></span><span class="v ${w.length?'bad':'ok'}">${w.length ? w.map(x=>'P'+(x.k+1)).join(', ')+' phải chờ' : 'Tất cả có chỗ'}</span></div>`;
+  }).join('');
+}
+document.querySelectorAll('#a-alg button').forEach(b => b.onclick = () => { A.alg = b.dataset.a; document.querySelectorAll('#a-alg button').forEach(x => x.setAttribute('aria-pressed', x===b)); A.s = 0; stopAll(); renderA(); renderF(); });
+/* ---------- Tab 1 · chế độ RAM trống ---------- */
+const MEM = 1000;
+const SCRIPT = [['open','A',200],['open','B',300],['open','C',100],['open','D',250],['close','B'],['close','D'],['open','E',350],['open','F',120],['open','G',200],['compact'],['open','G',200]];
+const F = {};
+const ALGNAME = { first:'First-fit', best:'Best-fit', worst:'Worst-fit' };
+const colorOf = name => { if (!(name in F.colors)) F.colors[name] = Object.keys(F.colors).length; return pc(F.colors[name]); };
+function resetF(){
+  F.segs = [{ start:0, size:MEM, name:null }]; F.pending = null; F.si = 0; F.hist = []; F.waiting = [];
+  F.colors = {}; F.manual = 0; F.fx = null;
+  F.cap = `Máy vừa bật: RAM là <b>một lỗ trống lớn duy nhất</b> 1000 KB. Bấm <b>Bước tiếp</b> để mở chương trình đầu tiên.`;
+  SCRIPT.forEach(a => { if (a[1]) colorOf(a[1]); });
+}
+const snapF = () => F.hist.push(JSON.stringify({ segs:F.segs, pending:F.pending, si:F.si, waiting:F.waiting, cap:F.cap, fx:F.fx, manual:F.manual }));
+function fitList(size){ return F.segs.map((s,i) => ({ s, i })).filter(o => !o.s.name && o.s.size >= size); }
+function chooseF(size){
+  const hs = fitList(size); if (!hs.length) return -1;
+  let b = hs[0];
+  hs.forEach(o => { if ((A.alg==='best' && o.s.size < b.s.size) || (A.alg==='worst' && o.s.size > b.s.size)) b = o; });
+  return b.i;
+}
+const freeTotal = () => F.segs.filter(s => !s.name).reduce((a,s) => a + s.size, 0);
+function mergeFree(){
+  const out = [];
+  F.segs.forEach(s => { const l = out[out.length-1]; if (l && !l.name && !s.name){ l.size += s.size; } else out.push({ ...s }); });
+  F.segs = out;
+}
+function doPlace(){
+  const { name, size } = F.pending, idx = chooseF(size);
+  F.pending = null;
+  if (idx < 0){
+    if (!F.waiting.includes(name)) F.waiting.push(name);
+    const hs = F.segs.filter(s => !s.name).map(s => s.size);
+    F.fx = null;
+    F.cap = `<b class="bad">${name} (${size} KB) không có chỗ!</b> Tổng RAM trống là <b>${freeTotal()} KB</b>, đủ cho ${name}, nhưng bị vụn thành các lỗ ${hs.join(' KB, ')} KB nằm rải rác. Đây là <b>phân mảnh ngoài</b>. ${name} phải chờ.`;
+    return;
+  }
+  const seg = F.segs[idx], rest = seg.size - size;
+  const parts = [{ start:seg.start, size, name }]; if (rest > 0) parts.push({ start:seg.start+size, size:rest, name:null });
+  F.segs.splice(idx, 1, ...parts);
+  F.waiting = F.waiting.filter(w => w !== name);
+  F.fx = { type:'new', name };
+  F.cap = `Đặt ${name} vào đầu lỗ ${seg.size} KB. ${rest > 0 ? `Phần thừa <b>${rest} KB</b> thành một lỗ trống nhỏ hơn.` : 'Vừa khít, không thừa chỗ nào.'}`;
+}
+function doOpen(name, size){
+  F.pending = { name, size };
+  const hs = fitList(size), idx = chooseF(size);
+  F.fx = null;
+  if (F.segs.length === 1 && !F.segs[0].name) { F.cap = `${name} xin <b>${size} KB</b>. RAM còn trống hết nên chỉ có một lựa chọn.`; return; }
+  if (idx < 0) { F.cap = `${name} xin <b>${size} KB</b>. Xem các lỗ: <b class="bad">không lỗ nào đủ ${size} KB</b>.`; return; }
+  const why = A.alg==='first' ? 'lỗ đủ chỗ <b>đầu tiên</b> tính từ trái' : A.alg==='best' ? 'lỗ đủ chỗ <b>nhỏ nhất</b>' : 'lỗ <b>to nhất</b>';
+  F.cap = `${name} xin <b>${size} KB</b>. Lỗ màu xanh là lỗ đủ chỗ (${hs.length} lỗ). ${ALGNAME[A.alg]} chọn ${why}: lỗ <b>${F.segs[idx].size} KB</b>.`;
+}
+function doClose(name){
+  const i = F.segs.findIndex(s => s.name === name); if (i < 0) return;
+  const size = F.segs[i].size, start = F.segs[i].start;
+  const leftFree = i > 0 && !F.segs[i-1].name, rightFree = i < F.segs.length-1 && !F.segs[i+1].name;
+  F.segs[i].name = null; mergeFree();
+  const h = F.segs.find(s => !s.name && s.start <= start && s.start + s.size > start);
+  F.fx = { type:'merged', start: h.start };
+  F.cap = `Tắt ${name} → trả lại <b>${size} KB</b>, chỗ đó thành lỗ trống.` + ((leftFree || rightFree) ? ` Lỗ này nằm sát một lỗ khác nên hệ điều hành <b>gộp lại thành một lỗ ${h.size} KB</b>.` : ` Hai bên nó không có lỗ trống nào, nên nó là một lỗ riêng.`);
+}
+function doCompact(){
+  const procs = F.segs.filter(s => s.name); let st = 0;
+  F.segs = procs.map(p => { const s = { start:st, size:p.size, name:p.name }; st += p.size; return s; });
+  if (st < MEM) F.segs.push({ start:st, size:MEM-st, name:null });
+  F.fx = { type:'merged', start: st };
+  F.cap = `<b>Dồn nén</b>: hệ điều hành dời mọi chương trình sát về đầu RAM. Các lỗ vụn gom lại thành <b>một lỗ ${MEM-st} KB</b>. Cách này hiệu quả nhưng tốn thời gian, vì phải chép dữ liệu và tạm dừng chương trình.`;
+}
+function stepF(){
+  if (F.pending){ snapF(); doPlace(); renderF(); return; }
+  if (F.si >= SCRIPT.length) return;
+  snapF();
+  const a = SCRIPT[F.si++];
+  if (a[0] === 'open') doOpen(a[1], a[2]); else if (a[0] === 'close') doClose(a[1]); else doCompact();
+  renderF();
+}
+const canStepF = () => !!F.pending || F.si < SCRIPT.length;
+function renderF(){
+  if (!F.segs) return;
+  const pct = v => (v/MEM*100)+'%';
+  // script chips
+  $('#f-script').innerHTML = SCRIPT.map((a, i) => {
+    const label = a[0]==='open' ? `Mở ${a[1]} · ${a[2]}` : a[0]==='close' ? `Tắt ${a[1]}` : 'Dồn nén';
+    const cls = a[0]==='close' ? 'act-close' : a[0]==='compact' ? 'act-compact' : '';
+    const bg = a[0]==='open' ? `style="background:${colorOf(a[1])}"` : '';
+    const st = i < F.si - (F.pending ? 1 : 0) ? 'done' : (i === F.si - (F.pending ? 1 : 0) ? 'next' : '');
+    return `<span class="chip ${cls} ${st}" ${bg}>${i+1}. ${label}</span>`;
+  }).join('');
+  // pending
+  const P = F.pending;
+  $('#f-req').innerHTML = P ? `<div class="req enter" style="width:${pct(P.size)};min-width:70px;background:${colorOf(P.name)}">${P.name}<small>${P.size} KB</small></div><span class="muted" style="font-size:14px">← cùng tỉ lệ với RAM</span>`
+    : (F.waiting.length ? F.waiting.map(w => `<span class="chip wait" style="background:var(--bad)">${w} đang chờ</span>`).join(' ') : `<span class="muted" style="font-size:14px">Không có</span>`);
+  // RAM
+  const chosen = P ? chooseF(P.size) : -1;
+  let hn = 0;
+  $('#f-ram').innerHTML = F.segs.map((s, i) => {
+    if (s.name){
+      const en = F.fx && F.fx.type==='new' && F.fx.name===s.name ? ' enter' : '';
+      return `<button class="blk${en}" data-n="${s.name}" style="width:${pct(s.size)};background:${colorOf(s.name)}" title="Bấm để tắt ${s.name}" aria-label="Tắt chương trình ${s.name}">${s.name}<small>${s.size}</small></button>`;
+    }
+    hn++;
+    let c = '';
+    if (P){ c = s.size >= P.size ? 'fit' : 'nofit'; if (i === chosen) c += ' chosen'; }
+    if (!P && F.fx && F.fx.type==='merged' && F.fx.start === s.start) c += ' merged';
+    return `<div class="hole ${c}" style="width:${pct(s.size)};border-left-width:${i===0?0:2}px"><div class="fr" style="flex:1">${s.size}</div><span class="lbl">Lỗ ${hn}</span></div>`;
+  }).join('');
+  $('#f-ruler').innerHTML = [0,250,500,750,1000].map(v => `<span style="left:${v/10}%">${v}</span>`).join('');
+  document.querySelectorAll('#f-ram .blk').forEach(b => b.onclick = () => {
+    if (F.pending){ F.cap = `Đang có ${F.pending.name} chờ đặt vào RAM. Bấm <b>Bước tiếp</b> trước, rồi hãy tắt chương trình khác.`; renderF(); return; }
+    stopAll(); snapF(); doClose(b.dataset.n); renderF();
+  });
+  const hs = F.segs.filter(s => !s.name);
+  $('#f-stats').innerHTML = `<span>Số lỗ trống <b>${hs.length}</b></span><span>Tổng trống <b>${freeTotal()} KB</b></span><span>Lỗ lớn nhất <b>${hs.length ? Math.max(...hs.map(s=>s.size)) : 0} KB</b></span>`;
+  let cap = F.cap;
+  if (!canStepF() && !P) cap += ` <span class="muted">· Hết kịch bản. Em có thể tự mở hoặc tắt chương trình ở khung “Tự thử”.</span>`;
+  $('#f-cap').innerHTML = cap;
+  $('#f-prev').disabled = !F.hist.length; $('#f-next').disabled = !canStepF();
+}
+$('#f-next').onclick = stepF;
+$('#f-prev').onclick = () => { if (!F.hist.length) return; stopAll(); const h = JSON.parse(F.hist.pop()); Object.assign(F, h); renderF(); };
+$('#f-reset').onclick = () => { stopAll(); resetF(); renderF(); };
+$('#f-play').onclick = () => togglePlay('f', $('#f-play'), stepF, canStepF);
+$('#f-open').onclick = () => {
+  stopAll();
+  if (F.pending){ snapF(); doPlace(); }
+  let v = Math.round(Number($('#f-size').value)); if (!(v >= 10)) v = 150; v = Math.min(MEM, v);
+  const name = 'H' + (++F.manual);
+  snapF(); doOpen(name, v); renderF();
+};
+$('#f-compact').onclick = () => { stopAll(); if (F.pending){ snapF(); doPlace(); } snapF(); doCompact(); renderF(); };
+document.querySelectorAll('#a-mode button').forEach(b => b.onclick = () => {
+  stopAll();
+  document.querySelectorAll('#a-mode button').forEach(x => x.setAttribute('aria-pressed', x===b));
+  $('#f-wrap').hidden = b.dataset.m !== 'free'; $('#e-wrap').hidden = b.dataset.m !== 'ex';
+});
+resetF(); renderF();
+
+$('#a-next').onclick = () => { if (A.s < 2*A.reqs.length){ A.s++; renderA(); } };
+$('#a-prev').onclick = () => { if (A.s > 0){ A.s--; renderA(); } };
+$('#a-reset').onclick = () => { stopAll(); A.s = 0; renderA(); };
+$('#a-play').onclick = () => togglePlay('a', $('#a-play'), () => { A.s++; renderA(); }, () => A.s < 2*A.reqs.length);
+$('#a-apply').onclick = () => { stopAll(); loadA(); };
+loadA();
+
+/* ================= TAB 2 ================= */
+const SIZE = 4096, NP = 8, NF = 16, TLBN = 4;
+const PT0 = [3, 9, 5, 12, 0, null, 7, null];
+const OTHER = [1, 2, 6, 8, 10, 11, 13]; // khung của chương trình khác
+const X = {};
+function resetX(){
+  X.pt = PT0.slice(); X.tlb = []; X.clock = 0; X.hit = 0; X.miss = 0; X.faults = 0;
+  X.freeF = []; for (let f = 0; f < NF; f++) if (!PT0.includes(f) && !OTHER.includes(f)) X.freeF.push(f);
+  X.plan = null; X.st = 0;
+}
+function plan(addr){
+  if (!(addr >= 0 && addr < NP*SIZE)) { X.plan = { err:true }; X.st = 0; return; }
+  const p = Math.floor(addr/SIZE), d = addr % SIZE;
+  const P = { addr, p, d, ptBefore: X.pt.slice(), tlbBefore: X.tlb.map(e => ({...e})) };
+  const e = X.tlb.find(e => e.page === p);
+  P.hit = !!e;
+  if (e){ X.hit++; e.last = ++X.clock; P.f = e.frame; }
+  else {
+    X.miss++;
+    if (X.pt[p] === null){ P.fault = true; X.faults++; P.newF = X.freeF.shift(); X.pt[p] = P.newF; }
+    P.f = X.pt[p];
+    if (X.tlb.length >= TLBN){ let vi = 0; X.tlb.forEach((x,i) => { if (x.last < X.tlb[vi].last) vi = i; }); P.evict = X.tlb[vi].page; X.tlb.splice(vi,1); }
+    X.tlb.push({ page:p, frame:P.f, last: ++X.clock });
+  }
+  P.ptAfter = X.pt.slice(); P.tlbAfter = X.tlb.map(e => ({...e}));
+  P.phys = P.f*SIZE + d;
+  P.stages = ['split','tlb'].concat(P.hit ? [] : (P.fault ? ['pt','fault'] : ['pt'])).concat(['ram','phys']);
+  X.plan = P; X.st = 0;
+}
+function renderX(){
+  const P = X.plan;
+  $('#x-stats').textContent = `TLB trúng ${X.hit}/${X.hit+X.miss} · lỗi trang ${X.faults}`;
+  if (!P || P.err){
+    $('#x-flow').innerHTML = ''; $('#x-cap').innerHTML = `Nhập địa chỉ từ 0 đến ${NP*SIZE-1} rồi bấm <b>Dịch</b>.`;
+    $('#x-prev').disabled = $('#x-next').disabled = $('#x-all').disabled = true; return;
+  }
+  const stg = P.stages[X.st], idx = name => P.stages.indexOf(name), reached = name => idx(name) >= 0 && X.st >= idx(name);
+  const faultDone = P.fault && reached('fault'), ramDone = reached('ram');
+  const pt = faultDone ? P.ptAfter : P.ptBefore, tlb = ramDone ? P.tlbAfter : P.tlbBefore;
+  const cls = (name, extra='') => { const i = idx(name); if (i < 0) return 'box dim'; if (X.st < i) return 'box dim'; return 'box' + (X.st === i ? ' act' : '') + extra; };
+  // box 1
+  const b1 = `<div class="box ${stg==='split'?'act':''}"><h3>① Địa chỉ logic</h3><div class="big">${P.addr}</div>
+    <div class="split"><div class="pg"><b>${P.p}</b><span>số trang</span></div><div class="of"><b>${P.d}</b><span>độ lệch</span></div></div>
+    <div class="formula">${P.addr} ÷ 4096 = ${P.p} dư ${P.d}</div></div>`;
+  // box 2 TLB
+  const tlbRows = Array.from({length:TLBN}, (_, i) => { const e = tlb[i];
+    if (!e) return `<tr><td>–</td><td>–</td></tr>`;
+    const c = reached('tlb') && e.page === P.p ? (P.hit ? 'hit' : (ramDone ? 'hit' : '')) : '';
+    return `<tr class="${c}"><td>${e.page}</td><td>${e.frame}</td></tr>`; }).join('');
+  const b2 = `<div class="${cls('tlb', P.hit ? '' : ' badb')}"><h3>② TLB · giấy nhớ</h3>
+    <table class="mini"><tr><th>trang</th><th>khung</th></tr>${tlbRows}</table>
+    ${reached('tlb') ? `<div class="verdict ${P.hit?'ok':'bad'}">${P.hit ? 'Có! TLB hit' : 'Không có · TLB miss'}</div>` : ''}</div>`;
+  // box 3 PT
+  const ptRows = pt.map((f, i) => { let c = ''; if (reached('pt') && i === P.p) c = (f === null) ? 'miss' : 'hit';
+    return `<tr class="${c}"><td>${i}</td><td class="${f===null?'no':''}">${f===null ? 'ổ cứng' : f}</td></tr>`; }).join('');
+  const b3 = `<div class="${cls('pt', P.fault && !faultDone ? ' badb' : '')}"><h3>③ Bảng trang</h3>
+    <table class="mini"><tr><th>trang</th><th>khung</th></tr>${ptRows}</table>
+    ${P.fault && reached('pt') ? `<div class="verdict bad">${faultDone ? `Đã nạp vào khung ${P.newF}` : 'Lỗi trang!'}</div>` : ''}</div>`;
+  // box 4 RAM
+  const fr = Array.from({length:NF}, (_, f) => {
+    const pg = pt.indexOf(f);
+    let c = pg >= 0 ? 'mine' : OTHER.includes(f) ? 'other' : '';
+    if (reached('ram') && f === P.f) c = 'hl';
+    const en = faultDone && f === P.newF && stg === 'fault' ? ' enter' : '';
+    return `<div class="${c}${en}">${f}<small>${pg >= 0 ? 'trang '+pg : OTHER.includes(f) ? 'khác' : 'trống'}</small></div>`; }).join('');
+  const b4 = `<div class="${reached('ram') || stg==='fault' ? 'box'+(stg==='ram'||stg==='fault'?' act':'') : 'box dim'}"><h3>④ RAM · 16 khung</h3><div class="frames">${fr}</div></div>`;
+  // box 5
+  const b5 = `<div class="${cls('phys')}"><h3>⑤ Địa chỉ vật lý</h3>${reached('phys') ? `<div class="big" style="color:var(--accent)">${P.phys}</div><div class="formula">khung ${P.f} × 4096 + ${P.d}<br>= ${P.f*SIZE} + ${P.d}</div>` : '<div class="big muted">?</div>'}</div>`;
+  $('#x-flow').innerHTML = [b1,b2,b3,b4,b5].join('<span class="arrow">→</span>');
+  const caps = {
+    split: `Cắt địa chỉ ${P.addr} thành 2 phần: <b>số trang ${P.p}</b> (nằm ở trang nào) và <b>độ lệch ${P.d}</b> (cách đầu trang bao xa).`,
+    tlb: P.hit ? `Tra TLB trước (nhanh). <b class="ok">Có trang ${P.p}</b> → biết ngay nó ở khung ${P.f}, khỏi tra bảng trang.`
+              : `Tra TLB trước (nhanh). <b class="bad">Không có trang ${P.p}</b> → phải tra bảng trang (chậm hơn).`,
+    pt: P.fault ? `Bảng trang nói trang ${P.p} <b class="bad">đang ở ổ cứng, chưa có trong RAM</b> → <b class="bad">lỗi trang</b>.`
+               : `Bảng trang nói trang ${P.p} nằm ở <b>khung ${P.f}</b>. Ghi dòng này vào TLB để lần sau tra nhanh${P.evict!==undefined?` (đuổi dòng trang ${P.evict} ít dùng nhất)`:''}.`,
+    fault: `Hệ điều hành chép trang ${P.p} từ ổ cứng vào <b>khung trống ${P.newF}</b>, rồi sửa bảng trang. Việc này chậm nhất trong cả quá trình.`,
+    ram: `Trang ${P.p} nằm ở <b>khung ${P.f}</b> trong RAM (ô sáng).`,
+    phys: `Địa chỉ thật = vị trí đầu khung + độ lệch = ${P.f} × 4096 + ${P.d} = <b>${P.phys}</b>. Độ lệch giữ nguyên, chỉ thay số trang bằng số khung.`
+  };
+  $('#x-cap').innerHTML = caps[stg];
+  $('#x-prev').disabled = X.st === 0; $('#x-next').disabled = $('#x-all').disabled = X.st === P.stages.length-1;
+}
+const goX = a => { plan(a); renderX(); };
+$('#x-go').onclick = () => goX(Number($('#x-addr').value));
+$('#x-addr').addEventListener('keydown', e => { if (e.key === 'Enter') goX(Number($('#x-addr').value)); });
+$('#x-rand').onclick = () => { const a = Math.floor(Math.random()*NP*SIZE); $('#x-addr').value = a; goX(a); };
+$('#x-fault').onclick = () => { const p = X.pt.findIndex(f => f === null); if (p < 0){ $('#x-cap').innerHTML = 'Mọi trang đều đã nằm trong RAM. Bấm <b>Làm lại</b> để thử lại lỗi trang.'; return; } const a = p*SIZE + 300; $('#x-addr').value = a; goX(a); };
+$('#x-next').onclick = () => { if (X.plan && X.st < X.plan.stages.length-1){ X.st++; renderX(); } };
+$('#x-prev').onclick = () => { if (X.st > 0){ X.st--; renderX(); } };
+$('#x-all').onclick = () => { if (X.plan){ X.st = X.plan.stages.length-1; renderX(); } };
+$('#x-reset').onclick = () => { resetX(); goX(Number($('#x-addr').value)); };
+resetX(); goX(10000);
+
+/* ================= TAB 3 ================= */
+const BOOK = [7,0,1,2,0,3,0,4,2,3,0,3,2,1,2,0,1,7,0,1], BEL = [1,2,3,4,1,2,5,1,2,3,4,5];
+const R = { refs: BOOK.slice(), n: 3, alg: 'FIFO', s: 0 };
+const NAME = { FIFO:'FIFO', LRU:'LRU', OPT:'OPT', CLOCK:'Clock' };
+const COL = { FIFO:'var(--c2)', LRU:'var(--c3)', OPT:'var(--c1)', CLOCK:'var(--c4)' };
+const DESC = { FIFO:'vào trước ra trước', LRU:'lâu chưa dùng nhất', OPT:'lâu nhất mới cần lại', CLOCK:'cơ hội thứ hai' };
+function simR(refs, n, alg){
+  const fr = Array(n).fill(null), load = Array(n).fill(-1), last = Array(n).fill(-1), bit = Array(n).fill(0), q = [];
+  let ptr = 0; const st = [];
+  refs.forEach((pg, t) => {
+    const before = { fr: fr.slice(), load: load.slice(), last: last.slice(), bit: bit.slice(), ptr };
+    let slot = fr.indexOf(pg), hit = slot >= 0, victim = null, skipped = [];
+    if (hit){ last[slot] = t; bit[slot] = 1; }
+    else {
+      const empty = fr.indexOf(null);
+      if (empty >= 0){ slot = alg === 'CLOCK' ? ptr : empty; if (alg==='CLOCK') ptr = (ptr+1)%n; }
+      else if (alg === 'FIFO') slot = q.shift();
+      else if (alg === 'LRU'){ slot = 0; for (let i=1;i<n;i++) if (last[i] < last[slot]) slot = i; }
+      else if (alg === 'OPT'){ let b = -1; slot = 0; for (let i=0;i<n;i++){ let nx = refs.indexOf(fr[i], t+1); if (nx<0) nx = Infinity; if (nx > b){ b = nx; slot = i; } } }
+      else { while (bit[ptr] === 1){ bit[ptr] = 0; skipped.push(fr[ptr]); ptr = (ptr+1)%n; } slot = ptr; ptr = (ptr+1)%n; }
+      victim = fr[slot];
+      fr[slot] = pg; load[slot] = t; last[slot] = t; bit[slot] = 1;
+      if (alg === 'FIFO') q.push(slot);
+    }
+    st.push({ t, pg, hit, slot, victim, skipped, before, after: { fr: fr.slice(), load: load.slice(), last: last.slice(), bit: bit.slice(), ptr } });
+  });
+  return st;
+}
+function frames(steps){ // display frames: evictions get a "decide" frame first
+  const out = [{ kind:'start' }];
+  steps.forEach(s => { if (s.victim !== null) out.push({ kind:'decide', s }); out.push({ kind:'apply', s }); });
+  return out;
+}
+function hintFor(alg, st, i, t, refs){
+  if (st.fr[i] === null) return '';
+  if (alg === 'FIFO') return `vào lúc bước ${st.load[i]+1}`;
+  if (alg === 'LRU') return `dùng lần cuối bước ${st.last[i]+1}`;
+  if (alg === 'OPT'){ const nx = refs.indexOf(st.fr[i], t+1); return nx < 0 ? 'không cần nữa' : `cần lại ở bước ${nx+1}`; }
+  return `bit = ${st.bit[i]}`;
+}
+function renderR(){
+  const steps = simR(R.refs, R.n, R.alg), F = frames(steps), f = F[R.s];
+  $('#r-nlabel').textContent = R.n;
+  document.querySelectorAll('#r-alg button').forEach(b => b.setAttribute('aria-pressed', b.dataset.a === R.alg));
+  document.querySelectorAll('#r-n button').forEach(b => b.setAttribute('aria-pressed', Number(b.dataset.n) === R.n));
+  const t = f.kind === 'start' ? -1 : f.s.t;
+  const doneUpTo = f.kind === 'start' ? -1 : f.kind === 'apply' ? t : t - 1; // steps fully done
+  // refs strip
+  $('#r-refs').innerHTML = R.refs.map((r, i) => {
+    const c = i === t ? 'now' : i <= doneUpTo ? 'past' : '';
+    const dot = i <= doneUpTo ? (steps[i].hit ? 'h' : 'f') : '';
+    return `<div class="ref ${c}"><b>${r}</b><i class="${dot}"></i></div>`; }).join('');
+  // need
+  if (f.kind === 'start') $('#r-need').innerHTML = `<span class="zone-t">Cần trang</span><div class="card" style="opacity:.3">?</div>`;
+  else { const s = f.s;
+    $('#r-need').innerHTML = `<span class="zone-t">Cần trang</span><div class="card">${s.pg}</div><span class="pill ${s.hit?'ok':'bad'}">${s.hit ? '✓ Có sẵn' : '✗ Lỗi trang'}</span>`; }
+  // slots
+  const st = f.kind === 'start' ? { fr: Array(R.n).fill(null), bit: [], load: [], last: [], ptr: 0 } : f.kind === 'decide' ? f.s.before : f.s.after;
+  const hintT = f.kind === 'start' ? 0 : t;
+  $('#r-slots').innerHTML = st.fr.map((v, i) => {
+    let c = v === null ? 'empty' : '';
+    if (f.kind === 'decide' && i === f.s.slot) c = 'victim';
+    if (f.kind === 'apply' && !f.s.hit && i === f.s.slot) c = 'new enter';
+    if (f.kind === 'apply' && f.s.hit && i === f.s.slot) c = 'hitc';
+    const ptr = R.alg === 'CLOCK' && st.ptr === i && f.kind !== 'start' ? `<span class="hint ptr">▲ kim</span>` : '';
+    return `<div class="slot"><div class="card ${c}">${v === null ? 'trống' : v}</div><span class="hint">${hintFor(R.alg, st, i, hintT, R.refs)}</span>${ptr}</div>`;
+  }).join('');
+  $('#r-out').innerHTML = f.kind === 'apply' && f.s.victim !== null ? `<div class="card gone">${f.s.victim}</div><span class="hint">vừa bị cất</span>` : '';
+  // caption
+  let cap;
+  if (f.kind === 'start') cap = `RAM đang trống. Bấm <b>Bước tiếp</b>: mỗi bước chương trình cần một trang (ô đen ở dòng trên).`;
+  else if (f.kind === 'decide'){
+    const s = f.s, v = s.victim, why = {
+      FIFO: `trang ${v} <b>vào RAM sớm nhất</b>`,
+      LRU: `trang ${v} <b>lâu nhất chưa được dùng</b>`,
+      OPT: (() => { const nx = R.refs.indexOf(v, s.t+1); return nx < 0 ? `trang ${v} <b>không bao giờ cần lại</b>` : `trang ${v} <b>lâu nhất mới cần lại</b> (bước ${nx+1})`; })(),
+      CLOCK: (s.skipped.length ? `kim bỏ qua trang ${s.skipped.join(', ')} (bit 1 → cho cơ hội thứ hai, hạ về 0), dừng ở ` : '') + `trang ${v} có <b>bit = 0</b>`
+    }[R.alg];
+    cap = `Cần trang ${s.pg} nhưng <b class="bad">RAM đầy</b>. ${NAME[R.alg]} chọn đuổi ${why}. Xem dòng chữ nhỏ dưới mỗi ô.`;
+  } else {
+    const s = f.s;
+    cap = s.hit ? `Trang ${s.pg} <b class="ok">đã có trong RAM</b> → dùng luôn, không phải chạy ra ổ cứng.`
+      : s.victim === null ? `Trang ${s.pg} chưa có → <b class="bad">lỗi trang</b>. RAM còn chỗ trống nên chép trang ${s.pg} từ ổ cứng vào.`
+      : `Cất trang ${s.victim} về ổ cứng, chép trang ${s.pg} vào chỗ của nó.`;
+    if (R.s === F.length-1) cap += ` <b>Xong: ${steps.filter(x=>!x.hit).length} lỗi trang.</b>`;
+  }
+  $('#r-cap').innerHTML = cap;
+  const nf = steps.slice(0, doneUpTo+1).filter(x => !x.hit).length, nh = doneUpTo+1 - nf;
+  $('#r-counts').innerHTML = `<div class="count bad"><span class="mono">${nf}</span>lỗi trang</div><div class="count ok"><span class="mono">${nh}</span>trúng</div>`;
+  $('#r-prev').disabled = R.s === 0; $('#r-next').disabled = R.s === F.length-1;
+  // bars
+  const res = ['FIFO','LRU','OPT','CLOCK'].map(a => [a, simR(R.refs, R.n, a).filter(x => !x.hit).length]);
+  const mx = R.refs.length;
+  $('#r-bars').innerHTML = res.map(([a, v]) => `<button class="brow ${a===R.alg?'on':''}" data-a="${a}"><span>${NAME[a]}</span><span class="track"><span class="fill" style="display:block;width:${v/mx*100}%;background:${COL[a]}"></span></span><span class="num">${v}</span></button>`).join('')
+    + `<p class="muted" style="font-size:13px">${['FIFO','LRU','OPT','CLOCK'].map(a => `${NAME[a]}: ${DESC[a]}`).join(' · ')}</p>`;
+  document.querySelectorAll('#r-bars .brow').forEach(b => b.onclick = () => { R.alg = b.dataset.a; R.s = 0; stopAll(); renderR(); });
+  // belady: compare FIFO with n and n+1
+  const fa = simR(R.refs, R.n, 'FIFO').filter(x=>!x.hit).length, fb = simR(R.refs, R.n+1, 'FIFO').filter(x=>!x.hit).length;
+  const h = v => Math.round(v / Math.max(fa, fb) * 80);
+  $('#r-belady').innerHTML = fb > fa ? `<div class="belady"><span><b>Belady's anomaly!</b> Với FIFO, thêm 1 chỗ RAM mà lỗi trang lại <b>tăng</b>. LRU và OPT không bao giờ bị như vậy.</span>
+    <div class="bl2"><div><span style="height:${h(fa)}px"></span>${R.n} chỗ: ${fa} lỗi</div><div><span style="height:${h(fb)}px"></span>${R.n+1} chỗ: ${fb} lỗi</div></div></div>` : '';
+  // textbook grid
+  let g = '<tr><th class="r">Trang</th>' + R.refs.map(r => `<th>${r}</th>`).join('') + '</tr>';
+  for (let i = 0; i < R.n; i++) g += `<tr><td class="r">Khung ${i}</td>` + steps.map(s => `<td class="${!s.hit && s.slot===i ? 'n' : ''}">${s.after.fr[i] ?? ''}</td>`).join('') + '</tr>';
+  g += '<tr><td class="r">Kết quả</td>' + steps.map(s => `<td class="${s.hit?'H':'F'}">${s.hit?'✓':'F'}</td>`).join('') + '</tr>';
+  $('#r-grid').innerHTML = g;
+  R.F = F.length;
+}
+document.querySelectorAll('#r-alg button').forEach(b => b.onclick = () => { R.alg = b.dataset.a; R.s = 0; stopAll(); renderR(); });
+document.querySelectorAll('#r-n button').forEach(b => b.onclick = () => { R.n = Number(b.dataset.n); R.s = 0; stopAll(); renderR(); });
+$('#r-next').onclick = () => { if (R.s < R.F-1){ R.s++; renderR(); } };
+$('#r-prev').onclick = () => { if (R.s > 0){ R.s--; renderR(); } };
+$('#r-reset').onclick = () => { stopAll(); R.s = 0; renderR(); };
+$('#r-play').onclick = () => togglePlay('r', $('#r-play'), () => { R.s++; renderR(); }, () => R.s < R.F-1);
+$('#r-bel').onclick = () => { stopAll(); R.refs = BEL.slice(); R.n = 3; R.alg = 'FIFO'; R.s = 0; $('#r-str').value = BEL.join(' '); renderR(); };
+$('#r-book').onclick = () => { stopAll(); R.refs = BOOK.slice(); R.n = 3; R.s = 0; $('#r-str').value = BOOK.join(' '); renderR(); };
+$('#r-apply').onclick = () => { const v = nums($('#r-str').value).filter(x => x <= 99).slice(0, 24); if (v.length){ R.refs = v; R.s = 0; stopAll(); renderR(); } };
+renderR();
+})();
+</script>
+
+</body>
+</html>
