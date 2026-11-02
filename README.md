@@ -39,3 +39,8 @@ Mở liên kết GitHub Pages:
   python -m http.server 8080
   ```
   Truy cập: `http://localhost:8080`
+
+
+## Nhập đề bài riêng
+
+Mỗi demo hỗ trợ thay số liệu và cấu hình ban đầu; mở **Đổi đề bài & trạng thái ban đầu**, nhập dữ liệu rồi bấm **Áp dụng & bắt đầu lại**. **Làm lại** giữ đề đã áp dụng; các mẫu giáo trình vẫn có nút khôi phục. Xem [hướng dẫn và ví dụ cụ thể](CUSTOM_PROBLEMS.md).

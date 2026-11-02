@@ -1,0 +1,518 @@
+/* Additive teaching components. Original dashboard, typography and telemetry are retained. */
+.teach-options {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 10px 12px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 16px;
+  font-size: 13px;
+  align-items: center;
+}
+.teach-options strong {
+  width: 100%;
+  font-size: 12px;
+  color: var(--muted);
+}
+.teach-options label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+}
+.teach-options input {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--accent);
+}
+.teach-options select {
+  font: inherit;
+  color: var(--fg);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 3px;
+}
+.teach-history {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 13px;
+}
+.teach-history summary {
+  font-weight: 700;
+  cursor: pointer;
+}
+.teach-history ol {
+  list-style: none;
+  margin: 10px 0 0;
+  padding: 0;
+  max-height: 240px;
+  overflow: auto;
+  display: grid;
+  gap: 5px;
+}
+.teach-history button {
+  font: inherit;
+  text-align: left;
+  width: 100%;
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--used);
+  border-radius: 6px;
+  padding: 7px 10px;
+  background: var(--surface);
+  color: var(--fg);
+  cursor: pointer;
+}
+.teach-history button[aria-current="step"] {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+.teach-history small {
+  display: block;
+  color: var(--muted);
+  margin-top: 3px;
+}
+.teach-narrator {
+  line-height: 1.65;
+}
+.teach-narrator strong {
+  display: block;
+  margin-bottom: 4px;
+}
+.teach-narrator .teach-next {
+  font-size: 14px;
+  color: var(--muted);
+}
+.teach-note {
+  font-size: 13px;
+  line-height: 1.6;
+  padding: 10px;
+  border-left: 3px solid var(--accent);
+  background: var(--free);
+  border-radius: 5px;
+}
+.teach-diagram {
+  display: grid;
+  grid-template-columns: minmax(130px, 0.8fr) minmax(280px, 2.5fr) minmax(
+      135px,
+      1fr
+    );
+  gap: 12px;
+  align-items: stretch;
+  min-width: 0;
+}
+.teach-node,
+.teach-ram,
+.teach-allocator,
+.teach-evidence {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 12px;
+  background: var(--surface);
+  min-width: 0;
+}
+.teach-node h3,
+.teach-ram h3,
+.teach-evidence h3 {
+  margin: 0 0 9px;
+  font-size: 14px;
+}
+.teach-node p,
+.teach-ram p {
+  font-size: 13px;
+}
+.teach-active {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+  background: var(--accent-soft);
+}
+.teach-fault {
+  outline-color: var(--bad);
+  background: var(--bad-soft);
+}
+.teach-ram-content {
+  display: grid;
+  grid-template-columns: minmax(130px, 1fr) minmax(130px, 1.2fr);
+  gap: 12px;
+}
+.teach-table {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+.teach-table th,
+.teach-table td {
+  padding: 5px 4px;
+  border-bottom: 1px solid var(--line);
+  text-align: center;
+}
+.teach-table th {
+  color: var(--muted);
+  font-weight: 600;
+}
+.teach-table tr.teach-selected {
+  background: var(--accent-soft);
+  font-weight: 700;
+}
+.teach-frame-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 5px;
+}
+.teach-frame {
+  padding: 8px 4px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  text-align: center;
+  font-size: 12px;
+  background: var(--free);
+}
+.teach-frame b {
+  display: block;
+  font-size: 14px;
+}
+.teach-frame.teach-selected {
+  border: 2px solid var(--accent);
+  background: var(--ok-soft);
+}
+.teach-frame.teach-victim {
+  border: 2px solid var(--bad);
+  background: var(--bad-soft);
+}
+.teach-path {
+  grid-column: 1/-1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 7px;
+  min-height: 38px;
+  border: 1px dashed var(--line);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 13px;
+  font-weight: 700;
+  background: var(--free);
+}
+.teach-path[data-kind="trap"] {
+  color: var(--bad);
+  border-color: var(--bad);
+}
+.teach-path[data-kind="page-in"] {
+  color: var(--ok);
+  border-color: var(--ok);
+}
+.teach-path[data-kind="page-out"] {
+  color: var(--c2);
+  border-color: var(--c2);
+}
+.teach-path .teach-packet {
+  display: inline-block;
+  border-radius: 5px;
+  background: var(--surface);
+  padding: 3px 7px;
+  animation: teach-arrive 0.45s ease-out;
+}
+.teach-os {
+  grid-column: 1/-1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+.teach-os h3 {
+  margin: 0;
+}
+.teach-store-pages {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 8px;
+}
+.teach-store-pages span {
+  border: 1px solid var(--line);
+  padding: 5px;
+  border-radius: 5px;
+  font-size: 12px;
+}
+.teach-store-pages .teach-selected {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+}
+.teach-allocator {
+  margin: 8px 0;
+  font-size: 14px;
+}
+.teach-scan {
+  outline: 3px solid var(--c4) !important;
+  outline-offset: -3px;
+  background: var(--accent-soft) !important;
+}
+.teach-compaction {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  font-size: 12px;
+}
+.teach-memory-strip {
+  display: flex;
+  height: 42px;
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  overflow: hidden;
+  margin: 5px 0;
+}
+.teach-memory-strip span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--accent-soft);
+  border-right: 1px solid var(--line);
+  overflow: hidden;
+}
+.teach-memory-strip span[data-free="true"] {
+  background: var(--free);
+}
+.teach-clock-layout {
+  display: grid;
+  grid-template-columns: minmax(230px, 1fr) minmax(160px, 1fr);
+  align-items: center;
+  gap: 12px;
+}
+.teach-clock {
+  width: 100%;
+  max-width: 390px;
+  display: block;
+  margin: auto;
+  color: var(--fg);
+}
+.teach-clock text {
+  fill: var(--fg);
+  font-family: var(--f-body);
+  font-size: 13px;
+}
+.teach-clock .clock-frame {
+  fill: var(--surface);
+  stroke: var(--line);
+  stroke-width: 2;
+}
+.teach-clock .clock-one {
+  fill: var(--accent-soft);
+}
+.teach-clock .clock-current {
+  stroke: var(--c4);
+  stroke-width: 4;
+}
+.teach-clock .clock-victim {
+  fill: var(--bad-soft);
+  stroke: var(--bad);
+  stroke-width: 3;
+}
+.teach-evidence {
+  font-size: 13px;
+}
+.teach-evidence .teach-table {
+  font-size: 13px;
+}
+.teach-error {
+  color: var(--bad);
+  font-size: 14px;
+  font-weight: 600;
+}
+.teach-minimal .teach-note,
+.teach-minimal .teach-history {
+  display: none;
+}
+.teach-no-path .teach-path {
+  display: none;
+}
+.teach-no-path .arrow {
+  visibility: hidden;
+}
+.teach-no-explain .teach-narrator {
+  display: none;
+}
+@keyframes teach-arrive {
+  from {
+    transform: translateX(-12px);
+    opacity: 0.3;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .teach-path .teach-packet {
+    animation: none;
+  }
+}
+@media (max-width: 760px) {
+  .teach-diagram {
+    grid-template-columns: 1fr;
+  }
+  .teach-ram-content {
+    grid-template-columns: 1fr 1fr;
+  }
+  .teach-os,
+  .teach-path {
+    grid-column: auto;
+  }
+  .teach-clock-layout {
+    grid-template-columns: 1fr;
+  }
+  .teach-options {
+    gap: 8px;
+  }
+  .teach-compaction {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 400px) {
+  .teach-ram-content {
+    grid-template-columns: 1fr;
+  }
+}
+.teach-diagram,
+.scene:has(.teach-wire),
+.lane:has(.teach-wire) {
+  position: relative;
+}
+.teach-wire {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  overflow: visible;
+  z-index: 2;
+}
+.teach-no-path .teach-wire {
+  display: none;
+}
+.teach-ram-content > div {
+  min-width: 0;
+  overflow-x: auto;
+}
+.teach-diagram[data-demo="v"] .teach-ram-content {
+  grid-template-columns: 1fr;
+}
+.teach-diagram[data-demo="v"] .teach-frame-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+@media (max-width: 400px) {
+  .teach-diagram[data-demo="v"] .teach-frame-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+/* Preserve the monitor itself; contain long API labels on narrow screens. */
+@media (max-width: 760px) {
+  .telemetry-wrapper .tele-col {
+    min-width: 0;
+    overflow-x: auto;
+  }
+}
+/* Compact problem editors, inside the original demo cards. */
+.teach-config {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 14px;
+  background: var(--surface);
+}
+.teach-config > summary {
+  font-weight: 700;
+  cursor: pointer;
+  color: var(--accent);
+}
+.teach-config-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 12px;
+}
+.teach-config-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+.teach-config .field {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  font-size: 13px;
+}
+.teach-config input,
+.teach-config textarea,
+.teach-config select {
+  font: inherit;
+  width: 100%;
+  min-width: 0;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--fg);
+  padding: 9px 10px;
+  border-radius: 7px;
+}
+.teach-config textarea {
+  resize: vertical;
+  font-family: var(--f-mono);
+  font-size: 13px;
+}
+.teach-config small,
+.teach-config-help,
+.teach-config-status {
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.6;
+}
+.teach-config-status.teach-error {
+  color: var(--bad);
+}
+.teach-active-setup {
+  border-left: 3px solid var(--accent);
+  padding: 5px 9px;
+  font-size: 12px;
+  color: var(--muted);
+  overflow-wrap: anywhere;
+}
+.teach-next > summary {
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  margin-top: 5px;
+}
+.teach-next p {
+  font-size: 13px;
+  margin-top: 5px;
+}
+.teach-config .teach-span-all {
+  grid-column: 1/-1;
+}
+.teach-scene-scroll {
+  min-width: 0;
+  overflow: auto;
+}
+@media (max-width: 600px) {
+  .teach-config-grid {
+    grid-template-columns: 1fr;
+  }
+}
+#p3 .slots {
+  flex-wrap: wrap;
+}
+#v-op {
+  font: inherit;
+  color: var(--fg);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 6px;
+  margin-left: 5px;
+}
+#b-flow.teach-large-values .big {
+  font-size: clamp(18px, 2.2vw, 26px);
+  overflow-wrap: anywhere;
+}

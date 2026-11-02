@@ -681,6 +681,8 @@ footer{font-size:12px;color:var(--muted)}
 }
 
 </style>
+<link rel="stylesheet" href="teaching.css">
+<script src="teaching.js"></script>
 </head>
 <body>
 <div class="wrap">
@@ -980,7 +982,7 @@ footer{font-size:12px;color:var(--muted)}
       <details><summary>Kiến thức chuyên sâu: Quy trình 6 bước xử lý ngắt Page Fault (Mục 10.2 Silberschatz)</summary>
         <div style="display:flex;flex-direction:column;gap:10px;font-size:14px;color:var(--fg);margin-top:8px;line-height:1.6">
           <p>• <b>Bước 1 (Reference):</b> CPU phát chỉ lệnh tham chiếu đến địa chỉ ô nhớ trong trang $p$.</p>
-          <p>• <b>Bước 2 (Trap to OS):</b> MMU tra bảng trang, phát hiện bit trạng thái là <code>i</code> (Invalid - trang chưa nạp) → phát sinh ngắt phần mềm <b>Trap: Page Fault</b> chuyển về HĐH.</p>
+          <p>• <b>Bước 2 (Trap to OS):</b> MMU tra bảng trang, phát hiện bit hiện diện là <code>i</code> (trong ngữ cảnh này: trang hợp lệ nhưng chưa nạp) → phát sinh ngoại lệ <b>Trap: Page Fault</b> chuyển về HĐH.</p>
           <p>• <b>Bước 3 (OS Check & Locate):</b> HĐH kiểm tra khối điều khiển tiến trình (PCB) để xác nhận đây là truy cập hợp lệ, sau đó định vị vị trí khối trang $p$ trên bộ nhớ phụ (Backing Store / Đĩa cứng / Swap).</p>
           <p>• <b>Bước 4 (Find Free Frame):</b> HĐH tìm một khung nhớ trống trong danh sách <i>Free-frame list</i>. (Nếu RAM đã đầy, hệ thống kích hoạt thuật toán thay thế trang như FIFO, LRU để chọn trang hi sinh).</p>
           <p>• <b>Bước 5 (Disk I/O & Update):</b> HĐH lập lịch I/O đọc dữ liệu trang từ đĩa đưa vào khung nhớ vừa chọn. Sau khi đọc xong, HĐH cập nhật Bảng trang: điền số khung mới và đổi bit trạng thái từ <code>i</code> thành <code>v</code> (Valid).</p>
@@ -1289,7 +1291,9 @@ function renderB(){
 
   $('#b-flow').innerHTML = [b1, b2, b3, b4].join('<span class="arrow">→</span>');
 
-  const maxSpan = Math.max(600000, upper + 50000, addr + 20000);
+  const maxSpan = base === 300040 && limit === 120900 && addr <= 600000
+    ? Math.max(600000, upper + 50000, addr + 20000)
+    : Math.max(1, Math.ceil(Math.max(upper, addr + 1) * 1.15));
   const osW = (base / maxSpan) * 100;
   const userW = (limit / maxSpan) * 100;
   const otherW = Math.max(0, 100 - osW - userW);
@@ -1549,7 +1553,7 @@ renderV();
 
 /* ================= TAB 1 ================= */
 const A = { alg:'first', holes:[], reqs:[], s:0 };
-const USED = 70;
+let USED = 70;
 function simA(holes, reqs, alg){
   const free = holes.slice(), pieces = holes.map(() => []), ev = [];
   reqs.forEach((r, k) => {
@@ -1619,8 +1623,8 @@ function renderA(){
 }
 document.querySelectorAll('#a-alg button').forEach(b => b.onclick = () => { A.alg = b.dataset.a; document.querySelectorAll('#a-alg button').forEach(x => x.setAttribute('aria-pressed', x===b)); A.s = 0; stopAll(); renderA(); renderF(); });
 /* ---------- Tab 1 · chế độ RAM trống ---------- */
-const MEM = 1000;
-const SCRIPT = [['open','A',200],['open','B',300],['open','C',100],['open','D',250],['close','B'],['close','D'],['open','E',350],['open','F',120],['open','G',200],['compact'],['open','G',200]];
+let MEM = 1000;
+let SCRIPT = [['open','A',200],['open','B',300],['open','C',100],['open','D',250],['close','B'],['close','D'],['open','E',350],['open','F',120],['open','G',200],['compact'],['open','G',200]];
 const F = {};
 const ALGNAME = { first:'First-fit', best:'Best-fit', worst:'Worst-fit' };
 const colorOf = name => { if (!(name in F.colors)) F.colors[name] = Object.keys(F.colors).length; return pc(F.colors[name]); };
@@ -1772,22 +1776,23 @@ function resetX(){
   X.freeF = []; for (let f = 0; f < NF; f++) if (!PT0.includes(f) && !OTHER.includes(f)) X.freeF.push(f);
   X.plan = null; X.st = 0;
 }
-function plan(addr){
-  if (!(addr >= 0 && addr < NP*SIZE)) { X.plan = { err:true }; X.st = 0; return; }
-  const p = Math.floor(addr/SIZE), d = addr % SIZE;
+function plan(addr, config = {}){
+  const pageSize = config.pageSize ?? SIZE, pageCount = X.pt.length, tlbCapacity = config.tlbCapacity ?? TLBN;
+  if (!(addr >= 0 && Number.isInteger(addr) && addr < pageCount*pageSize)) { X.plan = { err:true, addr }; X.st = 0; return; }
+  const p = Math.floor(addr/pageSize), d = addr % pageSize;
   const P = { addr, p, d, ptBefore: X.pt.slice(), tlbBefore: X.tlb.map(e => ({...e})) };
   const e = X.tlb.find(e => e.page === p);
   P.hit = !!e;
   if (e){ X.hit++; e.last = ++X.clock; P.f = e.frame; }
   else {
     X.miss++;
-    if (X.pt[p] === null){ P.fault = true; X.faults++; P.newF = X.freeF.shift(); X.pt[p] = P.newF; }
+    if (X.pt[p] === null){ P.fault = true; X.faults++; if (!X.freeF.length){ P.blocked = true; P.stages = ['split','tlb','pt','blocked']; X.plan = P; X.st = 0; return; } P.newF = X.freeF.shift(); X.pt[p] = P.newF; }
     P.f = X.pt[p];
-    if (X.tlb.length >= TLBN){ let vi = 0; X.tlb.forEach((x,i) => { if (x.last < X.tlb[vi].last) vi = i; }); P.evict = X.tlb[vi].page; X.tlb.splice(vi,1); }
+    if (X.tlb.length >= tlbCapacity){ let vi = 0; X.tlb.forEach((x,i) => { if (x.last < X.tlb[vi].last) vi = i; }); P.evict = X.tlb[vi].page; X.tlb.splice(vi,1); }
     X.tlb.push({ page:p, frame:P.f, last: ++X.clock });
   }
   P.ptAfter = X.pt.slice(); P.tlbAfter = X.tlb.map(e => ({...e}));
-  P.phys = P.f*SIZE + d;
+  P.phys = P.f*pageSize + d;
   P.stages = ['split','tlb'].concat(P.hit ? [] : (P.fault ? ['pt','fault'] : ['pt'])).concat(['ram','phys']);
   X.plan = P; X.st = 0;
 }
@@ -1861,25 +1866,36 @@ const R = { refs: BOOK.slice(), n: 3, alg: 'FIFO', s: 0 };
 const NAME = { FIFO:'FIFO', LRU:'LRU', OPT:'OPT', CLOCK:'Clock' };
 const COL = { FIFO:'var(--c2)', LRU:'var(--c3)', OPT:'var(--c1)', CLOCK:'var(--c4)' };
 const DESC = { FIFO:'vào trước ra trước', LRU:'lâu chưa dùng nhất', OPT:'lâu nhất mới cần lại', CLOCK:'cơ hội thứ hai' };
-function simR(refs, n, alg){
-  const fr = Array(n).fill(null), load = Array(n).fill(-1), last = Array(n).fill(-1), bit = Array(n).fill(0), q = [];
-  let ptr = 0; const st = [];
+function simR(refs, n, alg, initial = {}){
+  // Optional initial state: defaults preserve the textbook empty-RAM workflow.
+  const fr = Array.from({length:n}, (_,i) => initial.fr?.[i] ?? null);
+  const resident = fr.filter(p => p !== null);
+  const rank = (order, page) => page === null ? -1 : (order || resident).indexOf(page) - resident.length;
+  const load = fr.map((p,i) => initial.load?.[i] ?? rank(initial.order,p));
+  const last = fr.map((p,i) => initial.last?.[i] ?? rank(initial.recent,p));
+  const bit = fr.map((p,i) => p === null ? 0 : (initial.bit?.[i] ?? 1));
+  const q = fr.flatMap((p,i) => p === null ? [] : [i]).sort((a,b) => load[a]-load[b] || a-b);
+  let ptr = initial.ptr ?? 0; const st = [], time = initial.time ?? 0;
   refs.forEach((pg, t) => {
-    const before = { fr: fr.slice(), load: load.slice(), last: last.slice(), bit: bit.slice(), ptr };
+    const now = time + t;
+    const before = { fr: fr.slice(), load: load.slice(), last: last.slice(), bit: bit.slice(), ptr, time: now };
     let slot = fr.indexOf(pg), hit = slot >= 0, victim = null, skipped = [];
-    if (hit){ last[slot] = t; bit[slot] = 1; }
+    if (hit){ last[slot] = now; bit[slot] = 1; }
     else {
       const empty = fr.indexOf(null);
-      if (empty >= 0){ slot = alg === 'CLOCK' ? ptr : empty; if (alg==='CLOCK') ptr = (ptr+1)%n; }
+      if (empty >= 0){
+        if (alg === 'CLOCK'){ while(fr[ptr] !== null) ptr = (ptr+1)%n; slot = ptr; ptr = (ptr+1)%n; }
+        else slot = empty;
+      }
       else if (alg === 'FIFO') slot = q.shift();
       else if (alg === 'LRU'){ slot = 0; for (let i=1;i<n;i++) if (last[i] < last[slot]) slot = i; }
       else if (alg === 'OPT'){ let b = -1; slot = 0; for (let i=0;i<n;i++){ let nx = refs.indexOf(fr[i], t+1); if (nx<0) nx = Infinity; if (nx > b){ b = nx; slot = i; } } }
       else { while (bit[ptr] === 1){ bit[ptr] = 0; skipped.push(fr[ptr]); ptr = (ptr+1)%n; } slot = ptr; ptr = (ptr+1)%n; }
       victim = fr[slot];
-      fr[slot] = pg; load[slot] = t; last[slot] = t; bit[slot] = 1;
+      fr[slot] = pg; load[slot] = now; last[slot] = now; bit[slot] = 1;
       if (alg === 'FIFO') q.push(slot);
     }
-    st.push({ t, pg, hit, slot, victim, skipped, before, after: { fr: fr.slice(), load: load.slice(), last: last.slice(), bit: bit.slice(), ptr } });
+    st.push({ t, pg, hit, slot, victim, skipped, before, after: { fr: fr.slice(), load: load.slice(), last: last.slice(), bit: bit.slice(), ptr, time: now+1 } });
   });
   return st;
 }
@@ -1896,7 +1912,7 @@ function hintFor(alg, st, i, t, refs){
   return `bit = ${st.bit[i]}`;
 }
 function renderR(){
-  const steps = simR(R.refs, R.n, R.alg), F = frames(steps), f = F[R.s];
+  const steps = simR(R.refs, R.n, R.alg, R.initial), F = frames(steps), f = F[R.s];
   $('#r-nlabel').textContent = R.n;
   document.querySelectorAll('#r-alg button').forEach(b => b.setAttribute('aria-pressed', b.dataset.a === R.alg));
   document.querySelectorAll('#r-n button').forEach(b => b.setAttribute('aria-pressed', Number(b.dataset.n) === R.n));
@@ -1946,13 +1962,13 @@ function renderR(){
   $('#r-counts').innerHTML = `<div class="count bad"><span class="mono">${nf}</span>lỗi trang</div><div class="count ok"><span class="mono">${nh}</span>trúng</div>`;
   $('#r-prev').disabled = R.s === 0; $('#r-next').disabled = R.s === F.length-1;
   // bars
-  const res = ['FIFO','LRU','OPT','CLOCK'].map(a => [a, simR(R.refs, R.n, a).filter(x => !x.hit).length]);
+  const res = ['FIFO','LRU','OPT','CLOCK'].map(a => [a, simR(R.refs, R.n, a, R.initial).filter(x => !x.hit).length]);
   const mx = R.refs.length;
   $('#r-bars').innerHTML = res.map(([a, v]) => `<button class="brow ${a===R.alg?'on':''}" data-a="${a}"><span>${NAME[a]}</span><span class="track"><span class="fill" style="display:block;width:${v/mx*100}%;background:${COL[a]}"></span></span><span class="num">${v}</span></button>`).join('')
     + `<p class="muted" style="font-size:13px">${['FIFO','LRU','OPT','CLOCK'].map(a => `${NAME[a]}: ${DESC[a]}`).join(' · ')}</p>`;
   document.querySelectorAll('#r-bars .brow').forEach(b => b.onclick = () => { R.alg = b.dataset.a; R.s = 0; stopAll(); renderR(); });
   // belady: compare FIFO with n and n+1
-  const fa = simR(R.refs, R.n, 'FIFO').filter(x=>!x.hit).length, fb = simR(R.refs, R.n+1, 'FIFO').filter(x=>!x.hit).length;
+  const fa = simR(R.refs, R.n, 'FIFO', R.initial).filter(x=>!x.hit).length, fb = simR(R.refs, R.n+1, 'FIFO', R.initial).filter(x=>!x.hit).length;
   const h = v => Math.round(v / Math.max(fa, fb) * 80);
   $('#r-belady').innerHTML = fb > fa ? `<div class="belady"><span><b>Belady's anomaly!</b> Với FIFO, thêm 1 chỗ RAM mà lỗi trang lại <b>tăng</b>. LRU và OPT không bao giờ bị như vậy.</span>
     <div class="bl2"><div><span style="height:${h(fa)}px"></span>${R.n} chỗ: ${fa} lỗi</div><div><span style="height:${h(fb)}px"></span>${R.n+1} chỗ: ${fb} lỗi</div></div></div>` : '';
@@ -2039,6 +2055,14 @@ function initTheme() {
 }
 initTheme();
 
+// A separate teaching layer consumes the existing engines; Demo 1 and engines stay intact.
+window.enhanceMemoryDemo({B,A,F,X,V,R,BOOK,BEL,OTHER,PT0,SCRIPT,
+  planB,simA,simR,renderB,renderA,renderF,renderR,resetF,resetX,plan,
+  doOpen,doPlace,doClose,doCompact,stopAll,updateTelemetry,
+  configureHoleSpacing:gap=>{USED=gap;},
+  configureAllocation:(capacity,script)=>{MEM=capacity;SCRIPT=script.map(a=>a.slice());},
+  getRenderB:()=>renderB, setRenderB:fn=>{renderB=fn;}
+});
 })();
 </script>
 </body>
