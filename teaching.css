@@ -516,3 +516,36 @@
   font-size: clamp(18px, 2.2vw, 26px);
   overflow-wrap: anywhere;
 }
+
+/* ================= GIẢI THÍCH NGUYÊN LÝ HOẠT ĐỘNG CHUYÊN SÂU ================= */
+.teach-deep-content {
+  margin-top: 8px;
+  padding: 12px 14px;
+  background: var(--free);
+  border-left: 4px solid var(--accent);
+  border-radius: 8px;
+  font-size: 13px;
+  line-height: 1.68;
+  color: var(--fg);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+}
+.teach-deep-content b {
+  font-weight: 700;
+}
+.teach-deep-step { color: var(--accent); }
+.teach-deep-mech { color: #1565c0; }
+.teach-deep-goal { color: #2e7d32; }
+.teach-deep-next { color: #d84315; }
+
+:root[data-theme="dark"] .teach-deep-content {
+  background: rgba(255, 255, 255, 0.05);
+  border-left-color: #64b5f6;
+  box-shadow: none;
+}
+:root[data-theme="dark"] .teach-deep-step { color: #64b5f6; }
+:root[data-theme="dark"] .teach-deep-mech { color: #90caf9; }
+:root[data-theme="dark"] .teach-deep-goal { color: #81c784; }
+:root[data-theme="dark"] .teach-deep-next { color: #ffb74d; }
