@@ -842,6 +842,7 @@ footer{font-size:12px;color:var(--muted)}
       </div>
     </div>
 
+    <!-- CHẾ ĐỘ 1: BẮT ĐẦU TỪ RAM TRỐNG -->
     <div id="f-wrap" class="panel">
       <div class="stage">
         <h2>Mở và tắt chương trình: lỗ trống tự xuất hiện</h2>
@@ -888,7 +889,7 @@ footer{font-size:12px;color:var(--muted)}
         <div class="stage" style="gap:10px;margin-top:6px">
           <div class="form">
             <div class="field"><label for="f-size">Mở chương trình mới (KB)</label><input type="number" id="f-size" value="120" min="10" max="600" step="10"></div>
-            <button class="btn" id="f-add">Cấp phát ▶</button>
+            <button class="btn primary" id="f-open">Mở</button>
             <span class="spacer"></span>
             <button class="btn" id="f-compact">Dồn nén RAM (Compaction)</button>
           </div>
@@ -897,21 +898,21 @@ footer{font-size:12px;color:var(--muted)}
       </details>
     </div>
 
-    <div id="a-wrap" class="panel" hidden>
+    <!-- CHẾ ĐỘ 2: BÀI TẬP CÓ SẴN LỖ -->
+    <div id="e-wrap" class="panel" hidden>
       <div class="stage">
         <h2>Bài tập mẫu: RAM đã có sẵn 5 lỗ trống</h2>
-        <div class="bar" style="margin-bottom:4px">
-          <span class="muted" style="font-size:13px">Hàng đợi tiến trình đang xin:</span>
-          <div class="queue" id="a-procs"></div>
-        </div>
-
         <div class="demo-stage-grid" id="grid-p1-ex">
           <div class="demo-canvas-col">
             <div class="scroll"><div class="lane">
-              <span class="lane-label">RAM · 5 lỗ [100, 500, 200, 300, 600 KB]</span>
+              <span class="lane-label">Tiến trình đang xin</span>
+              <div class="req-row" id="a-req"></div>
+              <span class="lane-label" style="margin-top:14px">RAM · 5 lỗ [100, 500, 200, 300, 600 KB]</span>
               <div class="ram" id="a-ram"></div>
+              <div class="queue" id="a-queue"></div>
               <div class="ruler" id="a-ruler"></div>
             </div></div>
+            <div class="legend"><span><i style="background:var(--ok-soft);border:1px solid var(--ok)"></i>đủ chỗ</span><span><i style="background:var(--bad-soft);border:1px solid var(--bad)"></i>không đủ</span><span><i style="background:var(--used)"></i>đã có chương trình khác</span></div>
             <div class="stats-line" id="a-stats"></div>
           </div>
 
@@ -929,17 +930,18 @@ footer{font-size:12px;color:var(--muted)}
         <div class="bar demo-controls-bar">
           <button class="btn" id="a-prev">◀ Lùi</button>
           <button class="btn primary" id="a-next">Bước tiếp ▶</button>
-          <button class="btn" id="a-all">Cấp phát hết</button>
+          <button class="btn" id="a-play">⏵ Tự chạy</button>
           <button class="btn" id="a-reset">↺ Đặt lại bài tập</button>
           <button class="btn hist-toggle-btn" id="a-hist-toggle">Lịch sử</button>
           <button class="btn toggle-explain-btn" data-target="grid-p1-ex">Ẩn giải thích</button>
           <button class="btn theme-toggle-btn">Sáng / Tối</button>
         </div>
       </div>
+      <div class="compare" id="a-cmp"></div>
       <details><summary>Đổi dữ liệu bài tập</summary>
         <div class="form" style="margin-top:6px">
-          <div class="field" style="flex:2"><label for="a-in-holes">Các lỗ trống ban đầu (KB)</label><input type="text" id="a-in-holes" value="100, 500, 200, 300, 600"></div>
-          <div class="field" style="flex:2"><label for="a-in-procs">Kích thước tiến trình xin (KB)</label><input type="text" id="a-in-procs" value="212, 417, 112, 426"></div>
+          <div class="field" style="flex:2"><label for="a-holes">Các lỗ trống ban đầu (KB)</label><input type="text" id="a-holes" value="100, 500, 200, 300, 600"></div>
+          <div class="field" style="flex:2"><label for="a-reqs">Kích thước tiến trình xin (KB)</label><input type="text" id="a-reqs" value="212, 417, 112, 426"></div>
           <button class="btn" id="a-apply">Áp dụng</button>
         </div>
       </details>
@@ -998,6 +1000,9 @@ footer{font-size:12px;color:var(--muted)}
       <div class="bar">
         <h2>CPU cần trang chưa nạp trong RAM. Xử lý lỗi trang ra sao?</h2>
       </div>
+      <p class="muted" style="font-size:13px;margin:2px 0">
+        CPU tham chiếu → trap sang OS → định vị trang → nạp vào RAM → cập nhật bảng trang → chạy lại lệnh.
+      </p>
 
       <div class="quick">
         <label for="v-page" class="muted" style="font-weight:600;font-size:13px">Trang truy cập</label>
@@ -1020,7 +1025,7 @@ footer{font-size:12px;color:var(--muted)}
           <div style="display:flex;flex-wrap:wrap;gap:14px;align-items:center;background:var(--free);padding:8px 12px;border-radius:8px">
             <div>
               <span class="lane-label" style="display:inline;margin-right:6px">Khung trống:</span>
-              <span id="v-free-list" style="font-family:var(--f-mono);font-size:12.5px;color:var(--fg);font-weight:700">Đang khởi tạo...</span>
+              <span id="v-free-frames" style="font-family:var(--f-mono);font-size:12.5px;color:var(--fg);font-weight:700">Đang khởi tạo...</span>
             </div>
             <div>
               <span class="lane-label" style="display:inline;margin-right:6px">Bộ nhớ phụ:</span>
@@ -1104,18 +1109,22 @@ footer{font-size:12px;color:var(--muted)}
       </div>
     </div>
 
-    <details><summary>So sánh 4 thuật toán và Belady</summary>
-      <div class="stage" style="margin-top:6px">
-        <div class="bar"><h2>Cùng chuỗi này, 4 cách cho kết quả</h2><span class="spacer"></span>
-          <span class="muted" style="font-size:13px">Số chỗ trong RAM</span>
-          <div class="seg" id="r-n"><button data-n="2">2</button><button data-n="3">3</button><button data-n="4">4</button><button data-n="5">5</button></div>
-        </div>
-        <div class="bars" id="r-bars"></div>
-        <div class="bar" style="margin-top:6px">
-          <button class="btn" id="r-bel">Thử Belady's anomaly</button>
-          <button class="btn" id="r-custom">Tự đặt chuỗi trang</button>
-        </div>
+    <div class="stage" style="margin-top:6px">
+      <div class="bar"><h2>Cùng chuỗi này, 4 cách cho kết quả</h2><span class="spacer"></span>
+        <span class="muted" style="font-size:13px">Số chỗ trong RAM</span>
+        <div class="seg" id="r-n"><button data-n="2">2</button><button data-n="3">3</button><button data-n="4">4</button><button data-n="5">5</button></div>
       </div>
+      <div class="bars" id="r-bars"></div>
+      <div id="r-belady"></div>
+      <div class="bar" style="margin-top:6px">
+        <button class="btn" id="r-bel">Thử Belady's anomaly</button>
+        <button class="btn" id="r-book">Chuỗi mẫu</button>
+      </div>
+    </div>
+
+    <details><summary>Bảng tra cứu các bước</summary><div class="scroll"><table class="tgrid" id="r-grid"></table></div></details>
+    <details><summary>Đổi chuỗi trang</summary>
+      <div class="form"><div class="field"><label for="r-str">Chuỗi tham chiếu (tối đa 24 số)</label><input type="text" id="r-str" value="7 0 1 2 0 3 0 4 2 3 0 3 2 1 2 0 1 7 0 1"></div><button class="btn" id="r-apply">Áp dụng</button></div>
     </details>
   </section>
 
@@ -2068,31 +2077,43 @@ updateTelemetry('p0', 0.05);
 /* ================= THEME CONTROLLER (DARK / LIGHT MODE) ================= */
 function applyTheme(theme) {
   document.documentElement.setAttribute('data-theme', theme);
-  localStorage.setItem('os-demo-theme', theme);
-  const btn = $('#theme-toggle');
-  if (btn) {
+  try { localStorage.setItem('os-demo-theme', theme); } catch(e){}
+  
+  const headerBtn = document.getElementById('theme-toggle');
+  if (headerBtn) {
     if (theme === 'dark') {
-      btn.innerHTML = '<span class="theme-icon">☀️</span><span class="theme-text">Chế độ sáng</span>';
-      btn.setAttribute('title', 'Chuyển sang nền trắng (Light mode)');
-      btn.setAttribute('aria-pressed', 'true');
+      headerBtn.innerHTML = '<span class="theme-icon">☀️</span><span class="theme-text">Sáng / Tối</span>';
+      headerBtn.setAttribute('title', 'Chuyển sang nền sáng (Light mode)');
+      headerBtn.setAttribute('aria-pressed', 'true');
     } else {
-      btn.innerHTML = '<span class="theme-icon">🌙</span><span class="theme-text">Chế độ tối</span>';
-      btn.setAttribute('title', 'Chuyển sang nền đen (Dark mode)');
-      btn.setAttribute('aria-pressed', 'false');
+      headerBtn.innerHTML = '<span class="theme-icon">🌙</span><span class="theme-text">Sáng / Tối</span>';
+      headerBtn.setAttribute('title', 'Chuyển sang nền tối (Dark mode)');
+      headerBtn.setAttribute('aria-pressed', 'false');
     }
   }
+  
+  document.querySelectorAll('.theme-toggle-btn').forEach(btn => {
+    btn.innerHTML = theme === 'dark' ? '☀️ Sáng / Tối' : '🌙 Sáng / Tối';
+  });
 }
 
 function initTheme() {
-  const saved = localStorage.getItem('os-demo-theme') || (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+  let saved = null;
+  try { saved = localStorage.getItem('os-demo-theme'); } catch(e){}
+  if (!saved) {
+    saved = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+  }
   applyTheme(saved);
-  const btn = $('#theme-toggle');
-  if (btn) {
-    btn.onclick = () => {
+
+  // Global event delegation for all theme toggle buttons
+  document.addEventListener('click', (e) => {
+    const btn = e.target.closest('#theme-toggle, .theme-toggle-btn');
+    if (btn) {
+      e.preventDefault();
       const current = document.documentElement.getAttribute('data-theme') || 'light';
       applyTheme(current === 'dark' ? 'light' : 'dark');
-    };
-  }
+    }
+  });
 }
 initTheme();
 

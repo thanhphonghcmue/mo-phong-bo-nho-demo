@@ -48,11 +48,13 @@ window.enhanceMemoryDemo = function (api) {
       t.next();
       const b = $("#" + t.id + "-play");
       if (b) b.textContent = "⏸ Tạm dừng";
-      timer = setTimeout(tick, 1300 / Number(t.speed.value));
+      const sp = (t && t.speed && t.speed.value) ? Number(t.speed.value) : 1;
+      timer = setTimeout(tick, 1300 / (sp || 1));
     };
     const b = $("#" + t.id + "-play");
     if (b) b.textContent = "⏸ Tạm dừng";
-    timer = setTimeout(tick, 1300 / Number(t.speed.value));
+    const sp = (t && t.speed && t.speed.value) ? Number(t.speed.value) : 1;
+    timer = setTimeout(tick, 1300 / (sp || 1));
   }
   function event(
     state,
@@ -271,7 +273,7 @@ window.enhanceMemoryDemo = function (api) {
         from = os;
         to = ram.querySelector(".teach-table") || ram;
       }
-      connect(root, from, to, e, Number(t.speed.value));
+      connect(root, from, to, e, ((t && t.speed && t.speed.value) ? Number(t.speed.value) : 1));
     } else if (id === "x") {
       const root = $("#x-flow"),
         cpu = root.children[0],
@@ -290,7 +292,7 @@ window.enhanceMemoryDemo = function (api) {
         e.kind === "read" ? ram : cpu,
         to,
         e,
-        Number(t.speed.value),
+        ((t && t.speed && t.speed.value) ? Number(t.speed.value) : 1),
       );
     } else if (id === "r") {
       const root = $("#p3 .scene");
@@ -304,7 +306,7 @@ window.enhanceMemoryDemo = function (api) {
             : $("#r-need"),
         e.kind === "read" ? $("#r-need") : root.querySelector(".ramzone"),
         e,
-        Number(t.speed.value),
+        ((t && t.speed && t.speed.value) ? Number(t.speed.value) : 1),
       );
     } else if (id === "a" || id === "f") {
       const root = $("#" + id + "-ram").parentElement;
@@ -314,7 +316,7 @@ window.enhanceMemoryDemo = function (api) {
         $("#" + id + "-req"),
         root.querySelector(".teach-scan") || $("#" + id + "-ram"),
         e,
-        Number(t.speed.value),
+        ((t && t.speed && t.speed.value) ? Number(t.speed.value) : 1),
       );
     }
   }
@@ -522,6 +524,7 @@ window.enhanceMemoryDemo = function (api) {
       this.noteEl = noteEl;
       const root = bar.closest(".stage");
       this.root = root;
+      this.speed = { value: "1" };
       const histToggleBtn = $("#" + id + "-hist-toggle");
       if (histToggleBtn) {
         histToggleBtn.onclick = () => {
@@ -1085,16 +1088,16 @@ window.enhanceMemoryDemo = function (api) {
       ) +
       `<div class="teach-node teach-os ${active === "os" ? "teach-active" : ""} ${e.kind === "trap" ? "teach-fault" : ""}"><h3>OS · Page Fault Handler</h3><span>Kiểm tra quyền → chọn khung / ${names[V.policy]} → I/O → cập nhật PTE → chạy lại lệnh</span></div>` +
       route(e);
-    $("#v-free-frames").textContent = V.freeFrames.length
+    if ($("#v-free-frames")) $("#v-free-frames").textContent = V.freeFrames.length
       ? V.freeFrames.map((f) => "Khung " + f).join(" · ")
       : "Hết khung trống";
-    $("#v-disk-status").textContent =
+    if ($("#v-disk-status")) $("#v-disk-status").textContent =
       e.kind === "page-in"
         ? "Đọc trang → RAM"
         : e.kind === "page-out"
           ? "Ghi trang dirty → Backing Store"
           : "Không I/O ở bước này";
-    $("#v-stats").textContent =
+    if ($("#v-stats")) $("#v-stats").textContent =
       `Truy cập ${V.accesses} · Hit ${V.hits} · Fault ${V.faults} · I/O đọc ${V.reads} / ghi ${V.writes}`;
   }
   const vt = new Timeline("v", "p4", V, renderV, "");
@@ -1346,7 +1349,7 @@ window.enhanceMemoryDemo = function (api) {
   $("#v-full-clean").onclick = () => presetV(true, false);
   $("#v-full-dirty").onclick = () => presetV(true, true);
   $("#v-permission").onclick = () => presetV(false, false, 7);
-  $("#p4 .stage > p.muted").textContent =
+  if ($("#p4 .stage > p.muted")) $("#p4 .stage > p.muted").textContent =
     "CPU tham chiếu → trap sang OS → định vị trang → nạp vào RAM → cập nhật bảng trang → chạy lại lệnh (PDF tr.24). Nếu RAM đầy, chọn victim; chỉ ghi lại trang dirty.";
   resetV();
   // DEMO 3: run the existing translation planner on a copy, commit only at real events.
@@ -2152,17 +2155,17 @@ window.enhanceMemoryDemo = function (api) {
     R.n = 3;
     R.initial = seedFor(Array(3).fill(null), "", 0, "", "");
     R.alg = "FIFO";
-    $("#r-str").value = R.refs.join(" ");
+    if ($("#r-str")) $("#r-str").value = R.refs.join(" ");
     startR();
   };
-  $("#r-book").onclick = () => {
+  if ($("#r-book")) $("#r-book").onclick = () => {
     R.refs = copy(api.BOOK);
     R.n = 3;
     R.initial = seedFor(Array(3).fill(null), "", 0, "", "");
-    $("#r-str").value = R.refs.join(" ");
+    if ($("#r-str")) $("#r-str").value = R.refs.join(" ");
     startR();
   };
-  $("#r-apply").onclick = () => {
+  if ($("#r-apply")) $("#r-apply").onclick = () => {
     const v = $("#r-str")
       .value.trim()
       .split(/[\s,;]+/)
@@ -2186,7 +2189,7 @@ window.enhanceMemoryDemo = function (api) {
   // DEMO 2 textbook exercise: add scan events, keep simA selection/tie breaks unchanged.
   const allocatorA = document.createElement("div");
   allocatorA.className = "teach-allocator";
-  $("#a-req").after(allocatorA);
+  if ($("#a-req")) $("#a-req").after(allocatorA);
   function buildA() {
     const sim = api.simA(A.holes, A.reqs, A.alg),
       out = [],
@@ -2733,7 +2736,7 @@ window.enhanceMemoryDemo = function (api) {
     ]);
   }
   $("#f-reset").onclick = startF;
-  $("#f-open").onclick = () => {
+  if ($("#f-open")) $("#f-open").onclick = () => {
     if (F.pending)
       return error(
         "f",
