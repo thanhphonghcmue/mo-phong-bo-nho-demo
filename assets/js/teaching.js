@@ -80,180 +80,103 @@ window.enhanceMemoryDemo = function (api) {
     };
   }
 
-  /* HÀM GIẢI THÍCH NGUYÊN LÝ HOẠT ĐỘNG CHUYÊN SÂU DỰA TRÊN GIÁO TRÌNH VÀ SLIDE PART 4 (GV NGUYỄN PHƯƠNG NAM - HCMUE) */
+  /* HÀM GIẢI THÍCH NGUYÊN LÝ HOẠT ĐỘNG TINH GỌN (1-2 CÂU, KHÔNG DẪN NGUỒN) */
   function renderDeepExplanation(id, e, stepIndex) {
     const s = e.state || {};
     const title = e.title || "";
-    const condition = e.condition || "";
-    const change = e.change || "";
-    let next = e.next || "";
-    let what = "";
-    let how = "";
-    let why = "";
-    let pillar = "";
+    let mech = "";
 
     if (id === "b") {
-      pillar = "AN TOÀN BỘ NHỚ (Slide tr.3, 4, 5, 34)";
-      if (stepIndex === 0 || title.includes("phát địa chỉ")) {
-        what = `CPU đang thực thi chỉ lệnh và phát ra địa chỉ ô nhớ A = ${s.addr} cần truy cập trong không gian nhớ.`;
-        how = `Trong hệ thống đa nhiệm, nhiều chương trình cùng chia sẻ thanh RAM vật lý (Slide tr.2, 5). Để đảm bảo an toàn, phần cứng MMU bắt buộc phải chặn tín hiệu địa chỉ lại và kiểm tra tính hợp lệ trước khi đưa tín hiệu ra đường truyền (bus) chip nhớ RAM.`;
-        why = `Ngăn chặn tiến trình vô tình hoặc ác ý ghi đè vào vùng nhớ của Hệ điều hành hoặc đọc trộm dữ liệu của tiến trình lân cận.`;
-        next = `Chuyển địa chỉ A = ${s.addr} sang bộ so sánh phần cứng thứ nhất để kiểm tra với thanh ghi cơ sở Base.`;
-      } else if (stepIndex === 1 || title.includes("cận dưới")) {
-        const ok = s.addr >= s.base;
-        what = `Phần cứng MMU so sánh địa chỉ CPU phát ra (A = ${s.addr}) với thanh ghi Base (${s.base}).`;
-        how = `Vùng nhớ từ địa chỉ 0 đến Base - 1 là khu vực bảo mật dành riêng cho nhân Hệ điều hành (Kernel) hoặc các tiến trình khác được cấp phát trước đó (Slide tr.5).`;
-        why = ok 
-          ? `Thỏa mãn điều kiện A ≥ Base (${s.addr} ≥ ${s.base}). Địa chỉ nằm phía trên vùng nhớ của Hệ điều hành, không gây nguy cơ xâm phạm Kernel.`
-          : `Vi phạm an toàn nghiêm trọng! Địa chỉ A < Base (${s.addr} < ${s.base}) chạm trực tiếp vào vùng không gian bộ nhớ của Hệ điều hành.`;
-        next = ok ? `Tiếp tục chuyển địa chỉ sang bộ so sánh thứ hai để kiểm tra với cận trên (Base + Limit).` : `Kích hoạt ngắt phần cứng TRAP bảo vệ bộ nhớ chuyển ngay quyền điều khiển về HĐH.`;
-      } else if (stepIndex === 2 || title.includes("cận trên")) {
-        const upper = s.base + s.limit;
-        const ok = s.addr < upper;
-        what = `Phần cứng MMU so sánh địa chỉ CPU phát ra (A = ${s.addr}) với giới hạn trên Base + Limit (${upper}).`;
-        how = `Thanh ghi Limit (${s.limit}) quy định độ dài (kích thước) không gian nhớ tối đa của tiến trình. Miền nhớ hợp lệ kéo dài từ Base đến Base + Limit - 1 (Slide tr.5).`;
-        why = ok
-          ? `Thỏa mãn điều kiện A < Base + Limit (${s.addr} < ${upper}). Địa chỉ nằm trọn vẹn bên trong kích thước không gian được cấp phép của tiến trình.`
-          : `Vi phạm biên trên! Địa chỉ A ≥ Base + Limit (${s.addr} ≥ ${upper}) vượt quá dung lượng cho phép, có nguy cơ ghi đè sang tiến trình khác.`;
-        next = `MMU tổng hợp kết quả của 2 bộ so sánh để đưa ra quyết định cấp quyền truy cập RAM hoặc kích hoạt ngắt TRAP.`;
+      if (B.mode === "translate") {
+        if (stepIndex === 0) {
+          mech = `CPU phát độ lệch logic L = ${B.offset}. Độ lệch này tương đối tính từ đầu vùng nhớ của tiến trình.`;
+        } else if (stepIndex === 1) {
+          mech = B.isValid
+            ? `MMU so sánh: 0 ≤ ${B.offset} < Limit (${B.limit}). Độ lệch hợp lệ, nằm trong kích thước vùng nhớ được cấp phát.`
+            : `Độ lệch L = ${B.offset} vượt giới hạn Limit (${B.limit}) hoặc âm! MMU kích hoạt ngắt bảo vệ TRAP.`;
+        } else if (stepIndex === 2) {
+          mech = B.isValid
+            ? `Bộ cộng MMU tính địa chỉ vật lý: PA = Base + L = ${B.base} + ${B.offset} = ${B.pa}.`
+            : `MMU chặn bộ cộng Adder và kích hoạt bẫy ngắt TRAP chuyển điều khiển về Hệ điều hành.`;
+        } else {
+          mech = B.isValid
+            ? `MMU phát tín hiệu địa chỉ vật lý PA = ${B.pa} lên bus RAM. Truy cập bộ nhớ thành công.`
+            : `Hệ điều hành nhận bẫy ngắt TRAP và báo lỗi truy cập bộ nhớ (Segmentation Fault).`;
+        }
       } else {
-        const valid = s.addr >= s.base && s.addr < (s.base + s.limit);
-        what = `MMU đưa ra quyết định phần cứng cuối cùng dựa trên điều kiện an toàn: Base ≤ A < Base + Limit.`;
-        how = valid
-          ? `Địa chỉ A = ${s.addr} thỏa mãn cả hai cận: ${s.base} ≤ ${s.addr} < ${s.base + s.limit}. MMU mở cổng bus cho phép tín hiệu đọc/ghi truyền thẳng đến thanh RAM ở tốc độ xung nhịp cực nhanh (Slide tr.5).`
-          : `Địa chỉ A = ${s.addr} nằm ngoài phạm vi an toàn! MMU lập tức khóa cổng truy xuất RAM và kích hoạt ngắt phần cứng TRAP (Lỗi bảo vệ bộ nhớ / Segmentation Fault) chuyển về nhân Hệ điều hành xử lý (Slide tr.5).`;
-        why = valid
-          ? `Bảo vệ an toàn bộ nhớ 100%, bảo đảm không gian nhớ của các tiến trình hoàn toàn độc lập và cách ly.`
-          : `Bảo vệ nhân Hệ điều hành và các tiến trình khác không bị phá hỏng dữ liệu. HĐH sẽ can thiệp dừng lệnh hoặc hủy tiến trình vi phạm.`;
-        next = valid ? `CPU hoàn tất đọc/ghi dữ liệu an toàn trên RAM.` : `Hệ điều hành xử lý ngoại lệ ngắt TRAP và bảo vệ an toàn hệ thống.`;
+        if (stepIndex === 0) {
+          mech = `CPU phát địa chỉ ô nhớ A = ${s.addr}. MMU chặn tín hiệu để kiểm tra an toàn trước khi cho phép vào RAM.`;
+        } else if (stepIndex === 1) {
+          mech = s.addr >= s.base
+            ? `Thỏa mãn điều kiện A ≥ Base (${s.addr} ≥ ${s.base}). Địa chỉ nằm phía trên vùng nhớ của Hệ điều hành.`
+            : `Vi phạm cận dưới! A < Base (${s.addr} < ${s.base}) chạm vào vùng nhớ bảo mật của Hệ điều hành.`;
+        } else if (stepIndex === 2) {
+          mech = s.addr < s.base + s.limit
+            ? `Thỏa mãn điều kiện A < Base + Limit. Địa chỉ nằm trong kích thước được cấp phép của tiến trình.`
+            : `Vi phạm biên trên! A ≥ Base + Limit vượt quá dung lượng cho phép, có nguy cơ ghi đè sang tiến trình khác.`;
+        } else {
+          mech = s.isValid
+            ? `Địa chỉ A = ${s.addr} nằm trong miền an toàn. MMU cho phép truy cập RAM an toàn.`
+            : `Địa chỉ ngoài miền! MMU phát sinh ngắt phần cứng TRAP báo lỗi bảo vệ bộ nhớ (Segmentation Fault).`;
+        }
       }
-    } else if (id === "v") {
-      pillar = "KHÔNG GIỚI HẠN BỘ NHỚ & DEMAND PAGING (Slide tr.21, 23, 24, 34)";
-      if (title.includes("tham chiếu")) {
-        what = `BƯỚC 1 QUY TRÌNH: CPU thực thi chỉ lệnh chương trình, phát sinh địa chỉ logic chạm vào Trang ${s.page}. MMU tra cứu mục Bảng trang PTE[${s.page}].`;
-        how = `Theo nguyên lý Demand Paging (Slide tr.23), Hệ điều hành không nạp toàn bộ chương trình vào RAM khi khởi động mà chỉ nạp trang nào thực sự được CPU yêu cầu. MMU kiểm tra bit hiện diện present (valid/invalid bit): nếu present = 1 thì trang đã ở trong RAM; nếu present = 0 thì trang vẫn còn nằm trên đĩa cứng (Backing Store).`;
-        why = `Tiết kiệm tối đa dung lượng RAM vật lý, cho phép hệ thống mở đồng thời nhiều ứng dụng và chạy các chương trình có kích thước lớn hơn nhiều so với RAM thật (Slide tr.20, 22).`;
-      } else if (title.includes("Từ chối")) {
-        what = `MMU phát hiện địa chỉ truy cập nằm ngoài không gian địa chỉ hợp lệ của tiến trình hoặc vi phạm quyền truy cập (như cố ghi vào trang chỉ đọc).`;
-        how = `Hệ thống không phát sinh Page Fault vì đây không phải là trang hợp lệ trên đĩa, mà kích hoạt ngắt phần mềm TRAP vi phạm truy cập (Segmentation Fault / Access Violation) chuyển thẳng về HĐH (Slide tr.15).`;
-        why = `Bảo vệ AN TOÀN tuyệt đối cho hệ thống (Slide tr.4, 34), ngăn chặn tiến trình đọc trộm dữ liệu hoặc phá hoại bộ nhớ ngoài phạm vi được cấp phép.`;
-      } else if (title.includes("Page Hit")) {
-        what = `MMU xác nhận bit present = 1. Trang ${s.page} đã nằm sẵn trong một khung (Frame) của RAM vật lý.`;
-        how = `MMU ghép số khung vật lý với độ lệch (offset) để tạo địa chỉ vật lý thật, cho phép CPU đọc/ghi trực tiếp vào chip RAM trong thời gian cực nhanh (~200 ns). Nếu là thao tác ghi, phần cứng sẽ tự động bật Dirty bit (Modified bit) = 1 để ghi nhớ trang đã bị sửa đổi (Slide tr.27).`;
-        why = `TỐI ĐA HÓA HIỆU NĂNG HỆ THỐNG (Slide tr.7, 25). Không phát sinh ngắt phần mềm, không phải chờ đợi đĩa I/O chậm chạp (~8 ms), giữ tốc độ thực thi của CPU ở mức cao nhất.`;
-      } else if (title.includes("Page Fault") && title.includes("trap")) {
-        what = `BƯỚC 2 QUY TRÌNH: MMU phát hiện bit present = 0 (trang hợp lệ nhưng chưa được nạp vào RAM) → Phát sinh ngoại lệ phần cứng TRAP: Page Fault chuyển quyền điều khiển cho Hệ điều hành.`;
-        how = `CPU không thể tự ý đọc đĩa vì vào/ra đĩa là thao tác đặc quyền (Privileged I/O). Phần cứng tự động tạm dừng chỉ lệnh hiện tại, lưu lại ngữ cảnh các thanh ghi và con trỏ lệnh PC, sau đó chuyển CPU sang chế độ Kernel mode để kích hoạt Trình xử lý lỗi trang (Page Fault Handler) của Hệ điều hành (Slide tr.24).`;
-        why = `BẢO TOÀN TRẠNG THÁI TIẾN TRÌNH. Đảm bảo chương trình không đọc phải dữ liệu rác trong RAM, đồng thời tạo cơ chế nạp trang trong suốt (transparent) đối với lập trình viên và người dùng.`;
-      } else if (title.includes("Định vị trang")) {
-        what = `BƯỚC 3 QUY TRÌNH: Hệ điều hành kiểm tra khối quản lý tiến trình (PCB) và định vị vị trí khối trang trên bộ nhớ phụ (Backing Store / Đĩa cứng / Phân vùng Swap).`;
-        how = `HĐH tra cứu cấu trúc dữ liệu nội bộ để xác nhận địa chỉ truy cập là hợp pháp, sau đó tìm sector/block cụ thể trên đĩa lưu trữ nội dung dữ liệu của Trang ${s.page} (Slide tr.2, 19, 24).`;
-        why = `Là cầu nối giữa không gian địa chỉ ảo và bộ nhớ lưu trữ vật lý trên đĩa. Chuẩn bị đầy đủ thông số để phát lệnh I/O nạp trang vào RAM.`;
-      } else if (title.includes("chọn victim") || title.includes("nạn nhân")) {
-        what = `BƯỚC 4 (KHI RAM ĐẦY): HĐH kích hoạt thuật toán thay thế trang (Page Replacement Algorithm) để chọn ra một trang 'nạn nhân' (Victim) đang chiếm giữ khung RAM nhằm lấy chỗ nạp trang mới.`;
-        how = `HĐH áp dụng các chính sách như FIFO, LRU hoặc Clock (Slide tr.27, 28, 29). Nếu trang nạn nhân bị sửa (Dirty bit = 1), HĐH phải ghi dữ liệu ra đĩa (Page-out) để bảo toàn dữ liệu. Nếu trang sạch (Dirty bit = 0, như mã lệnh chưa bị sửa), HĐH chỉ cần ghi đè trực tiếp mà không cần tốn công I/O ghi đĩa!`;
-        why = `TỐI ƯU HÓA TÀI NGUYÊN RAM VẬT LÝ. Giúp hệ thống không bao giờ bị nghẽn hay tràn bộ nhớ, luôn duy trì được việc nạp trang mới ngay cả khi toàn bộ các khung RAM đã bị chiếm dụng 100%.`;
-      } else if (title.includes("Ghi lại trang dirty")) {
-        what = `HĐH lập lịch I/O để ghi nội dung trang nạn nhân (Victim) đã bị sửa đổi từ khung RAM xuống bộ nhớ phụ (Backing Store).`;
-        how = `Kỹ thuật Dirty bit (Modify bit) là tối ưu kinh điển của Silberschatz: nếu trang sạch thì bỏ qua ghi đĩa; nếu trang bẩn thì bắt buộc ghi đĩa để không làm mất dữ liệu người dùng (Slide tr.27). Sau khi ghi đĩa hoàn tất, dirty bit được xóa về 0 và khung nhớ sẵn sàng nạp trang mới.`;
-        why = `AN TOÀN DỮ LIỆU & TIẾT KIỆM BĂNG THÔNG ĐĨA. Giảm thiểu tới 50% số lần ghi đĩa không cần thiết so với việc luôn ghi mọi trang nạn nhân ra đĩa.`;
-      } else if (title.includes("Nạp trang") || title.includes("Chọn khung trống")) {
-        what = `BƯỚC 4 QUY TRÌNH: HĐH cấp phát một khung nhớ từ Free-frame List (hoặc khung nạn nhân vừa giải phóng) và phát lệnh I/O đọc dữ liệu khối trang từ đĩa nạp vào RAM (Page-in).`;
-        how = `Thao tác đọc đĩa mất khoảng ~8 ms (chậm gấp 40.000 lần so với đọc RAM - Slide tr.25). Trong lúc chờ điều khiển DMA và ổ cứng hoàn tất truyền dữ liệu, HĐH đưa tiến trình hiện tại vào hàng đợi Chờ (Waiting/Blocked) và cấp CPU cho tiến trình khác chạy để không lãng phí chu kỳ xử lý của CPU.`;
-        why = `TẬN DỤNG TỐI ĐA THỜI GIAN CPU & NẠP DỮ LIỆU CHÍNH XÁC (Slide tr.2, 24, 25). Đảm bảo tính đa chương trình hiệu quả cao.`;
-      } else if (title.includes("Cập nhật bảng trang")) {
-        what = `BƯỚC 5 QUY TRÌNH: Hệ điều hành cập nhật lại mục Bảng trang PTE[${s.page}]: ghi số khung RAM vừa nạp và lật bit hiện diện từ 0 → 1 (present = true, valid = true).`;
-        how = `Bảng trang là bản đồ ánh xạ phần cứng duy nhất mà MMU dựa vào. HĐH ghi chỉ số khung vật lý mới vào PTE và bật bit present = 1 để thông báo với phần cứng rằng trang này đã an toàn có mặt trong RAM (Slide tr.10, 15, 24).`;
-        why = `ĐỒNG BỘ TRẠNG THÁI PHẦN CỨNG. Nếu không cập nhật lại bit present = 1, CPU sẽ tiếp tục bị rơi vào vòng lặp ngắt Page Fault vĩnh viễn ở lần truy cập tiếp theo.`;
-      } else if (title.includes("Khởi động lại lệnh")) {
-        what = `BƯỚC 6 QUY TRÌNH: Hệ điều hành khôi phục ngữ cảnh thanh ghi đã lưu và ra lệnh cho CPU thực thi lại đúng chỉ lệnh vừa bị ngắt (Restart Instruction).`;
-        how = `Lần này khi CPU chạy lại chỉ lệnh, MMU tra Bảng trang sẽ thấy ngay bit present = 1 → Chuyển thành Page Hit và đọc/ghi dữ liệu từ khung RAM trơn tru (Slide tr.24).`;
-        why = `TÍNH TRONG SUỐT HOÀN TOÀN (TRANSPARENCY). Tiến trình và lập trình viên không hề hay biết vừa có một sự cố lỗi trang xảy ra, ứng dụng tiếp tục tính toán chính xác 100%.`;
+    } else if (id === "f" || id === "a") {
+      if (title.includes("xin") || title.includes("Yêu cầu")) {
+        mech = `Tiến trình yêu cầu cấp phát bộ nhớ trong RAM. Hệ điều hành chuẩn bị duyệt các lỗ trống.`;
+      } else if (title.includes("Xét lỗ") || title.includes("Tìm")) {
+        mech = `Hệ điều hành kiểm tra kích thước lỗ trống theo chiến lược đang chọn để xác định vị trí phù hợp.`;
+      } else if (title.includes("Cấp phát") || title.includes("Đặt")) {
+        mech = `HĐH đặt tiến trình vào lỗ trống đã chọn, tách phần dư thành lỗ trống mới và cập nhật RAM.`;
+      } else if (title.includes("Giải phóng") || title.includes("Tắt")) {
+        mech = `Tiến trình kết thúc, vùng nhớ được hoàn trả thành lỗ trống và tự động hợp nhất với lỗ kề cận.`;
+      } else if (title.includes("Dồn nén")) {
+        mech = `Dồn tất cả tiến trình về một đầu RAM để gom các lỗ trống nhỏ rải rác thành một khối bộ nhớ trống lớn.`;
       } else {
-        what = `Thao tác truy xuất dữ liệu trong khung RAM vật lý.`;
-        how = `CPU đọc/ghi trực tiếp vào khung nhớ trong RAM với tốc độ hàng trăm nanosecond.`;
-        why = `Hoàn thành tác vụ tính toán của tiến trình.`;
+        mech = `Hệ điều hành cập nhật danh sách phân vùng và các lỗ trống trong RAM.`;
       }
     } else if (id === "x") {
-      pillar = "HIỆU QUẢ PHÂN TRANG & LOẠI BỎ PHÂN MẢNH NGOÀI (Slide tr.10, 12, 13, 14, 34)";
-      if (title.includes("Tách") || title.includes("logic")) {
-        what = `Phần cứng MMU chia địa chỉ logic thành 2 thành phần: Số trang (Page number - p) và Độ lệch (Offset - d).`;
-        how = `Kích thước trang được chọn là lũy thừa của 2 (ví dụ 4 KB = 2^12 byte). Nhờ đó, phần cứng chỉ cần tách các bit cao làm số trang p và 12 bit thấp làm độ lệch d cực nhanh bằng phép dịch bit mà không cần thực hiện phép chia số học tốn kém (Slide tr.13, 17). p = Địa chỉ logic / PageSize, d = Địa chỉ logic % PageSize.`;
-        why = `BẢN CHẤT CỦA CƠ CHẾ PHÂN TRANG (Slide tr.10). Cho phép chia nhỏ chương trình thành các trang kích thước cố định để đặt vào bất kỳ khung RAM nào, xóa bỏ hoàn toàn hiện tượng phân mảnh ngoài.`;
-      } else if (title.includes("TLB") || title.includes("Tra cứu")) {
-        const hit = e.status === "hit" || (condition && condition.includes("Hit"));
-        what = `CPU tra cứu cặp (p, f) trong Bộ đệm dịch nhanh TLB (Translation Lookaside Buffer).`;
-        how = `Bảng trang nằm trong RAM, nếu mỗi lần dịch địa chỉ đều phải truy cập RAM thì tốc độ hệ thống sẽ giảm đi một nửa (2 lần truy cập RAM cho mỗi thao tác nhớ). TLB nằm ngay trong CPU với các mạch phần cứng so sánh song song cực nhanh (ví như chim cánh cụt gắn tên lửa so với kiến vác cây - Slide tr.12, 14).`;
-        why = hit
-          ? `TLB HIT! Tìm thấy ngay số khung trong CPU, không cần đọc RAM để tra bảng trang, tiết kiệm 50% số lần truy cập bộ nhớ.`
-          : `TLB MISS! Cặp trang chưa có trong TLB, buộc phần cứng phải đọc Bảng trang trong RAM rồi nạp kết quả vào TLB cho các lần sau.`;
+      if (title.includes("phát")) {
+        mech = `CPU phát địa chỉ logic trong không gian địa chỉ ảo của chương trình.`;
+      } else if (title.includes("tách")) {
+        mech = `MMU tách địa chỉ logic thành số hiệu trang (Page number p) và độ lệch trong trang (Offset d).`;
+      } else if (title.includes("TLB")) {
+        mech = title.includes("Hit")
+          ? `Tìm thấy ánh xạ trang trong bộ nhớ đệm nhanh TLB (TLB Hit). Lấy ngay số khung vật lý.`
+          : `Không tìm thấy trong TLB (TLB Miss). MMU truy xuất Bảng trang trong RAM để tra cứu khung.`;
       } else if (title.includes("Bảng trang") || title.includes("PTE")) {
-        what = `Phần cứng MMU dùng chỉ số trang p để tra mục Bảng trang PTE[p] lưu trong RAM vật lý.`;
-        how = `Mục Bảng trang chứa số khung (Frame f) và các bit trạng thái như Valid/Invalid (v/i). Nếu bit v = 1, trang hợp lệ và đang nằm ở khung f trong RAM (Slide tr.13, 15). Nếu bit i = 0, phát sinh ngắt Page Fault hoặc Trap ngoài vùng nhớ.`;
-        why = `BẢO VỆ VÀ ÁNH XẠ ĐỊA CHỈ (Slide tr.15). Đảm bảo mỗi trang logic được ánh xạ chính xác vào khung RAM vật lý tương ứng.`;
+        mech = `MMU đọc mục trong Bảng trang (PTE), kiểm tra bit hiện diện và lấy số khung vật lý (frame).`;
+      } else if (title.includes("Ghép") || title.includes("Địa chỉ")) {
+        mech = `MMU ghép số khung vật lý (frame) với độ lệch (offset d) để tạo thành địa chỉ vật lý PA hoàn chỉnh.`;
       } else {
-        what = `Ghép số khung f với độ lệch d để tạo thành Địa chỉ vật lý: Địa chỉ vật lý = f × PageSize + d, sau đó truy cập dữ liệu trong RAM.`;
-        how = `Độ lệch d trong trang logic được giữ nguyên vẹn khi chuyển sang khung vật lý vì kích thước trang bằng kích thước khung (Page Size = Frame Size - Slide tr.10, 13). CPU hoàn tất việc truy xuất ô nhớ thực tế trong RAM.`;
-        why = `HOÀN TẤT DỊCH ĐỊA CHỈ. Biến không gian địa chỉ ảo liên tục của tiến trình thành các khung nhớ vật lý phân tán trong RAM.`;
+        mech = `Truy cập trực tiếp vào ô nhớ RAM tại địa chỉ vật lý PA vừa dịch được.`;
       }
-    } else if (id === "a" || id === "f") {
-      pillar = "HIỆU QUẢ CẤP PHÁT LIÊN TỤC & DỒN NÉN RAM (Slide tr.7, 8, 9, 34)";
-      if (title.includes("First-fit") || title.includes("Best-fit") || title.includes("Worst-fit") || title.includes("Mở") || title.includes("xin chỗ")) {
-        what = `Hệ điều hành quét danh sách các lỗ trống (Holes) trên thanh RAM để tìm vị trí thích hợp nạp tiến trình mới theo chiến lược đã chọn.`;
-        how = `
-          • First-fit: Chọn ngay lỗ trống đầu tiên đủ lớn. Nhanh nhất vì dừng tìm kiếm ngay khi thấy lỗ thỏa mãn (Slide tr.8).
-          • Best-fit: Duyệt toàn bộ danh sách, chọn lỗ trống nhỏ nhất vừa đủ. Để lại phần dư nhỏ nhất, nhưng tốn công tìm kiếm và tạo ra nhiều mẩu vụn li ti (Slide tr.8).
-          • Worst-fit: Duyệt toàn bộ, chọn lỗ trống lớn nhất với hy vọng phần dư còn lại đủ lớn cho tiến trình khác, nhưng thực nghiệm cho thấy hiệu quả kém nhất (Slide tr.8).`;
-        why = `TỐI ƯU HÓA KHÔNG GIAN CẤP PHÁT LIÊN TỤC. Giúp HĐH cân bằng giữa tốc độ tìm kiếm và mức độ lãng phí bộ nhớ.`;
-      } else if (title.includes("tắt") || title.includes("Đóng") || title.includes("gộp") || title.includes("lỗ trống")) {
-        what = `Tiến trình kết thúc hoặc bị đóng, vùng nhớ của nó được giải phóng trở thành lỗ trống. HĐH tự động gộp (Coalescing) các lỗ trống nằm liền kề nhau.`;
-        how = `Nếu hai hoặc nhiều lỗ trống nằm sát nhau, HĐH cộng dồn kích thước của chúng thành một lỗ trống liên tục duy nhất (Slide tr.7).`;
-        why = `CHỐNG PHÂN MẢNH CỤC BỘ. Nếu không gộp, RAM sẽ bị băm nhỏ thành vô số lỗ trống vụn vặt không thể chứa vừa bất kỳ tiến trình nào tiếp theo.`;
-      } else if (title.includes("Dồn nén") || title.includes("Compaction") || title.includes("Phân mảnh")) {
-        what = `HĐH di chuyển tất cả các tiến trình đang chạy dồn về một phía của RAM để gom tất cả các lỗ trống vụn vặt thành một vùng trống liên tục khổng lồ.`;
-        how = `Hiện tượng Phân mảnh ngoài (External Fragmentation - Slide tr.9) xảy ra khi tổng dung lượng trống vẫn thừa (ví dụ 959 KB) nhưng không có lỗ đơn lẻ nào đủ lớn (lỗ lớn nhất chỉ 300 KB) để nạp tiến trình 426 KB. Dồn nén RAM giải quyết triệt để vấn đề này bằng cách sắp xếp lại toàn bộ RAM (yêu cầu địa chỉ động tại runtime).`;
-        why = `GIẢI PHÁP TỐI HẬU CHO CẤP PHÁT LIÊN TỤC (Slide tr.9, 34). Tạo ra khối nhớ liên tục khổng lồ để tiếp tục nạp các chương trình đang chờ.`;
+    } else if (id === "v") {
+      if (title.includes("Phát hiện") || title.includes("Trap")) {
+        mech = `Phần cứng phát hiện bit present = 0, phát tín hiệu ngắt Page Fault Trap chuyển về Hệ điều hành.`;
+      } else if (title.includes("Xác thực") || title.includes("tìm")) {
+        mech = `Bộ xử lý lỗi trang của HĐH kiểm tra tính hợp lệ và định vị khối trang trên bộ nhớ phụ.`;
+      } else if (title.includes("Chọn khung") || title.includes("khung trống")) {
+        mech = `HĐH chọn một khung RAM trống để nạp; nếu RAM đầy, thuật toán thay thế sẽ chọn một nạn nhân.`;
+      } else if (title.includes("I/O") || title.includes("Nạp")) {
+        mech = `Bộ điều khiển thiết bị đọc khối trang từ bộ nhớ phụ nạp vào khung RAM đã chọn.`;
+      } else if (title.includes("Cập nhật") || title.includes("PTE")) {
+        mech = `HĐH cập nhật Bảng trang: ghi nhận số khung vừa nạp và bật bit present = 1 sẵn sàng trong RAM.`;
       } else {
-        what = `Thao tác quản lý phân vùng nhớ liên tục của Hệ điều hành.`;
-        how = `HĐH cập nhật bảng phân vùng và danh sách lỗ trống của RAM.`;
-        why = `Duy trì tính toàn vẹn của danh sách bộ nhớ trống.`;
+        mech = `Khôi phục trạng thái tiến trình và CPU chạy lại lệnh. Lần này truy cập thành công (Hit).`;
       }
     } else if (id === "r") {
-      pillar = "THAY THẾ TRANG & TRÁNH TRÌ TRỆ THRASHING (Slide tr.27, 28, 29, 31, 32, 34)";
-      if (title.includes("trúng") || title.includes("Hit")) {
-        what = `Trang được yêu cầu đã có sẵn trong một khung RAM (Page Hit).`;
-        how = `HĐH cập nhật thông tin sử dụng theo thuật toán tương ứng:
-          • Trong LRU: Cập nhật mốc thời gian truy cập gần nhất (Slide tr.28).
-          • Trong Clock: Bật Reference bit (Use bit) = 1 để đánh dấu trang vừa được tham chiếu (Slide tr.29).
-          • Trong FIFO / OPT: Giữ nguyên trạng thái hàng đợi.`;
-        why = `HIỆU SUẤT TỐI ĐA. Lệnh được phục vụ tức thì mà không phải chịu chi phí hoán đổi trang đĩa I/O.`;
+      if (title.includes("Hit") || title.includes("trúng")) {
+        mech = `Trang yêu cầu đã nằm sẵn trong một khung RAM (Page Hit). Cập nhật mốc thời gian hoặc bit tham chiếu.`;
       } else if (title.includes("trống") || title.includes("nạp")) {
-        what = `Xảy ra lỗi trang (Page Fault) nhưng RAM vẫn còn khung trống. HĐH nạp trực tiếp trang mới vào khung trống này.`;
-        how = `HĐH lấy khung nhớ trống từ Free-frame list, nạp dữ liệu từ đĩa vào khung và cập nhật thông số thuật toán (thời điểm nạp cho FIFO, thời điểm dùng cho LRU, hoặc gán bit 1 cho Clock - Slide tr.24, 27).`;
-        why = `NẠP TRANG NHANH. Tận dụng tối đa các khung RAM chưa sử dụng mà không cần phải đuổi bất kỳ trang nào ra đĩa.`;
-      } else if (title.includes("Thay") || title.includes("Victim") || title.includes("nạn nhân") || title.includes("loại")) {
-        what = `RAM đã hết khung trống, HĐH áp dụng thuật toán để chọn một trang 'nạn nhân' (Victim) đang nằm trong RAM để thay thế.`;
-        how = `
-          • FIFO: Đuổi trang đã ở trong RAM lâu nhất. Đơn giản nhưng có thể gặp Nghịch lý Belady (thêm khung RAM mà lỗi trang lại tăng - Slide tr.28).
-          • LRU: Đuổi trang lâu nhất chưa được sử dụng dựa trên quá khứ. Bắt chước thuật toán tối ưu, hiệu năng rất cao và không bao giờ bị Belady (Slide tr.28).
-          • OPT: Đuổi trang mà trong tương lai lâu nhất mới dùng lại. Đạt tỉ lệ lỗi trang thấp nhất tuyệt đối về mặt lý thuyết (Slide tr.28).
-          • Clock (Cơ hội thứ hai): Kim đồng hồ quét vòng tròn: gặp bit 1 → xóa về 0 ('tha' cho cơ hội thứ hai); gặp bit 0 → chọn làm nạn nhân thay thế ngay lập tức (Slide tr.29).`;
-        why = `TỐI THIỂU HÓA SỐ LẦN PAGE FAULT & TRÁNH THRASHING (Slide tr.28, 31, 32, 34). Đảm bảo giữ lại các trang thuộc Working Set của tiến trình trong RAM.`;
+        mech = `RAM còn khung trống. Trang mới được nạp trực tiếp vào khung mà không cần loại bỏ trang nào.`;
+      } else if (title.includes("Thay") || title.includes("Victim") || title.includes("nạn nhân")) {
+        mech = `RAM đầy, thuật toán chọn một trang nạn nhân trong RAM để hoán đổi ra bộ nhớ phụ nhường chỗ.`;
       } else {
-        what = `Thao tác cập nhật trạng thái khung nhớ của thuật toán thay thế trang.`;
-        how = `HĐH điều chỉnh con trỏ, bit tham chiếu hoặc thứ tự hàng đợi các khung nhớ.`;
-        why = `Duy trì dữ liệu thống kê để phục vụ việc chọn trang nạn nhân chính xác nhất ở các bước sau.`;
+        mech = `Thuật toán cập nhật con trỏ và dữ liệu thống kê để tối ưu quyết định thay thế tiếp theo.`;
       }
     }
 
-    return `
-      <div class="teach-deep-content">
-        <div><b class="teach-deep-step">📌 Bước này là gì & Làm gì:</b> ${what}</div>
-        <div><b class="teach-deep-mech">⚙️ Cơ chế hoạt động & Tại sao phải làm:</b> ${how}</div>
-        <div><b class="teach-deep-goal">🎯 Mục đích & Trụ cột hệ điều hành:</b> <b>${pillar}</b> — ${why}</div>
-        ${next ? `<div><b class="teach-deep-next">⏭️ Bước tiếp theo:</b> ${next}</div>` : ""}
-      </div>
-    `;
+    return `<div style="font-size:12.5px;line-height:1.5;color:var(--fg);padding:6px 10px;background:var(--free);border-left:3px solid var(--accent);border-radius:6px">${esc(mech || e.change || "Hệ điều hành thực hiện thao tác theo giải thuật.")}</div>`;
   }
 
   function route(e) {
@@ -499,7 +422,7 @@ window.enhanceMemoryDemo = function (api) {
     const el = document.createElement("details");
     el.className = "teach-config";
     el.id = id + "-config";
-    el.innerHTML = `<summary>Đổi đề bài & trạng thái ban đầu</summary><form class="teach-config-form"><p class="teach-config-help">Sửa số liệu rồi bấm <b>Áp dụng & bắt đầu lại</b>. Nút Làm lại giữ đề đã áp dụng.</p><div class="teach-config-grid">${fields}</div><div class="bar"><button class="btn primary" type="submit" id="${id}-config-apply">Áp dụng & bắt đầu lại</button><button class="btn" type="button" id="${id}-config-sample">Khôi phục mẫu giáo trình</button></div><p class="teach-config-status" role="status"></p></form>`;
+    el.innerHTML = `<summary>Đổi đề bài & trạng thái ban đầu</summary><form class="teach-config-form"><p class="teach-config-help">Sửa số liệu rồi bấm <b>Áp dụng & bắt đầu lại</b>. Nút Làm lại giữ đề đã áp dụng.</p><div class="teach-config-grid">${fields}</div><div class="bar"><button class="btn primary" type="submit" id="${id}-config-apply">Áp dụng & bắt đầu lại</button><button class="btn" type="button" id="${id}-config-sample">Khôi phục mẫu mặc định</button></div><p class="teach-config-status" role="status"></p></form>`;
     anchor.before(el);
     configs[id] = el;
     const status = el.querySelector(".teach-config-status"),
@@ -525,7 +448,7 @@ window.enhanceMemoryDemo = function (api) {
     $("#" + id + "-config-sample").onclick = () => {
       onSample();
       status.className = "teach-config-status";
-      status.textContent = "Đã khôi phục mẫu giáo trình.";
+      status.textContent = "Đã khôi phục mẫu mặc định.";
     };
     return el;
   }
@@ -584,10 +507,10 @@ window.enhanceMemoryDemo = function (api) {
         )}<label>Tốc độ <select aria-label="Tốc độ mô phỏng"><option value=".5">0,5×</option><option value="1" selected>1×</option><option value="1.5">1,5×</option><option value="2">2×</option></select></label>`;
       bar.after(options);
       this.options = options;
-      this.speed = options.querySelector("select");
+      // Speed removed
       const history = document.createElement("details");
       history.className = "teach-history";
-      history.open = true;
+      history.open = false;
       history.innerHTML =
         "<summary>LỊCH SỬ CÁC BƯỚC ĐÃ THỰC HIỆN</summary><ol></ol>";
       options.after(history);
@@ -599,6 +522,12 @@ window.enhanceMemoryDemo = function (api) {
       this.noteEl = noteEl;
       const root = bar.closest(".stage");
       this.root = root;
+      const histToggleBtn = $("#" + id + "-hist-toggle");
+      if (histToggleBtn) {
+        histToggleBtn.onclick = () => {
+          this.history.open = !this.history.open;
+        };
+      }
       options.addEventListener("change", () => this.applyOptions());
       $("#" + id + "-next").onclick = () => this.next();
       $("#" + id + "-prev").onclick = () => {
@@ -624,13 +553,13 @@ window.enhanceMemoryDemo = function (api) {
       pb.onclick = () => play(this);
     }
     applyOptions() {
-      const on = (k) =>
-        this.options.querySelector(`[data-option="${k}"]`).checked;
+      const on = (k) => {
+        const inp = this.options.querySelector(`[data-option="${k}"]`);
+        return inp ? inp.checked : true;
+      };
       this.root.classList.toggle("teach-no-explain", !on("explain"));
       this.root.classList.toggle("teach-no-path", !on("path"));
-      this.root.classList.toggle("teach-minimal", on("minimal"));
-      this.history.hidden = !on("history");
-      this.noteEl.hidden = !on("note");
+      if (this.history) this.history.hidden = !on("history");
     }
     load(events, duration = 0) {
       pause();
@@ -692,11 +621,11 @@ window.enhanceMemoryDemo = function (api) {
       if (cap) {
         cap.classList.add("teach-narrator");
         const deepExp = renderDeepExplanation(this.id, e, i);
-        cap.innerHTML = `<strong>Bước ${i + 1} · ${esc(e.title)}</strong>
-          <div style="margin:2px 0"><b>${esc(e.actor)}:</b> ${esc(e.condition)}</div>
-          <div style="margin-bottom:6px">${esc(e.change)}</div>
-          <details class="teach-next" open>
-            <summary style="font-weight:700;color:var(--accent);cursor:pointer;padding:4px 0">▼ Giải thích nguyên lý hoạt động</summary>
+        cap.innerHTML = `<div style="font-size:13.5px;font-weight:700;color:var(--accent);margin-bottom:3px">Bước ${i + 1} · ${esc(e.title)}</div>
+          <div style="font-size:13px;margin:2px 0;line-height:1.4"><b>${esc(e.actor)}:</b> ${esc(e.condition)}</div>
+          <div style="font-size:13px;margin-bottom:6px;line-height:1.4;color:var(--fg)">${esc(e.change)}</div>
+          <details class="teach-next" open style="margin-top:6px">
+            <summary style="font-weight:700;color:var(--accent);cursor:pointer;padding:3px 0;font-size:12.5px">▼ Giải thích nguyên lý hoạt động</summary>
             ${deepExp}
           </details>`;
       }
@@ -728,7 +657,7 @@ window.enhanceMemoryDemo = function (api) {
         if (a.bottom > b.bottom) list.scrollTop += a.bottom - b.bottom;
         if (a.top < b.top) list.scrollTop -= b.top - a.top;
       }
-      this.updateTelemetry(performance.now() - t0);
+      if (api.updateTelemetry) api.updateTelemetry(this.panel, 0.05);
     }
     updateTelemetry(renderTime) {
       const panel = this.panel;
@@ -903,7 +832,7 @@ window.enhanceMemoryDemo = function (api) {
           path,
           kind,
           status,
-          `PDF Part 4 tr.23–24,27–29. mapped/quyền khác present. Chính sách ${names[s.policy]}; chỉ trang dirty cần ghi lại. CPU đọc/ghi dữ liệu trong RAM.`,
+          `mapped/quyền khác present. Chính sách ${names[s.policy]}; chỉ trang dirty cần ghi lại. CPU đọc/ghi dữ liệu trong RAM.`,
         ),
       );
     };
@@ -1168,7 +1097,7 @@ window.enhanceMemoryDemo = function (api) {
     $("#v-stats").textContent =
       `Truy cập ${V.accesses} · Hit ${V.hits} · Fault ${V.faults} · I/O đọc ${V.reads} / ghi ${V.writes}`;
   }
-  const vt = new Timeline("v", "p4", V, renderV, "PDF Part 4 tr.23–24, 27.");
+  const vt = new Timeline("v", "p4", V, renderV, "");
   function syncVConfig() {
     resetConfigNotice("v");
     set("v-c-pages", vBase.pt.length);
@@ -1454,7 +1383,7 @@ window.enhanceMemoryDemo = function (api) {
           path,
           kind,
           P.err ? "lỗi truy cập" : "kiểm tra",
-          "PDF Part 4 tr.13–15. TLB nằm gần CPU/MMU; Page Table nằm trong RAM. TLB miss chỉ có nghĩa chưa có bản dịch trong cache. Kích thước bảng trang không được tính như khung dữ liệu trong sơ đồ sư phạm này.",
+          "TLB nằm gần CPU/MMU; Page Table nằm trong RAM. TLB miss chỉ có nghĩa chưa có bản dịch trong cache. Kích thước bảng trang không được tính như khung dữ liệu trong sơ đồ sư phạm này.",
         ),
       );
     };
@@ -1634,7 +1563,7 @@ window.enhanceMemoryDemo = function (api) {
     $("#x-stats").textContent =
       `TLB Hit ${X.hit} / Miss ${X.miss} · Page Fault ${X.faults}`;
   }
-  const xt = new Timeline("x", "p2", X, renderX, "PDF Part 4 tr.13–15.");
+  const xt = new Timeline("x", "p2", X, renderX, "");
   const defaultXConfig = () => ({
     pageSize: 4096,
     frameCount: 16,
@@ -1877,7 +1806,7 @@ window.enhanceMemoryDemo = function (api) {
           path,
           kind,
           status,
-          "PDF Part 4 tr.27–29. FIFO không đổi thứ tự khi hit; LRU dùng lần truy cập gần nhất; OPT dùng thông tin tương lai (chuẩn lý tưởng). Clock đặt R=1 khi nạp/hit, hạ R=0 khi cho cơ hội thứ hai; kim tiến sau khi thay. Mô hình chỉ đọc: loại trang sạch không đồng nghĩa ghi ra đĩa.",
+          "FIFO không đổi thứ tự khi hit; LRU dùng lần truy cập gần nhất; OPT dùng thông tin tương lai (chuẩn lý tưởng). Clock đặt R=1 khi nạp/hit, hạ R=0 khi cho cơ hội thứ hai; kim tiến sau khi thay. Mô hình chỉ đọc: loại trang sạch không đồng nghĩa ghi ra đĩa.",
         ),
       );
     add(
@@ -2094,7 +2023,7 @@ window.enhanceMemoryDemo = function (api) {
         }),
     );
   }
-  const rt = new Timeline("r", "p3", R, renderR, "PDF Part 4 tr.27–29.");
+  const rt = new Timeline("r", "p3", R, renderR, "");
   function syncRConfig() {
     resetConfigNotice("r");
     set("r-c-n", R.n);
@@ -2280,7 +2209,7 @@ window.enhanceMemoryDemo = function (api) {
           path,
           "request",
           status,
-          "PDF Part 4 tr.8–9. First-fit dừng ở lỗ đủ đầu tiên; Best-fit/Worst-fit quét toàn bộ. Nếu hòa, ưu tiên địa chỉ thấp. Phân mảnh ngoài: tổng trống đủ nhưng thiếu một vùng liên tục.",
+          "First-fit dừng ở lỗ đủ đầu tiên; Best-fit/Worst-fit quét toàn bộ. Nếu hòa, ưu tiên địa chỉ thấp. Phân mảnh ngoài: tổng trống đủ nhưng thiếu một vùng liên tục.",
         ),
       );
     add(
@@ -2394,7 +2323,7 @@ window.enhanceMemoryDemo = function (api) {
     });
     allocatorA.innerHTML = `<b>HÀNG CHỜ → MEMORY ALLOCATOR (${esc(A.alg)}) → RAM VẬT LÝ</b><p>${esc(e.change)}</p>${route(e)}`;
   }
-  const at = new Timeline("a", "p1", A, renderA, "PDF Part 4 tr.8–9.");
+  const at = new Timeline("a", "p1", A, renderA, "");
   function startA() {
     A.gap = A.gap ?? 70;
     const t = performance.now();
@@ -2773,7 +2702,7 @@ window.enhanceMemoryDemo = function (api) {
         }),
     );
   }
-  const ft = new Timeline("f", "p1", F, renderF, "PDF Part 4 tr.8–9.");
+  const ft = new Timeline("f", "p1", F, renderF, "");
   ft.generate = stepFree;
   ft.more = () => !!F.pending || F.si < F.script.length;
   function startF() {
@@ -2901,9 +2830,38 @@ window.enhanceMemoryDemo = function (api) {
       $("#b-cap").classList.add("teach-narrator");
       updateBLabels();
     },
-    "PDF Part 4 tr.5. Base ≤ A < Base + Limit.",
+    "Base ≤ A < Base + Limit.",
   );
   function bEvent() {
+    if (B.mode === "translate") {
+      const names = [
+        "CPU phát độ lệch logic L",
+        "MMU so sánh với Limit",
+        "Bộ cộng MMU (Adder)",
+        "Truy cập RAM vật lý",
+      ];
+      const narrations = [
+        `CPU phát độ lệch logic L=${B.offset}. Yêu cầu truy cập byte offset ${B.offset} trong tiến trình.`,
+        `MMU kiểm tra điều kiện 0 ≤ L < Limit (0 ≤ ${B.offset} < ${B.limit}). ${B.isValid ? "Hợp lệ (nằm trong giới hạn)." : "Vi phạm! Vượt quá giới hạn tiến trình."}`,
+        B.isValid
+          ? `MMU dùng bộ cộng phần cứng: PA = Base + L = ${B.base} + ${B.offset} = ${B.pa}.`
+          : `Độ lệch không hợp lệ. MMU phát bẫy ngắt TRAP bảo vệ bộ nhớ.`,
+        B.isValid
+          ? `MMU đưa địa chỉ vật lý PA=${B.pa} lên bus RAM. Truy cập thành công.`
+          : `Bẫy ngắt TRAP chuyển điều khiển cho Hệ điều hành xử lý lỗi phân đoạn (Segmentation Fault).`,
+      ];
+      return event(
+        B,
+        names[B.st],
+        "CPU / MMU",
+        `L=${B.offset}; Base=${B.base}; Limit=${B.limit}.`,
+        narrations[B.st],
+        B.st < 3 ? "Tiếp tục chu trình dịch." : (B.isValid ? "Hoàn tất dịch địa chỉ." : "Ngắt bảo vệ HĐH."),
+        "CPU → MMU → RAM",
+        "translation",
+        B.st === 3 ? (B.isValid ? "thành công" : "trap") : "dịch địa chỉ",
+      );
+    }
     const names = [
       "CPU phát địa chỉ",
       "Kiểm tra cận dưới",
@@ -2989,26 +2947,39 @@ window.enhanceMemoryDemo = function (api) {
     try {
       const base = integer(read("b-base"), "Base", 0, 1000000000),
         limit = integer(read("b-limit"), "Limit", 1, 1000000000);
-      let addr;
-      if (preset === "low") addr = base;
-      else if (preset === "high") addr = base + limit - 1;
-      else if (preset === "over") addr = base + limit;
-      else if (preset === "under") {
-        if (!base)
-          throw Error("Base=0: không có địa chỉ vật lý không âm nhỏ hơn Base.");
-        addr = base === 300040 && limit === 120900 ? 256000 : base - 1;
-      } else if (preset === "rand")
-        addr = Math.max(
-          0,
-          base -
-            Math.floor(limit / 4) +
-            Math.floor(Math.random() * limit * 1.5),
-        );
-      else addr = integer(read("b-addr"), "Địa chỉ A", 0, 2000000000);
-      clearError("b");
-      set("b-addr", addr);
-      api.planB(addr, base, limit);
-      startB();
+      let val;
+      if (B.mode === "translate") {
+        if (preset === "t-std") val = 346;
+        else if (preset === "t-low") val = 0;
+        else if (preset === "t-over") val = limit;
+        else if (preset === "t-under") val = -5;
+        else if (preset === "t-rand") val = Math.floor(Math.random() * limit * 1.2);
+        else val = integer(read("b-addr"), "Độ lệch logic (L)", -1000000000, 2000000000);
+        clearError("b");
+        set("b-addr", val);
+        api.planB(val, base, limit, "translate");
+        startB();
+      } else {
+        if (preset === "low") val = base;
+        else if (preset === "high") val = base + limit - 1;
+        else if (preset === "over") val = base + limit;
+        else if (preset === "under") {
+          if (!base)
+            throw Error("Base=0: không có địa chỉ vật lý không âm nhỏ hơn Base.");
+          val = base === 300040 && limit === 120900 ? 256000 : base - 1;
+        } else if (preset === "rand")
+          val = Math.max(
+            0,
+            base -
+              Math.floor(limit / 4) +
+              Math.floor(Math.random() * limit * 1.5),
+          );
+        else val = integer(read("b-addr"), "Địa chỉ A", -1000000000, 2000000000);
+        clearError("b", "");
+        set("b-addr", val);
+        api.planB(val, base, limit, "check");
+        startB();
+      }
     } catch (err) {
       error("b", err.message);
     }
@@ -3033,6 +3004,66 @@ window.enhanceMemoryDemo = function (api) {
     set("b-addr", 300040);
     submitB();
   };
+  
+  const modeCheckBtn = $("#b-mode-check");
+  const modeTransBtn = $("#b-mode-trans");
+  const presetsCheck = $("#b-presets-check");
+  const presetsTrans = $("#b-presets-trans");
+  const addrLbl = $("#b-addr-lbl");
+  const goBtn = $("#b-go");
+
+  function switchModeB(mode) {
+    pause();
+    B.mode = mode;
+    if (mode === "translate") {
+      if (modeCheckBtn) modeCheckBtn.classList.remove("active");
+      if (modeTransBtn) modeTransBtn.classList.add("active");
+      if (presetsCheck) presetsCheck.style.display = "none";
+      if (presetsTrans) presetsTrans.style.display = "flex";
+      if (addrLbl) addrLbl.textContent = "Độ lệch logic (L)";
+      if (goBtn) goBtn.textContent = "Dịch địa chỉ ▶";
+      set("b-base", 14000);
+      set("b-limit", 120900);
+      set("b-addr", 346);
+      api.planB(346, 14000, 120900, "translate");
+    } else {
+      if (modeTransBtn) modeTransBtn.classList.remove("active");
+      if (modeCheckBtn) modeCheckBtn.classList.add("active");
+      if (presetsTrans) presetsTrans.style.display = "none";
+      if (presetsCheck) presetsCheck.style.display = "flex";
+      if (addrLbl) addrLbl.textContent = "Địa chỉ CPU truy cập (A)";
+      if (goBtn) goBtn.textContent = "Kiểm tra ▶";
+      set("b-base", 300040);
+      set("b-limit", 120900);
+      set("b-addr", 300040);
+      api.planB(300040, 300040, 120900, "check");
+    }
+    startB();
+  }
+
+  if (modeCheckBtn) modeCheckBtn.onclick = () => switchModeB("check");
+  if (modeTransBtn) modeTransBtn.onclick = () => switchModeB("translate");
+
+  for (const key of ["t-std", "t-low", "t-over", "t-under", "t-rand"]) {
+    const el = $("#b-pre-" + key);
+    if (el) el.onclick = () => submitB(key);
+  }
+
+  // Wire all toggle-explain-btn across panels
+  document.querySelectorAll(".toggle-explain-btn").forEach(btn => {
+    btn.onclick = (ev) => {
+      ev.stopPropagation();
+      const targetId = btn.dataset.target;
+      const grid = document.getElementById(targetId);
+      if (grid) {
+        const isHidden = grid.classList.toggle("explain-hidden");
+        document.querySelectorAll(`.toggle-explain-btn[data-target="${targetId}"]`).forEach(b => {
+          b.textContent = isHidden ? "Hiện giải thích" : "Ẩn giải thích";
+        });
+      }
+    };
+  });
+
   startB();
   let resizeTimer;
   window.addEventListener("resize", () => {

@@ -697,12 +697,12 @@ footer{font-size:12px;color:var(--muted)}
     </div>
     <div class="header-meta">
       <div class="badge-hcmue">
-        <span>GIÁO TRÌNH SILBERSCHATZ</span><br>
-        <span style="color:#ffffff;font-size:11px">CHƯƠNG 9 & 10 · 5 DEMO TIÊU BIỂU</span>
+        <span>MÔ PHỎNG HỆ ĐIỀU HÀNH</span><br>
+        <span style="color:#ffffff;font-size:11px">5 PHÂN HỆ QUẢN LÝ BỘ NHỚ</span>
       </div>
-      <button id="theme-toggle" class="theme-btn" aria-label="Chuyển chế độ Sáng / Tối" title="Chuyển chế độ Sáng / Tối">
+      <button id="theme-toggle" class="theme-btn theme-toggle-btn" aria-label="Sáng / Tối" title="Sáng / Tối">
         <span class="theme-icon">🌙</span>
-        <span class="theme-text">Chế độ tối</span>
+        <span class="theme-text">Sáng / Tối</span>
       </button>
     </div>
   </header>
@@ -736,95 +736,107 @@ footer{font-size:12px;color:var(--muted)}
   <section class="panel" id="p0" role="tabpanel" aria-labelledby="t0">
     <div class="stage">
       <div class="bar">
-        <h2>Chương trình muốn truy cập địa chỉ RAM. Phần cứng có cho phép không?</h2>
+        <h2>Kiểm tra an toàn truy cập RAM và Dịch địa chỉ logic</h2>
       </div>
-      <p class="muted" style="font-size:14px;margin-top:-8px">
-        Minh họa cơ chế phần cứng MMU sử dụng hai thanh ghi <b>Base</b> (Cơ sở) và <b>Limit</b> (Giới hạn) để bảo vệ không gian nhớ của các tiến trình độc lập (Mục 9.1.2 Silberschatz).
-      </p>
+
+      <div class="mode-bar" style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
+        <span style="font-size:13px;font-weight:700;color:var(--muted)">Chế độ:</span>
+        <button type="button" class="btn-mode active" id="b-mode-check">Kiểm tra vùng nhớ (Bảo vệ)</button>
+        <button type="button" class="btn-mode" id="b-mode-trans">Dịch địa chỉ logic (Offset L → PA = Base + L)</button>
+      </div>
 
       <div class="quick">
         <div class="field">
           <label for="b-base">Thanh ghi Base</label>
-          <input type="number" id="b-base" value="300040" min="0" max="9999999" style="width:120px">
+          <input type="number" id="b-base" value="300040" min="0" max="9999999" style="width:115px">
         </div>
         <div class="field">
           <label for="b-limit">Thanh ghi Limit</label>
-          <input type="number" id="b-limit" value="120900" min="1" max="9999999" style="width:120px">
+          <input type="number" id="b-limit" value="120900" min="1" max="9999999" style="width:115px">
         </div>
         <div class="field">
-          <label for="b-addr">Địa chỉ CPU truy cập (A)</label>
-          <input type="number" id="b-addr" value="300040" min="0" max="9999999" style="width:130px">
+          <label for="b-addr" id="b-addr-lbl">Địa chỉ CPU truy cập (A)</label>
+          <input type="number" id="b-addr" value="300040" min="-9999999" max="9999999" style="width:130px">
         </div>
         <button class="btn primary" id="b-go">Kiểm tra ▶</button>
       </div>
 
-      <div class="bar" style="gap:6px">
-        <span class="muted" style="font-size:13px;font-weight:700">Dữ liệu mẫu giáo trình:</span>
-        <button class="btn" id="b-pre-low" style="padding:5px 10px;font-size:13px">300040 (Cận dưới ✓)</button>
-        <button class="btn" id="b-pre-high" style="padding:5px 10px;font-size:13px">420939 (Cận trên ✓)</button>
-        <button class="btn" id="b-pre-over" style="padding:5px 10px;font-size:13px;border-color:var(--bad);color:var(--bad)">420940 (Quá biên ✗ TRAP)</button>
-        <button class="btn" id="b-pre-under" style="padding:5px 10px;font-size:13px;border-color:var(--bad);color:var(--bad)">256000 (Dưới cận ✗ TRAP)</button>
-        <button class="btn" id="b-pre-rand" style="padding:5px 10px;font-size:13px">🎲 Ngẫu nhiên</button>
+      <div class="bar" id="b-presets-check" style="gap:6px">
+        <span class="muted" style="font-size:13px;font-weight:700">Dữ liệu mẫu:</span>
+        <button class="btn" id="b-pre-low" style="padding:4px 8px;font-size:12.5px">300040 (Cận dưới ✓)</button>
+        <button class="btn" id="b-pre-high" style="padding:4px 8px;font-size:12.5px">420939 (Cận trên ✓)</button>
+        <button class="btn" id="b-pre-over" style="padding:4px 8px;font-size:12.5px;border-color:var(--bad);color:var(--bad)">420940 (Quá biên ✗ TRAP)</button>
+        <button class="btn" id="b-pre-under" style="padding:4px 8px;font-size:12.5px;border-color:var(--bad);color:var(--bad)">256000 (Dưới cận ✗ TRAP)</button>
+        <button class="btn" id="b-pre-rand" style="padding:4px 8px;font-size:12.5px">🎲 Ngẫu nhiên</button>
       </div>
 
-      <!-- Sơ đồ mạch luồng MMU -->
-      <div class="flow" id="b-flow"></div>
+      <div class="bar" id="b-presets-trans" style="gap:6px;display:none">
+        <span class="muted" style="font-size:13px;font-weight:700">Dữ liệu mẫu:</span>
+        <button class="btn" id="b-pre-t-std" style="padding:4px 8px;font-size:12.5px">L=346 (Hợp lệ → PA=14346)</button>
+        <button class="btn" id="b-pre-t-low" style="padding:4px 8px;font-size:12.5px">L=0 (Cận dưới → PA=14000)</button>
+        <button class="btn" id="b-pre-t-over" style="padding:4px 8px;font-size:12.5px;border-color:var(--bad);color:var(--bad)">L=120900 (Bằng Limit ✗ TRAP)</button>
+        <button class="btn" id="b-pre-t-under" style="padding:4px 8px;font-size:12.5px;border-color:var(--bad);color:var(--bad)">L=-5 (Lỗi âm ✗ TRAP)</button>
+        <button class="btn" id="b-pre-t-rand" style="padding:4px 8px;font-size:12.5px">🎲 Ngẫu nhiên offset</button>
+      </div>
 
-      <!-- Thước thanh RAM trực quan -->
-      <div>
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
-          <span class="lane-label">Thước ánh xạ Bộ nhớ RAM vật lý</span>
-          <span class="muted" style="font-size:12px;font-family:var(--f-mono)">Vùng hợp lệ: [<span id="b-val-range">300040 → 420939</span>]</span>
+      <!-- Sân khấu 2 cột: Trái mô phỏng (~2/3), Phải giải thích (~1/3) -->
+      <div class="demo-stage-grid" id="grid-p0">
+        <div class="demo-canvas-col">
+          <!-- Sơ đồ mạch luồng MMU -->
+          <div class="flow" id="b-flow"></div>
+
+          <!-- Thước thanh RAM trực quan -->
+          <div>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+              <span class="lane-label">Thước ánh xạ Bộ nhớ RAM vật lý</span>
+              <span class="muted" style="font-size:12px;font-family:var(--f-mono)">Vùng hợp lệ: [<span id="b-val-range">300040 → 420939</span>]</span>
+            </div>
+            <div class="b-ram-track" id="b-ram-track"></div>
+            <div class="b-ram-legend">
+              <span><i style="background:var(--used)"></i>Hệ điều hành</span>
+              <span><i style="background:var(--ok)"></i>Vùng tiến trình được cấp quyền</span>
+              <span><i style="background:repeating-linear-gradient(135deg,var(--free) 0 5px,var(--stripe) 5px 10px)"></i>Vùng nhớ ngoài</span>
+              <span><i style="background:var(--bad)"></i>Điểm vi phạm (TRAP)</span>
+            </div>
+          </div>
         </div>
-        <div class="b-ram-track" id="b-ram-track"></div>
-        <div class="b-ram-legend">
-          <span><i style="background:var(--used)"></i>Hệ điều hành (0 .. 300039)</span>
-          <span><i style="background:var(--ok)"></i>Vùng tiến trình được cấp quyền (120900 bytes)</span>
-          <span><i style="background:repeating-linear-gradient(135deg,var(--free) 0 5px,var(--stripe) 5px 10px)"></i>Tiến trình khác / Bộ nhớ trống</span>
-          <span><i style="background:var(--bad)"></i>Điểm vi phạm (TRAP)</span>
+
+        <div class="demo-explain-col">
+          <div class="explain-card">
+            <div class="explain-header">
+              <h4>Giải thích bước</h4>
+              <button type="button" class="btn btn-sm btn-subtle toggle-explain-btn" data-target="grid-p0">Ẩn giải thích</button>
+            </div>
+            <p class="caption" id="b-cap" style="margin:0"></p>
+          </div>
         </div>
       </div>
 
-      <p class="caption" id="b-cap"></p>
-
-      <div class="bar">
+      <!-- Thanh điều khiển cố định -->
+      <div class="bar demo-controls-bar">
         <button class="btn" id="b-prev">◀ Lùi</button>
         <button class="btn primary" id="b-next">Bước tiếp ▶</button>
         <button class="btn" id="b-all">Xem kết quả</button>
         <button class="btn" id="b-play">⏵ Tự chạy</button>
         <button class="btn" id="b-reset">↺ Làm lại</button>
+        <button class="btn hist-toggle-btn" id="b-hist-toggle">Lịch sử</button>
+        <button class="btn toggle-explain-btn" data-target="grid-p0">Ẩn giải thích</button>
+        <button class="btn theme-toggle-btn">Sáng / Tối</button>
         <span class="spacer"></span>
-        <span class="muted" id="b-stats" style="font-size:14px;font-weight:700"></span>
+        <span class="muted" id="b-stats" style="font-size:13px;font-weight:700"></span>
       </div>
-
-      <!-- Thẻ lý thuyết thu gọn -->
-      <details><summary>Kiến thức nền tảng: Bảo vệ bộ nhớ bằng Base & Limit (Mục 9.1.2 Silberschatz)</summary>
-        <div style="display:flex;flex-direction:column;gap:10px;font-size:14px;color:var(--fg);margin-top:8px;line-height:1.6">
-          <p>• <b>Thanh ghi Base (Base Register):</b> Lưu trữ địa chỉ vật lý nhỏ nhất (cận dưới) mà tiến trình được phép truy cập.</p>
-          <p>• <b>Thanh ghi Limit (Limit Register):</b> Xác định kích thước (độ dài) vùng nhớ được cấp phát cho tiến trình.</p>
-          <p>• <b>Quy tắc bảo vệ:</b> Phần cứng MMU kiểm tra mỗi địa chỉ $A$ do CPU phát ra:
-            <span class="formula" style="display:inline-block;padding:3px 8px;background:var(--free);border-radius:6px;font-weight:700">Base ≤ A &lt; Base + Limit</span>.
-            Địa chỉ hợp lệ cuối cùng là <code>Base + Limit - 1</code>.
-          </p>
-          <p>• <b>Bẫy ngắt (TRAP to OS):</b> Nếu địa chỉ $A &lt; 	ext{Base}$ hoặc $A \ge 	ext{Base} + 	ext{Limit}$, phần cứng lập tức chặn truy cập và phát sinh ngắt phần mềm (Trap) chuyển quyền về hệ điều hành để báo lỗi <i>Addressing error / Segmentation fault</i>, ngăn tiến trình can thiệp trái phép vào bộ nhớ của HĐH hoặc tiến trình khác.</p>
-          <p class="muted">• <i>Tài liệu tham khảo: Operating System Concepts (10th ed.), Silberschatz et al., Chương 9, Hình 9.1 & 9.2.</i></p>
-        </div>
-      </details>
     </div>
-
-    <!-- Telemetry Monitor -->
-    <div class="telemetry-wrapper" id="tele-p0"></div>
   </section>
 
 
 <!-- ============ TAB 1 ============ -->
   <section class="panel" id="p1" role="tabpanel" aria-labelledby="t1" hidden>
-    <div class="bar">
+    <div class="bar" style="margin-bottom:4px">
       <div class="seg" id="a-mode" aria-label="Chế độ">
         <button data-m="free" aria-pressed="true">① Bắt đầu từ RAM trống</button><button data-m="ex" aria-pressed="false">② Bài tập có sẵn lỗ</button>
       </div>
       <span class="spacer"></span>
-      <span class="muted" style="font-size:14px">Hệ điều hành chọn lỗ theo</span>
+      <span class="muted" style="font-size:13px">Hệ điều hành chọn lỗ theo</span>
       <div class="seg" id="a-alg" aria-label="Chiến lược">
         <button data-a="first" aria-pressed="true">First-fit</button><button data-a="best" aria-pressed="false">Best-fit</button><button data-a="worst" aria-pressed="false">Worst-fit</button>
       </div>
@@ -833,99 +845,150 @@ footer{font-size:12px;color:var(--muted)}
     <div id="f-wrap" class="panel">
       <div class="stage">
         <h2>Mở và tắt chương trình: lỗ trống tự xuất hiện</h2>
-        <div>
-          <span class="lane-label">Kịch bản</span>
-          <div class="queue" id="f-script" style="margin-top:6px"></div>
+        
+        <div class="demo-stage-grid" id="grid-p1">
+          <div class="demo-canvas-col">
+            <div>
+              <span class="lane-label">Kịch bản tiến trình</span>
+              <div class="queue" id="f-script" style="margin-top:4px"></div>
+            </div>
+            <div class="scroll"><div class="lane">
+              <span class="lane-label">Chương trình đang xin chỗ</span>
+              <div class="req-row" id="f-req"></div>
+              <span class="lane-label" style="margin-top:14px">RAM · 1000 KB</span>
+              <div class="ram" id="f-ram"></div>
+              <div class="ruler" id="f-ruler"></div>
+            </div></div>
+            <div class="stats-line" id="f-stats"></div>
+          </div>
+
+          <div class="demo-explain-col">
+            <div class="explain-card">
+              <div class="explain-header">
+                <h4>Giải thích bước</h4>
+                <button type="button" class="btn btn-sm btn-subtle toggle-explain-btn" data-target="grid-p1">Ẩn giải thích</button>
+              </div>
+              <p class="caption" id="f-cap" style="margin:0"></p>
+            </div>
+          </div>
         </div>
-        <div class="scroll"><div class="lane">
-          <span class="lane-label">Chương trình đang xin chỗ</span>
-          <div class="req-row" id="f-req"></div>
-          <span class="lane-label" style="margin-top:22px">RAM · 1000 KB</span>
-          <div class="ram" id="f-ram"></div>
-          <div class="ruler" id="f-ruler"></div>
-        </div></div>
-        <div class="stats-line" id="f-stats"></div>
-        <p class="caption" id="f-cap"></p>
-        <div class="bar">
+
+        <div class="bar demo-controls-bar">
           <button class="btn" id="f-prev">◀ Lùi</button>
           <button class="btn primary" id="f-next">Bước tiếp ▶</button>
           <button class="btn" id="f-play">⏵ Tự chạy</button>
           <button class="btn" id="f-reset">↺ RAM trống lại</button>
+          <button class="btn hist-toggle-btn" id="f-hist-toggle">Lịch sử</button>
+          <button class="btn toggle-explain-btn" data-target="grid-p1">Ẩn giải thích</button>
+          <button class="btn theme-toggle-btn">Sáng / Tối</button>
         </div>
       </div>
-      <div class="stage" style="gap:12px">
-        <h3 style="margin:0;font-size:16px">Tự thử</h3>
-        <div class="form">
-          <div class="field"><label for="f-size">Mở chương trình mới (KB)</label><input type="number" id="f-size" value="150" min="10" max="1000"></div>
-          <button class="btn primary" id="f-open">Mở</button>
-          <button class="btn" id="f-compact">Dồn nén RAM</button>
+
+      <details style="margin-top:4px"><summary>Tùy chỉnh: Mở chương trình theo ý muốn</summary>
+        <div class="stage" style="gap:10px;margin-top:6px">
+          <div class="form">
+            <div class="field"><label for="f-size">Mở chương trình mới (KB)</label><input type="number" id="f-size" value="120" min="10" max="600" step="10"></div>
+            <button class="btn" id="f-add">Cấp phát ▶</button>
+            <span class="spacer"></span>
+            <button class="btn" id="f-compact">Dồn nén RAM (Compaction)</button>
+          </div>
+          <div class="bar"><span class="muted" style="font-size:13px">Bấm vào khối màu trên RAM để giải phóng hoặc xem chi tiết.</span></div>
         </div>
-        <p class="muted" style="font-size:14px">Bấm vào một chương trình trên thanh RAM để <b>tắt</b> nó. Chỗ của nó trở thành lỗ trống, và nếu sát một lỗ khác thì hai lỗ tự gộp lại.</p>
-      </div>
+      </details>
     </div>
 
-    <div id="e-wrap" class="panel" hidden>
-    <div class="stage">
-      <h2>Giả sử RAM đã có sẵn các lỗ này. Đặt tiến trình vào đâu?</h2>
-      <p class="muted" style="font-size:14px">Các lỗ là “ảnh chụp” RAM sau một thời gian chương trình mở rồi tắt. Đề bài cho sẵn để tập trung vào cách chọn lỗ.</p>
-      <div class="scroll"><div class="lane">
-        <span class="lane-label">Tiến trình đang xin</span>
-        <div class="req-row" id="a-req"></div>
-        <span class="lane-label" style="margin-top:22px">RAM</span>
-        <div class="ram" id="a-ram"></div>
-        <div class="queue" id="a-queue"></div>
-      </div></div>
-      <div class="legend"><span><i style="background:var(--ok-soft);border:1px solid var(--ok)"></i>đủ chỗ</span><span><i style="background:var(--bad-soft);border:1px solid var(--bad)"></i>không đủ</span><span><i style="background:var(--used)"></i>đã có chương trình khác</span></div>
-      <p class="caption" id="a-cap"></p>
-      <div class="bar">
-        <button class="btn" id="a-prev">◀ Lùi</button>
-        <button class="btn primary" id="a-next">Bước tiếp ▶</button>
-        <button class="btn" id="a-play">⏵ Tự chạy</button>
-        <button class="btn" id="a-reset">↺ Làm lại</button>
+    <div id="a-wrap" class="panel" hidden>
+      <div class="stage">
+        <h2>Bài tập mẫu: RAM đã có sẵn 5 lỗ trống</h2>
+        <div class="bar" style="margin-bottom:4px">
+          <span class="muted" style="font-size:13px">Hàng đợi tiến trình đang xin:</span>
+          <div class="queue" id="a-procs"></div>
+        </div>
+
+        <div class="demo-stage-grid" id="grid-p1-ex">
+          <div class="demo-canvas-col">
+            <div class="scroll"><div class="lane">
+              <span class="lane-label">RAM · 5 lỗ [100, 500, 200, 300, 600 KB]</span>
+              <div class="ram" id="a-ram"></div>
+              <div class="ruler" id="a-ruler"></div>
+            </div></div>
+            <div class="stats-line" id="a-stats"></div>
+          </div>
+
+          <div class="demo-explain-col">
+            <div class="explain-card">
+              <div class="explain-header">
+                <h4>Giải thích bước</h4>
+                <button type="button" class="btn btn-sm btn-subtle toggle-explain-btn" data-target="grid-p1-ex">Ẩn giải thích</button>
+              </div>
+              <p class="caption" id="a-cap" style="margin:0"></p>
+            </div>
+          </div>
+        </div>
+
+        <div class="bar demo-controls-bar">
+          <button class="btn" id="a-prev">◀ Lùi</button>
+          <button class="btn primary" id="a-next">Bước tiếp ▶</button>
+          <button class="btn" id="a-all">Cấp phát hết</button>
+          <button class="btn" id="a-reset">↺ Đặt lại bài tập</button>
+          <button class="btn hist-toggle-btn" id="a-hist-toggle">Lịch sử</button>
+          <button class="btn toggle-explain-btn" data-target="grid-p1-ex">Ẩn giải thích</button>
+          <button class="btn theme-toggle-btn">Sáng / Tối</button>
+        </div>
       </div>
+      <details><summary>Đổi dữ liệu bài tập</summary>
+        <div class="form" style="margin-top:6px">
+          <div class="field" style="flex:2"><label for="a-in-holes">Các lỗ trống ban đầu (KB)</label><input type="text" id="a-in-holes" value="100, 500, 200, 300, 600"></div>
+          <div class="field" style="flex:2"><label for="a-in-procs">Kích thước tiến trình xin (KB)</label><input type="text" id="a-in-procs" value="212, 417, 112, 426"></div>
+          <button class="btn" id="a-apply">Áp dụng</button>
+        </div>
+      </details>
     </div>
-    <div class="compare" id="a-cmp"></div>
-    <details><summary>Đổi dữ liệu</summary>
-      <div class="form">
-        <div class="field"><label for="a-holes">Lỗ trống (KB)</label><input type="text" id="a-holes" value="100, 500, 200, 300, 600"></div>
-        <div class="field"><label for="a-reqs">Tiến trình xin (KB)</label><input type="text" id="a-reqs" value="212, 417, 112, 426"></div>
-        <button class="btn" id="a-apply">Áp dụng</button>
-      </div>
-    </details>
-    </div>
-  
-    <!-- Telemetry Monitor -->
-    <div class="telemetry-wrapper" id="tele-p1"></div>
   </section>
 
 <!-- ============ TAB 2 ============ -->
   <section class="panel" id="p2" role="tabpanel" aria-labelledby="t2" hidden>
     <div class="stage">
       <div class="bar">
-        <h2>Chương trình nói “địa chỉ 10000”, RAM thật ở đâu?</h2>
+        <h2>Chương trình phát địa chỉ logic, RAM vật lý ở đâu?</h2>
       </div>
       <div class="quick">
-        <label for="x-addr" class="muted" style="font-weight:600;font-size:14px">Địa chỉ logic</label>
-        <input type="number" id="x-addr" value="10000" min="0" max="32767">
+        <label for="x-addr" class="muted" style="font-weight:600;font-size:13px">Địa chỉ logic</label>
+        <input type="number" id="x-addr" value="10000" min="0" max="32767" style="width:100px">
         <button class="btn primary" id="x-go">Dịch ▶</button>
         <button class="btn" id="x-rand">🎲 Ngẫu nhiên</button>
         <button class="btn" id="x-fault">Thử lỗi trang</button>
-        <span class="muted" style="font-size:13px">Trang 4 KB · 8 trang · RAM 16 khung</span>
+        <span class="muted" style="font-size:12.5px">Trang 4 KB · 8 trang · RAM 16 khung</span>
       </div>
-      <div class="flow" id="x-flow"></div>
-      <p class="caption" id="x-cap"></p>
-      <div class="bar">
+
+      <div class="demo-stage-grid" id="grid-p2">
+        <div class="demo-canvas-col">
+          <div class="flow" id="x-flow"></div>
+        </div>
+
+        <div class="demo-explain-col">
+          <div class="explain-card">
+            <div class="explain-header">
+              <h4>Giải thích bước</h4>
+              <button type="button" class="btn btn-sm btn-subtle toggle-explain-btn" data-target="grid-p2">Ẩn giải thích</button>
+            </div>
+            <p class="caption" id="x-cap" style="margin:0"></p>
+          </div>
+        </div>
+      </div>
+
+      <div class="bar demo-controls-bar">
         <button class="btn" id="x-prev">◀ Lùi</button>
         <button class="btn primary" id="x-next">Bước tiếp ▶</button>
         <button class="btn" id="x-all">Xem kết quả</button>
-        <span class="spacer"></span>
-        <span class="muted" id="x-stats" style="font-size:14px"></span>
         <button class="btn" id="x-reset">↺ Làm lại</button>
+        <button class="btn hist-toggle-btn" id="x-hist-toggle">Lịch sử</button>
+        <button class="btn toggle-explain-btn" data-target="grid-p2">Ẩn giải thích</button>
+        <button class="btn theme-toggle-btn">Sáng / Tối</button>
+        <span class="spacer"></span>
+        <span class="muted" id="x-stats" style="font-size:13px;font-weight:700"></span>
       </div>
     </div>
-  
-    <!-- Telemetry Monitor -->
-    <div class="telemetry-wrapper" id="tele-p2"></div>
   </section>
 
 
@@ -933,67 +996,63 @@ footer{font-size:12px;color:var(--muted)}
   <section class="panel" id="p4" role="tabpanel" aria-labelledby="t4" hidden>
     <div class="stage">
       <div class="bar">
-        <h2>CPU cần một trang chưa nằm trong RAM. Hệ điều hành xử lý lỗi trang ra sao?</h2>
+        <h2>CPU cần trang chưa nạp trong RAM. Xử lý lỗi trang ra sao?</h2>
       </div>
-      <p class="muted" style="font-size:14px;margin-top:-8px">
-        Mô phỏng quy trình 6 bước xử lý ngắt lỗi trang (Page Fault) theo chuẩn giáo trình Silberschatz (Hình 10.4): Kiểm tra Bảng trang → Báo Trap → Định vị đĩa → Chọn khung trống → Nạp I/O → Khởi động lại lệnh.
-      </p>
 
       <div class="quick">
-        <label for="v-page" class="muted" style="font-weight:600;font-size:14px">Trang cần truy cập</label>
-        <input type="number" id="v-page" value="3" min="0" max="7" style="width:70px">
-        <button class="btn primary" id="v-go">Truy cập trang ▶</button>
+        <label for="v-page" class="muted" style="font-weight:600;font-size:13px">Trang truy cập</label>
+        <input type="number" id="v-page" value="3" min="0" max="7" style="width:65px">
+        <button class="btn primary" id="v-go">Truy cập ▶</button>
         <span class="spacer"></span>
-        <span class="muted" style="font-size:13px;font-weight:700">Kịch bản mẫu:</span>
-        <button class="btn" id="v-pre-fault" style="padding:5px 10px;font-size:13px;border-color:var(--bad);color:var(--bad)">Trang 3 (Lỗi trang 6 bước)</button>
-        <button class="btn" id="v-pre-hit" style="padding:5px 10px;font-size:13px;border-color:var(--ok);color:var(--ok)">Trang 1 (Có sẵn: Page Hit ✓)</button>
-        <button class="btn" id="v-pre-fault2" style="padding:5px 10px;font-size:13px">Trang 5 (Lỗi trang nạp tiếp)</button>
-        <button class="btn" id="v-pre-invalid" style="padding:5px 10px;font-size:13px">Trang 99 (Lỗi truy cập ngoài miền)</button>
+        <span class="muted" style="font-size:12.5px;font-weight:700">Mẫu:</span>
+        <button class="btn" id="v-pre-fault" style="padding:4px 8px;font-size:12.5px;border-color:var(--bad);color:var(--bad)">Trang 3 (Lỗi trang 6 bước)</button>
+        <button class="btn" id="v-pre-hit" style="padding:4px 8px;font-size:12.5px;border-color:var(--ok);color:var(--ok)">Trang 1 (Có sẵn: Hit ✓)</button>
+        <button class="btn" id="v-pre-fault2" style="padding:4px 8px;font-size:12.5px">Trang 5 (Lỗi trang tiếp)</button>
+        <button class="btn" id="v-pre-invalid" style="padding:4px 8px;font-size:12.5px">Trang 99 (Lỗi ngoài miền)</button>
       </div>
 
-      <!-- Sơ đồ 5 khối tương tác của Demand Paging -->
-      <div class="flow" id="v-flow"></div>
+      <div class="demo-stage-grid" id="grid-p4">
+        <div class="demo-canvas-col">
+          <!-- Sơ đồ 5 khối tương tác của Demand Paging -->
+          <div class="flow" id="v-flow"></div>
 
-      <!-- Hàng danh sách khung trống (Free-frame list) & Thống kê đĩa -->
-      <div style="display:flex;flex-wrap:wrap;gap:16px;align-items:center;background:var(--free);padding:10px 14px;border-radius:10px">
-        <div>
-          <span class="lane-label" style="display:inline;margin-right:8px">Danh sách khung trống (Free-Frame List):</span>
-          <span id="v-free-frames" style="display:inline-flex;gap:6px"></span>
+          <!-- Free-frame list & Secondary memory indicator -->
+          <div style="display:flex;flex-wrap:wrap;gap:14px;align-items:center;background:var(--free);padding:8px 12px;border-radius:8px">
+            <div>
+              <span class="lane-label" style="display:inline;margin-right:6px">Khung trống:</span>
+              <span id="v-free-list" style="font-family:var(--f-mono);font-size:12.5px;color:var(--fg);font-weight:700">Đang khởi tạo...</span>
+            </div>
+            <div>
+              <span class="lane-label" style="display:inline;margin-right:6px">Bộ nhớ phụ:</span>
+              <span id="v-disk-status" style="font-size:12.5px;color:var(--muted)">Sẵn sàng truyền trang</span>
+            </div>
+          </div>
         </div>
-        <span class="spacer"></span>
-        <div class="muted" style="font-size:13px">
-          Trạng thái đĩa cứng: <b id="v-disk-status" style="color:var(--fg)">Sẵn sàng</b>
+
+        <div class="demo-explain-col">
+          <div class="explain-card">
+            <div class="explain-header">
+              <h4>Giải thích bước</h4>
+              <button type="button" class="btn btn-sm btn-subtle toggle-explain-btn" data-target="grid-p4">Ẩn giải thích</button>
+            </div>
+            <p class="caption" id="v-cap" style="margin:0"></p>
+          </div>
         </div>
       </div>
 
-      <p class="caption" id="v-cap"></p>
-
-      <div class="bar">
+      <div class="bar demo-controls-bar">
         <button class="btn" id="v-prev">◀ Lùi</button>
         <button class="btn primary" id="v-next">Bước tiếp ▶</button>
-        <button class="btn" id="v-all">Xem kết quả</button>
+        <button class="btn" id="v-all">Xem hoàn tất</button>
         <button class="btn" id="v-play">⏵ Tự chạy</button>
         <button class="btn" id="v-reset">↺ Làm lại</button>
+        <button class="btn hist-toggle-btn" id="v-hist-toggle">Lịch sử</button>
+        <button class="btn toggle-explain-btn" data-target="grid-p4">Ẩn giải thích</button>
+        <button class="btn theme-toggle-btn">Sáng / Tối</button>
         <span class="spacer"></span>
-        <span class="muted" id="v-stats" style="font-size:14px;font-weight:700"></span>
+        <span class="muted" id="v-stats" style="font-size:13px;font-weight:700"></span>
       </div>
-
-      <!-- Thẻ lý thuyết thu gọn -->
-      <details><summary>Kiến thức chuyên sâu: Quy trình 6 bước xử lý ngắt Page Fault (Mục 10.2 Silberschatz)</summary>
-        <div style="display:flex;flex-direction:column;gap:10px;font-size:14px;color:var(--fg);margin-top:8px;line-height:1.6">
-          <p>• <b>Bước 1 (Reference):</b> CPU phát chỉ lệnh tham chiếu đến địa chỉ ô nhớ trong trang $p$.</p>
-          <p>• <b>Bước 2 (Trap to OS):</b> MMU tra bảng trang, phát hiện bit hiện diện là <code>i</code> (trong ngữ cảnh này: trang hợp lệ nhưng chưa nạp) → phát sinh ngoại lệ <b>Trap: Page Fault</b> chuyển về HĐH.</p>
-          <p>• <b>Bước 3 (OS Check & Locate):</b> HĐH kiểm tra khối điều khiển tiến trình (PCB) để xác nhận đây là truy cập hợp lệ, sau đó định vị vị trí khối trang $p$ trên bộ nhớ phụ (Backing Store / Đĩa cứng / Swap).</p>
-          <p>• <b>Bước 4 (Find Free Frame):</b> HĐH tìm một khung nhớ trống trong danh sách <i>Free-frame list</i>. (Nếu RAM đã đầy, hệ thống kích hoạt thuật toán thay thế trang như FIFO, LRU để chọn trang hi sinh).</p>
-          <p>• <b>Bước 5 (Disk I/O & Update):</b> HĐH lập lịch I/O đọc dữ liệu trang từ đĩa đưa vào khung nhớ vừa chọn. Sau khi đọc xong, HĐH cập nhật Bảng trang: điền số khung mới và đổi bit trạng thái từ <code>i</code> thành <code>v</code> (Valid).</p>
-          <p>• <b>Bước 6 (Restart Instruction):</b> HĐH khôi phục thanh ghi và ra lệnh cho CPU khởi động lại chỉ lệnh đã bị gián đoạn. Lần này trang đã có sẵn trong RAM → truy cập thành công!</p>
-          <p class="muted">• <i>Tài liệu tham khảo: Operating System Concepts (10th ed.), Silberschatz et al., Chương 10: Virtual Memory, Hình 10.4.</i></p>
-        </div>
-      </details>
     </div>
-
-    <!-- Telemetry Monitor -->
-    <div class="telemetry-wrapper" id="tele-p4"></div>
   </section>
 
 
@@ -1007,50 +1066,63 @@ footer{font-size:12px;color:var(--muted)}
           <button data-a="FIFO" aria-pressed="true">FIFO</button><button data-a="LRU" aria-pressed="false">LRU</button><button data-a="OPT" aria-pressed="false">OPT</button><button data-a="CLOCK" aria-pressed="false">Clock</button>
         </div>
       </div>
-      <div>
-        <span class="lane-label">Chương trình lần lượt cần các trang</span>
-        <div class="refs" id="r-refs" style="margin-top:6px"></div>
+
+      <div class="demo-stage-grid" id="grid-p3">
+        <div class="demo-canvas-col">
+          <div>
+            <span class="lane-label">Chuỗi trang tham chiếu</span>
+            <div class="refs" id="r-refs" style="margin-top:4px"></div>
+          </div>
+          <div class="scene">
+            <div class="need" id="r-need"></div>
+            <div class="ramzone"><span class="zone-t">RAM · bàn học</span><div class="slots" id="r-slots"></div></div>
+            <div class="disk"><span class="zone-t">Bộ nhớ phụ</span><div class="icon">💾</div><div id="r-out"></div></div>
+          </div>
+        </div>
+
+        <div class="demo-explain-col">
+          <div class="explain-card">
+            <div class="explain-header">
+              <h4>Giải thích bước</h4>
+              <button type="button" class="btn btn-sm btn-subtle toggle-explain-btn" data-target="grid-p3">Ẩn giải thích</button>
+            </div>
+            <p class="caption" id="r-cap" style="margin:0"></p>
+          </div>
+        </div>
       </div>
-      <div class="scene">
-        <div class="need" id="r-need"></div>
-        <div class="ramzone"><span class="zone-t">RAM · bàn học</span><div class="slots" id="r-slots"></div></div>
-        <div class="disk"><span class="zone-t">Ổ cứng · tủ sách</span><div class="icon">💾</div><div id="r-out"></div></div>
-      </div>
-      <p class="caption" id="r-cap"></p>
-      <div class="bar">
+
+      <div class="bar demo-controls-bar">
         <button class="btn" id="r-prev">◀ Lùi</button>
         <button class="btn primary" id="r-next">Bước tiếp ▶</button>
         <button class="btn" id="r-play">⏵ Tự chạy</button>
         <button class="btn" id="r-reset">↺ Làm lại</button>
+        <button class="btn hist-toggle-btn" id="r-hist-toggle">Lịch sử</button>
+        <button class="btn toggle-explain-btn" data-target="grid-p3">Ẩn giải thích</button>
+        <button class="btn theme-toggle-btn">Sáng / Tối</button>
         <span class="spacer"></span>
         <div class="counts" id="r-counts"></div>
       </div>
     </div>
 
-    <div class="stage">
-      <div class="bar"><h2>Cùng chuỗi này, 4 cách cho kết quả</h2><span class="spacer"></span>
-        <span class="muted" style="font-size:14px">Số chỗ trong RAM</span>
-        <div class="seg" id="r-n"><button data-n="2">2</button><button data-n="3">3</button><button data-n="4">4</button><button data-n="5">5</button></div>
+    <details><summary>So sánh 4 thuật toán và Belady</summary>
+      <div class="stage" style="margin-top:6px">
+        <div class="bar"><h2>Cùng chuỗi này, 4 cách cho kết quả</h2><span class="spacer"></span>
+          <span class="muted" style="font-size:13px">Số chỗ trong RAM</span>
+          <div class="seg" id="r-n"><button data-n="2">2</button><button data-n="3">3</button><button data-n="4">4</button><button data-n="5">5</button></div>
+        </div>
+        <div class="bars" id="r-bars"></div>
+        <div class="bar" style="margin-top:6px">
+          <button class="btn" id="r-bel">Thử Belady's anomaly</button>
+          <button class="btn" id="r-custom">Tự đặt chuỗi trang</button>
+        </div>
       </div>
-      <div class="bars" id="r-bars"></div>
-      <p class="muted" style="font-size:14px">Thanh càng ngắn càng tốt (ít lần phải chạy ra ổ cứng). OPT luôn ngắn nhất nhưng không làm được thật, vì máy không biết trước tương lai.</p>
-      <div id="r-belady"></div>
-      <div class="bar"><button class="btn" id="r-bel">Thử Belady's anomaly</button><button class="btn" id="r-book">Chuỗi trong giáo trình</button></div>
-    </div>
-
-    <details><summary>Bảng đầy đủ kiểu giáo trình (để luyện tính tay)</summary><div class="scroll"><table class="tgrid" id="r-grid"></table></div></details>
-    <details><summary>Đổi chuỗi trang</summary>
-      <div class="form"><div class="field"><label for="r-str">Chuỗi tham chiếu (tối đa 24 số)</label><input type="text" id="r-str" value="7 0 1 2 0 3 0 4 2 3 0 3 2 1 2 0 1 7 0 1"></div><button class="btn" id="r-apply">Áp dụng</button></div>
     </details>
-  
-    <!-- Telemetry Monitor -->
-    <div class="telemetry-wrapper" id="tele-p3"></div>
   </section>
 
   <footer>
     <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
       <span>Đề tài Tiểu luận Hệ điều hành · Trường Đại học Sư phạm TP.HCM (HCMUE) · Khoa Công Nghệ Thông Tin</span>
-      <span>Dựa trên giáo trình <i>Operating System Concepts</i> (10th ed., Silberschatz et al.)</span>
+      <span>Web Demo Mô phỏng Quản lý Bộ nhớ</span>
     </div>
   </footer>
 </div>
@@ -1105,148 +1177,65 @@ function togglePlay(key, btn, stepFn, canStep){
   }, 1300);
 }
 
-/* ================= REAL-TIME PERFORMANCE & SYSTEM TELEMETRY ================= */
+/* ================= SYSTEM TELEMETRY (CLEANED) ================= */
 let currentActivePanel = 'p0';
 function updateTelemetry(panelId, algDuration=0.08){
   currentActivePanel = panelId;
-  const container = $('#tele-' + panelId);
-  if (!container) return;
-
-  const renderT0 = performance.now();
-  const now = new Date();
-  const timeStr = now.toTimeString().split(' ')[0] + '.' + String(now.getMilliseconds()).padStart(3, '0');
-
-  // Real browser metrics
-  const cores = navigator.hardwareConcurrency ? `${navigator.hardwareConcurrency} luồng logic` : 'Không xác định';
-  const mem = navigator.deviceMemory ? `${navigator.deviceMemory} GB` : 'Không hỗ trợ trên trình duyệt này';
-
-  let heapStr = 'Không khả dụng';
-  if (window.performance && performance.memory){
-    const used = Math.round(performance.memory.usedJSHeapSize / (1024 * 1024));
-    const total = Math.round(performance.memory.totalJSHeapSize / (1024 * 1024));
-    heapStr = `${used} MB / ${total} MB`;
-  }
-
-  // Simulated metrics per tab
-  let simRows = '';
-  if (panelId === 'p0'){
-    simRows = `
-      <div class="sim-row"><span class="sim-k">Thanh ghi Base:</span><span class="sim-v">${B.base}</span></div>
-      <div class="sim-row"><span class="sim-k">Thanh ghi Limit:</span><span class="sim-v">${B.limit}</span></div>
-      <div class="sim-row"><span class="sim-k">Địa chỉ đang kiểm tra (A):</span><span class="sim-v">${B.addr}</span></div>
-      <div class="sim-row"><span class="sim-k">Trạng thái bảo vệ:</span><span class="sim-v" style="color:${B.isValid?'var(--ok)':'var(--bad)'}">${B.isValid?'✓ Hợp lệ':'✗ TRAP: Vi phạm'}</span></div>
-      <div class="sim-row"><span class="sim-k">Tổng lượt kiểm tra:</span><span class="sim-v">${B.checks} (Vi phạm: ${B.traps})</span></div>
-    `;
-  } else if (panelId === 'p1'){
-    const hs = F.segs ? F.segs.filter(s => !s.name) : [];
-    const freeSum = hs.reduce((a, b) => a + b.size, 0);
-    const maxHole = hs.length ? Math.max(...hs.map(s => s.size)) : 0;
-    simRows = `
-      <div class="sim-row"><span class="sim-k">Chiến lược cấp phát:</span><span class="sim-v">${ALGNAME[A.alg] || 'First-fit'}</span></div>
-      <div class="sim-row"><span class="sim-k">Dung lượng RAM mô phỏng:</span><span class="sim-v">1000 KB</span></div>
-      <div class="sim-row"><span class="sim-k">Tổng bộ nhớ RAM còn trống:</span><span class="sim-v">${freeSum} KB (${((freeSum/1000)*100).toFixed(1)}%)</span></div>
-      <div class="sim-row"><span class="sim-k">Số lượng lỗ trống rải rác:</span><span class="sim-v">${hs.length} lỗ (Lớn nhất: ${maxHole} KB)</span></div>
-      <div class="sim-row"><span class="sim-k">Tiến trình đang chờ (Wait):</span><span class="sim-v">${F.waiting ? F.waiting.length : 0} tiến trình</span></div>
-    `;
-  } else if (panelId === 'p2'){
-    simRows = `
-      <div class="sim-row"><span class="sim-k">Địa chỉ logic yêu cầu:</span><span class="sim-v">${X.plan ? X.plan.addr : '–'}</span></div>
-      <div class="sim-row"><span class="sim-k">Số trang (p) & Độ lệch (d):</span><span class="sim-v">${X.plan ? `Trang ${X.plan.p}, d=${X.plan.d}` : '–'}</span></div>
-      <div class="sim-row"><span class="sim-k">Trạng thái TLB:</span><span class="sim-v">${X.plan ? (X.plan.hit ? 'TLB Hit ✓' : 'TLB Miss ✗') : '–'}</span></div>
-      <div class="sim-row"><span class="sim-k">Địa chỉ vật lý (PA):</span><span class="sim-v" style="color:var(--ok)">${X.plan && !X.plan.err ? X.plan.phys : '–'}</span></div>
-      <div class="sim-row"><span class="sim-k">Tổng kết TLB & Lỗi trang:</span><span class="sim-v">TLB Hit ${X.hit}/${X.hit+X.miss} · Page Fault: ${X.faults}</span></div>
-    `;
-  } else if (panelId === 'p4'){
-    simRows = `
-      <div class="sim-row"><span class="sim-k">Trang yêu cầu truy cập:</span><span class="sim-v">Trang ${V.page}</span></div>
-      <div class="sim-row"><span class="sim-k">Trạng thái truy cập:</span><span class="sim-v" style="color:${V.plan&&V.plan.hit?'var(--ok)':'var(--bad)'}">${V.plan ? (V.plan.hit?'Page Hit ✓':'Page Fault ✗') : '–'}</span></div>
-      <div class="sim-row"><span class="sim-k">Khung RAM được nạp:</span><span class="sim-v">${V.plan ? (V.plan.hit?`Khung ${V.plan.frame}`:`Khung ${V.plan.chosenFrame}`):'–'}</span></div>
-      <div class="sim-row"><span class="sim-k">Khung trống khả dụng:</span><span class="sim-v">${V.freeFrames.length} khung</span></div>
-      <div class="sim-row"><span class="sim-k">Thao tác I/O Đĩa cứng:</span><span class="sim-v">${V.plan&&!V.plan.hit&&!V.plan.oob?'1 lượt đọc khối đĩa':'0 (Truy cập RAM)'}</span></div>
-    `;
-  } else if (panelId === 'p3'){
-    const steps = simR(R.refs, R.n, R.alg);
-    const nf = steps.filter(x => !x.hit).length;
-    const nh = steps.length - nf;
-    const rate = steps.length ? ((nf / steps.length) * 100).toFixed(1) : 0;
-    simRows = `
-      <div class="sim-row"><span class="sim-k">Thuật toán thay thế trang:</span><span class="sim-v">${NAME[R.alg]} (${DESC[R.alg]})</span></div>
-      <div class="sim-row"><span class="sim-k">Số khung trang RAM (N):</span><span class="sim-v">${R.n} khung</span></div>
-      <div class="sim-row"><span class="sim-k">Tổng số lượt tham chiếu:</span><span class="sim-v">${R.refs.length} lượt</span></div>
-      <div class="sim-row"><span class="sim-k">Số lỗi trang (Page Faults):</span><span class="sim-v" style="color:var(--bad)">${nf} lỗi (Tỷ lệ: ${rate}%)</span></div>
-      <div class="sim-row"><span class="sim-k">Số lần trúng trang (Hits):</span><span class="sim-v" style="color:var(--ok)">${nh} trúng</span></div>
-    `;
-  }
-
-  const renderDur = Math.max(0.1, performance.now() - renderT0).toFixed(3);
-
-  container.innerHTML = `
-    <div class="stage telemetry-stage" style="margin-top:14px">
-      <div class="telemetry-header">
-        <div style="display:flex;align-items:center;gap:10px">
-          <span style="font-size:22px">📊</span>
-          <div>
-            <h3 style="margin:0;font-size:15px;font-weight:800;color:#0c3668;letter-spacing:-0.01em">GIÁM SÁT THÔNG SỐ MÁY TÍNH KHI CHẠY DEMO</h3>
-            <p style="margin:0;font-size:12px;color:var(--muted);font-weight:600">Real-Time Computer Performance & System Telemetry Monitor</p>
-          </div>
-        </div>
-        <span class="tele-time-badge">Lấy mẫu lúc: ${timeStr}</span>
-      </div>
-
-      <div class="telemetry-grid" style="margin-top:12px">
-        <div class="tele-col">
-          <div class="tele-col-title">🖥️ A. THÔNG SỐ MÁY THẬT (Browser & Hardware API)</div>
-          <table class="tele-table">
-            <tbody>
-              <tr><td>CPU Logical Processors</td><td>${cores}</td><td><span class="badge-real">Đo thực tế (Web API)</span></td></tr>
-              <tr><td>Device Memory (RAM thiết bị)</td><td>${mem}</td><td><span class="badge-est">Ước lượng (Client Hints)</span></td></tr>
-              <tr><td>Browser JS Heap Memory</td><td>${heapStr}</td><td><span class="badge-real">Đo thực tế (Chromium)</span></td></tr>
-              <tr><td>Algorithm Execution Time</td><td>${Number(algDuration).toFixed(3)} ms</td><td><span class="badge-real">Đo thực tế (performance.now)</span></td></tr>
-              <tr><td>UI Render / DOM Update</td><td>${renderDur} ms</td><td><span class="badge-real">Đo thực tế (DOM update)</span></td></tr>
-              <tr><td>System CPU / RAM Toàn máy</td><td class="muted">Không khả dụng</td><td><span class="badge-na">Bảo mật sandbox trình duyệt</span></td></tr>
-            </tbody>
-          </table>
-          <div class="tele-note">* Lưu ý bảo mật: Theo tiêu chuẩn sandbox W3C, trình duyệt không cấp quyền truy cập tài nguyên phần cứng hệ thống cấp thấp khi không có agent chuyên dụng.</div>
-        </div>
-
-        <div class="tele-col">
-          <div class="tele-col-title">⚙️ B. THÔNG SỐ MÔ HÌNH THUẬT TOÁN (Simulated OS Metrics)</div>
-          <div class="tele-sim-box">${simRows}</div>
-        </div>
-      </div>
-    </div>
-  `;
 }
 
 /* ================= TAB 0: BASE / LIMIT ENGINE ================= */
 const B = {
+  mode: 'check', // 'check' (Bảo vệ) hoặc 'translate' (Dịch logic)
   base: 300040,
   limit: 120900,
   addr: 300040,
+  offset: 346,
+  pa: 0,
   st: 0,
   checks: 0,
   traps: 0
 };
 
-function planB(addr, base, limit){
-  B.addr = addr;
+function planB(addrOrOffset, base, limit, mode = (B.mode || 'check')){
+  B.mode = mode;
   B.base = base;
   B.limit = limit;
   B.upper = base + limit;
   B.validEnd = base + limit - 1;
-  B.cond1 = addr >= base;
-  B.cond2 = addr < B.upper;
-  B.isValid = B.cond1 && B.cond2;
   B.st = 0;
   B.checks++;
+
+  if (mode === 'check'){
+    B.addr = addrOrOffset;
+    B.cond1 = addrOrOffset >= base;
+    B.cond2 = addrOrOffset < B.upper;
+    B.isValid = B.cond1 && B.cond2;
+    B.pa = B.isValid ? addrOrOffset : null;
+  } else {
+    // translate mode
+    B.offset = addrOrOffset;
+    B.cond1 = addrOrOffset >= 0;
+    B.cond2 = addrOrOffset < limit;
+    B.isValid = B.cond1 && B.cond2;
+    B.pa = B.isValid ? (base + addrOrOffset) : null;
+    B.addr = B.pa !== null ? B.pa : (base + Math.max(0, addrOrOffset));
+  }
+
   if (!B.isValid) B.traps++;
 }
 
 function renderB(){
   const t0 = performance.now();
-  const { addr, base, limit, upper, validEnd, cond1, cond2, isValid, st } = B;
-  $('#b-val-range').textContent = `${base} → ${validEnd}`;
-  $('#b-stats').textContent = `Đã kiểm tra: ${B.checks} · Vi phạm (Trap): ${B.traps}`;
+  const { mode, addr, offset, base, limit, upper, validEnd, cond1, cond2, isValid, pa, st } = B;
+  
+  if ($('#b-val-range')) {
+    $('#b-val-range').textContent = mode === 'translate' 
+      ? `Base=${base} | Độ dài=${limit} | [${base} → ${validEnd}]`
+      : `${base} → ${validEnd}`;
+  }
+  if ($('#b-stats')) {
+    $('#b-stats').textContent = `Đã kiểm tra: ${B.checks} · Vi phạm (Trap): ${B.traps}`;
+  }
 
   const boxClass = (stepIdx, isBad=false) => {
     if (st < stepIdx) return 'box dim';
@@ -1254,88 +1243,140 @@ function renderB(){
     return isBad ? 'box badb' : 'box';
   };
 
-  const b1 = `<div class="${boxClass(0)}">
-    <h3>① CPU phát địa chỉ A</h3>
-    <div class="big">${addr}</div>
-    <div class="formula">Yêu cầu truy cập byte ${addr}</div>
-  </div>`;
+  let b1, b2, b3, b4;
+  if (mode === 'translate'){
+    b1 = `<div class="${boxClass(0)}">
+      <h3>① CPU phát độ lệch L</h3>
+      <div class="big">${offset}</div>
+      <div class="formula">Độ lệch logic trong tiến trình</div>
+    </div>`;
 
-  const b2 = `<div class="${boxClass(1, st >= 1 && !cond1)}">
-    <h3>② Kiểm tra cận dưới</h3>
-    <div class="big" style="color:${st >= 1 ? (cond1 ? 'var(--ok)' : 'var(--bad)') : 'inherit'}">
-      ${addr} ≥ ${base}
-    </div>
-    <div class="verdict ${st >= 1 ? (cond1 ? 'ok' : 'bad') : ''}">
-      ${st >= 1 ? (cond1 ? '✓ Thỏa mãn (A ≥ Base)' : '✗ VI PHẠM: A < Base') : 'Chờ kiểm tra...'}
-    </div>
-  </div>`;
+    b2 = `<div class="${boxClass(1, st >= 1 && (!cond1 || !cond2))}">
+      <h3>② MMU so sánh với Limit</h3>
+      <div class="big" style="color:${st >= 1 ? (isValid ? 'var(--ok)' : 'var(--bad)') : 'inherit'}">
+        0 ≤ ${offset} < ${limit}
+      </div>
+      <div class="verdict ${st >= 1 ? (isValid ? 'ok' : 'bad') : ''}">
+        ${st >= 1 ? (isValid ? '✓ Hợp lệ (L < Limit)' : (offset < 0 ? '✗ VI PHẠM: L < 0' : '✗ VI PHẠM: L ≥ Limit')) : 'Chờ kiểm tra...'}
+      </div>
+    </div>`;
 
-  const b3 = `<div class="${boxClass(2, st >= 2 && (!cond1 || !cond2))}">
-    <h3>③ Kiểm tra cận trên</h3>
-    <div class="big" style="color:${st >= 2 ? (cond2 ? 'var(--ok)' : 'var(--bad)') : 'inherit'}">
-      ${addr} < ${upper}
-    </div>
-    <div class="verdict ${st >= 2 ? (cond2 ? 'ok' : 'bad') : ''}">
-      ${st >= 2 ? (cond1 ? (cond2 ? '✓ Thỏa mãn (A < Base+Limit)' : '✗ VI PHẠM: A ≥ Base+Limit') : 'Bị bỏ qua vì đã lỗi cận dưới') : 'Chờ kiểm tra...'}
-    </div>
-  </div>`;
+    b3 = `<div class="${boxClass(2, st >= 2 && !isValid)}">
+      <h3>③ Bộ cộng MMU (Adder)</h3>
+      <div class="big" style="color:${st >= 2 ? (isValid ? 'var(--ok)' : 'var(--bad)') : 'inherit'}">
+        ${st >= 2 ? (isValid ? `${base} + ${offset} = ${pa}` : 'Chặn phép cộng (TRAP)') : 'PA = Base + L'}
+      </div>
+      <div class="verdict ${st >= 2 ? (isValid ? 'ok' : 'bad') : ''}">
+        ${st >= 2 ? (isValid ? `✓ PA vật lý: ${pa}` : '✗ Bị chặn do vi phạm!') : 'Chờ tính toán...'}
+      </div>
+    </div>`;
 
-  const b4 = `<div class="${boxClass(3, st >= 3 && !isValid)}">
-    <h3>④ Quyết định MMU</h3>
-    ${st >= 3 ? (
-      isValid 
-        ? `<div class="big" style="color:var(--ok)">RAM [${addr}]</div><div class="verdict ok">✓ HỢP LỆ · Cho phép truy cập</div>`
-        : `<div class="big" style="color:var(--bad)">TRAP to OS</div><div class="verdict bad">✗ BÁO LỖI BẢO VỆ (Segmentation Fault)</div>`
-    ) : '<div class="big muted">?</div><div class="verdict">Đang xử lý...</div>'}
-  </div>`;
+    b4 = `<div class="${boxClass(3, st >= 3 && !isValid)}">
+      <h3>④ RAM vật lý</h3>
+      ${st >= 3 ? (
+        isValid 
+          ? `<div class="big" style="color:var(--ok)">RAM [${pa}]</div><div class="verdict ok">✓ Truy cập byte vật lý ${pa}</div>`
+          : `<div class="big" style="color:var(--bad)">TRAP to OS</div><div class="verdict bad">✗ BÁO LỖI BẢO VỆ (Segmentation Fault)</div>`
+      ) : '<div class="big muted">?</div><div class="verdict">Đang xử lý...</div>'}
+    </div>`;
+  } else {
+    b1 = `<div class="${boxClass(0)}">
+      <h3>① CPU phát địa chỉ A</h3>
+      <div class="big">${addr}</div>
+      <div class="formula">Yêu cầu truy cập byte ${addr}</div>
+    </div>`;
+
+    b2 = `<div class="${boxClass(1, st >= 1 && !cond1)}">
+      <h3>② Kiểm tra cận dưới</h3>
+      <div class="big" style="color:${st >= 1 ? (cond1 ? 'var(--ok)' : 'var(--bad)') : 'inherit'}">
+        ${addr} ≥ ${base}
+      </div>
+      <div class="verdict ${st >= 1 ? (cond1 ? 'ok' : 'bad') : ''}">
+        ${st >= 1 ? (cond1 ? '✓ Thỏa mãn (A ≥ Base)' : '✗ VI PHẠM: A < Base') : 'Chờ kiểm tra...'}
+      </div>
+    </div>`;
+
+    b3 = `<div class="${boxClass(2, st >= 2 && (!cond1 || !cond2))}">
+      <h3>③ Kiểm tra cận trên</h3>
+      <div class="big" style="color:${st >= 2 ? (cond2 ? 'var(--ok)' : 'var(--bad)') : 'inherit'}">
+        ${addr} < ${upper}
+      </div>
+      <div class="verdict ${st >= 2 ? (cond2 ? 'ok' : 'bad') : ''}">
+        ${st >= 2 ? (cond1 ? (cond2 ? '✓ Thỏa mãn (A < Base+Limit)' : '✗ VI PHẠM: A ≥ Base+Limit') : 'Bị bỏ qua vì đã lỗi cận dưới') : 'Chờ kiểm tra...'}
+      </div>
+    </div>`;
+
+    b4 = `<div class="${boxClass(3, st >= 3 && !isValid)}">
+      <h3>④ Quyết định MMU</h3>
+      ${st >= 3 ? (
+        isValid 
+          ? `<div class="big" style="color:var(--ok)">RAM [${addr}]</div><div class="verdict ok">✓ HỢP LỆ · Cho phép truy cập</div>`
+          : `<div class="big" style="color:var(--bad)">TRAP to OS</div><div class="verdict bad">✗ BÁO LỖI BẢO VỆ (Segmentation Fault)</div>`
+      ) : '<div class="big muted">?</div><div class="verdict">Đang xử lý...</div>'}
+    </div>`;
+  }
 
   $('#b-flow').innerHTML = [b1, b2, b3, b4].join('<span class="arrow">→</span>');
 
-  const maxSpan = base === 300040 && limit === 120900 && addr <= 600000
-    ? Math.max(600000, upper + 50000, addr + 20000)
-    : Math.max(1, Math.ceil(Math.max(upper, addr + 1) * 1.15));
+  const targetAddr = mode === 'translate' ? (isValid ? pa : (base + Math.max(0, offset))) : addr;
+  const maxSpan = (base === 300040 || base === 14000) && limit === 120900 && targetAddr <= 600000
+    ? Math.max(base === 14000 ? 180000 : 600000, upper + 20000, targetAddr + 20000)
+    : Math.max(1, Math.ceil(Math.max(upper, targetAddr + 1) * 1.15));
+  
   const osW = (base / maxSpan) * 100;
   const userW = (limit / maxSpan) * 100;
   const otherW = Math.max(0, 100 - osW - userW);
 
-  const ptrPos = Math.min(99, Math.max(1, (addr / maxSpan) * 100));
-  const ptrValid = addr >= base && addr <= validEnd;
+  const ptrPos = Math.min(99, Math.max(1, (targetAddr / maxSpan) * 100));
+  const ptrValid = isValid;
 
   $('#b-ram-track').innerHTML = `
-    <div class="used" style="width:${osW}%;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:12px;font-weight:700">OS (0..${base-1})</div>
+    <div class="used" style="width:${osW}%;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:12px;font-weight:700">OS (0..${Math.max(0, base-1)})</div>
     <div style="width:${userW}%;background:var(--ok-soft);border:2px solid var(--ok);display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--ok);font-size:13px;font-weight:800;padding:0 6px">
       <span>Tiến trình [Base: ${base}]</span>
       <small style="font-family:var(--f-mono);font-size:10.5px">${limit} bytes (tới ${validEnd})</small>
     </div>
     <div style="width:${otherW}%;background:repeating-linear-gradient(135deg,var(--free) 0 5px,var(--stripe) 5px 10px);display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:11px">Ngoài vùng</div>
     <div class="b-pointer" style="left:${ptrPos}%">
-      <span class="plabel" style="background:${ptrValid ? 'var(--ok)' : 'var(--bad)'};color:#fff">${addr} ${ptrValid ? '✓' : '✗'}</span>
+      <span class="plabel" style="background:${ptrValid ? 'var(--ok)' : 'var(--bad)'};color:#fff">${mode === 'translate' ? (ptrValid ? `PA=${pa} ✓` : `Offset ${offset} ✗`) : `${addr} ${ptrValid ? '✓' : '✗'}`}</span>
       <span class="pin" style="color:${ptrValid ? 'var(--ok)' : 'var(--bad)'}">▼</span>
     </div>
   `;
 
-  const caps = [
-    `Khởi tạo: Base = <b>${base}</b>, Limit = <b>${limit}</b>. Miền hợp lệ của tiến trình: <b>[${base} đến ${validEnd}]</b>. CPU muốn truy cập địa chỉ <b>A = ${addr}</b>. Bấm <b>Bước tiếp</b> để kiểm tra.`,
-    `<b>Bước 1: Kiểm tra cận dưới.</b> Phần cứng so sánh địa chỉ <b>A (${addr})</b> với <b>Base (${base})</b>.` + (cond1 ? ` <b class="ok">Thỏa mãn (A ≥ Base)</b> → Tiếp tục kiểm tra cận trên.` : ` <b class="bad">Vi phạm! A < Base</b> → Truy cập vào vùng của HĐH hoặc tiến trình khác.`),
-    `<b>Bước 2: Kiểm tra cận trên.</b> Phần cứng so sánh địa chỉ <b>A (${addr})</b> với <b>Base + Limit (${upper})</b>.` + (cond2 ? (cond1 ? ` <b class="ok">Thỏa mãn (A < Base + Limit)</b> → Địa chỉ nằm gọn trong không gian tiến trình.` : ` Đã vi phạm ở cận dưới.`) : ` <b class="bad">Vi phạm! A ≥ Base + Limit</b> → Vượt khỏi không gian được cấp phát.`),
-    isValid
-      ? `<b>Bước 3: Quyết định MMU.</b> Địa chỉ <b>${addr}</b> nằm trong miền an toàn [${base}, ${validEnd}]. <b class="ok">Cho phép truy cập RAM tại vị trí ${addr}</b>.`
-      : `<b>Bước 3: Quyết định MMU.</b> Địa chỉ <b>${addr}</b> nằm ngoài phạm vi được phép. <b class="bad">Phần cứng phát sinh ngắt TRAP (Lỗi bảo vệ bộ nhớ / Segmentation fault)</b> để bảo vệ hệ thống!`
-  ];
+  let caps = [];
+  if (mode === 'translate'){
+    caps = [
+      `Khởi tạo Dịch địa chỉ: Base = <b>${base}</b>, Limit = <b>${limit}</b>. CPU phát độ lệch <b>L = ${offset}</b>. Bấm <b>Bước tiếp</b> để dịch sang địa chỉ vật lý.`,
+      `<b>Bước 1: So sánh với Limit.</b> MMU kiểm tra độ lệch <b>L (${offset})</b> với <b>Limit (${limit})</b>.` + (isValid ? ` <b class="ok">Hợp lệ (0 ≤ L < Limit)</b>.` : ` <b class="bad">Vi phạm! L vượt giới hạn vùng nhớ</b>.`),
+      `<b>Bước 2: Bộ cộng Adder.</b> ` + (isValid ? `MMU lấy Base cộng độ lệch: <b>PA = Base + L = ${base} + ${offset} = ${pa}</b>.` : `<b class="bad">Chặn phép cộng</b> do độ lệch không hợp lệ. Phát bẫy ngắt TRAP.`),
+      isValid
+        ? `<b>Bước 3: Gửi địa chỉ RAM.</b> Địa chỉ vật lý <b>PA = ${pa}</b> được gửi lên bus bộ nhớ. <b class="ok">Truy cập thành công vào ô RAM ${pa}</b>.`
+        : `<b>Bước 3: Xử lý TRAP.</b> <b class="bad">Phần cứng MMU chuyển quyền về Hệ điều hành để xử lý lỗi phân đoạn (Segmentation fault)</b>!`
+    ];
+  } else {
+    caps = [
+      `Khởi tạo Bảo vệ: Base = <b>${base}</b>, Limit = <b>${limit}</b>. Miền hợp lệ: <b>[${base} đến ${validEnd}]</b>. CPU truy cập địa chỉ <b>A = ${addr}</b>. Bấm <b>Bước tiếp</b> để kiểm tra.`,
+      `<b>Bước 1: Kiểm tra cận dưới.</b> So sánh địa chỉ <b>A (${addr})</b> với <b>Base (${base})</b>.` + (cond1 ? ` <b class="ok">Thỏa mãn (A ≥ Base)</b>.` : ` <b class="bad">Vi phạm! A < Base</b>.`),
+      `<b>Bước 2: Kiểm tra cận trên.</b> So sánh địa chỉ <b>A (${addr})</b> với <b>Base + Limit (${upper})</b>.` + (cond2 ? (cond1 ? ` <b class="ok">Thỏa mãn (A < Base + Limit)</b>.` : ` Đã vi phạm ở cận dưới.`) : ` <b class="bad">Vi phạm! A ≥ Base + Limit</b>.`),
+      isValid
+        ? `<b>Bước 3: Quyết định MMU.</b> Địa chỉ <b>${addr}</b> nằm trong miền an toàn. <b class="ok">Cho phép truy cập RAM tại ${addr}</b>.`
+        : `<b>Bước 3: Quyết định MMU.</b> Địa chỉ <b>${addr}</b> ngoài miền. <b class="bad">Phần cứng phát sinh ngắt TRAP bảo vệ bộ nhớ</b>!`
+    ];
+  }
 
   $('#b-cap').innerHTML = caps[st];
   $('#b-prev').disabled = st === 0;
   $('#b-next').disabled = st === 3;
-  $('#b-all').disabled = st === 3;
+  if ($('#b-all')) $('#b-all').disabled = st === 3;
 
   updateTelemetry('p0', performance.now() - t0);
 }
 
 const goB = () => {
-  const b = Math.max(0, Math.round(Number($('#b-base').value) || 300040));
+  const b = Math.max(0, Math.round(Number($('#b-base').value) || (B.mode === 'translate' ? 14000 : 300040)));
   const l = Math.max(1, Math.round(Number($('#b-limit').value) || 120900));
-  const a = Math.max(0, Math.round(Number($('#b-addr').value) || 300040));
-  planB(a, b, l);
+  const val = Math.round(Number($('#b-addr').value) || 0);
+  planB(val, b, l, B.mode);
   renderB();
 };
 
