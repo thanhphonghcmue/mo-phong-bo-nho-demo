@@ -1,3 +1,9 @@
+# Course references & lecture materials (local storage only, excluded from GitHub repo)
+tai lieu/
+docs/tai-lieu/
+*.pdf
+*.docx
+
 # Temporary Microsoft Word lock files
 ~$*.docx
 ~$*.xlsx
@@ -7,3 +13,4 @@
 Thumbs.db
 .DS_Store
 *.tmp
+*.log

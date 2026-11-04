@@ -4,20 +4,20 @@ Nhánh: `feat/teaching-visualizations`. Nâng cấp trực tiếp website tĩnh 
 
 ## Tài liệu ưu tiên
 
-- `tai lieu/DAC_TA_CAI_TIEN_WEB_DEMO_QUAN_LY_BO_NHO.docx`: đặc tả triển khai được cung cấp.
-- `tai lieu/He_dieu_hanh_Part4.pdf`: đã đối chiếu 34 trang; các ví dụ chính ở tr.5, 8–9, 13–15, 23–24, 27–29.
+- `docs/tai-lieu/ (lưu trữ nội bộ)/DAC_TA_CAI_TIEN_WEB_DEMO_QUAN_LY_BO_NHO.docx`: đặc tả triển khai được cung cấp.
+- `docs/tai-lieu/ (lưu trữ nội bộ)/He_dieu_hanh_Part4.pdf`: đã đối chiếu 34 trang; các ví dụ chính ở tr.5, 8–9, 13–15, 23–24, 27–29.
 - Các tài liệu cũ, README và mã nguồn hiện hành được giữ lại.
 
 ## Tệp và cách tích hợp
 
 - `index.html`: nạp lớp mới và adapter; giữ CSS gốc, quy tắc Base/Limit và `simA`. Planner phân trang và `simR` được mở rộng bằng tham số tùy chọn cho kích thước trang/TLB và RAM ban đầu; thêm kiểm tra thiếu khung trống. Dung lượng RAM/kịch bản cấp phát được tham số hóa, giữ nguyên cách chọn/đặt/giải phóng/dồn nén. Kết quả mặc định được kiểm thử hồi quy.
-- `teaching.js`: sự kiện, snapshot độc lập, timeline, điều khiển, SVG Clock, luồng dữ liệu và bộ dựng mô hình. Sự kiện có scenarioId, stepId, beforeState, state (sau bước), điều kiện, actor, quyết định và trạng thái. Snapshot chứa dữ liệu thật, không chỉ lời giải thích.
-- `teaching.css`: CSS bổ sung với tiền tố `teach-`; chỉ thêm containment cho cột telemetry trên màn hình nhỏ.
+- `assets/js/teaching.js`: sự kiện, snapshot độc lập, timeline, điều khiển, SVG Clock, luồng dữ liệu và bộ dựng mô hình. Sự kiện có scenarioId, stepId, beforeState, state (sau bước), điều kiện, actor, quyết định và trạng thái. Snapshot chứa dữ liệu thật, không chỉ lời giải thích.
+- `assets/css/teaching.css`: CSS bổ sung với tiền tố `teach-`; chỉ thêm containment cho cột telemetry trên màn hình nhỏ.
 - `tests/regression.cjs`: kiểm thử Chromium qua Playwright, gồm bộ tham chiếu độc lập cho 20 trạng thái thay trang.
 
 ## Cập nhật đề bài tùy chỉnh
 
-Xem [CUSTOM_PROBLEMS.md](CUSTOM_PROBLEMS.md) để nhập đề mới ở cả 5 demo. Các form áp dụng nguyên tử: lỗi không đổi trạng thái; Reset dùng cấu hình đã áp dụng. Demo 1 nhận Base/A=0 chính xác và thử biên theo số liệu hiện tại. Demo 4 có đọc/ghi, chuỗi tham chiếu và FIFO/LRU/Clock; Demo 5 nhận RAM có sẵn trang và bit/kim ban đầu. Lời giải thích rút gọn; phần vì sao/bước tiếp được mở khi cần.
+Xem [docs/CUSTOM_PROBLEMS.md](docs/CUSTOM_PROBLEMS.md) để nhập đề mới ở cả 5 demo. Các form áp dụng nguyên tử: lỗi không đổi trạng thái; Reset dùng cấu hình đã áp dụng. Demo 1 nhận Base/A=0 chính xác và thử biên theo số liệu hiện tại. Demo 4 có đọc/ghi, chuỗi tham chiếu và FIFO/LRU/Clock; Demo 5 nhận RAM có sẵn trang và bit/kim ban đầu. Lời giải thích rút gọn; phần vì sao/bước tiếp được mở khi cần.
 
 ## Các phần đã triển khai
 
