@@ -347,7 +347,7 @@ footer{font-size:12px;color:var(--muted)}
 .b-ram-track {
   position: relative;
   display: flex;
-  height: 54px;
+  height: 60px;
   border: 2px solid var(--line);
   border-radius: 10px;
   overflow: visible;
@@ -366,9 +366,9 @@ footer{font-size:12px;color:var(--muted)}
   pointer-events: none;
 }
 .b-pointer .pin {
-  font-size: 13px;
+  font-size: 11px;
   line-height: 1;
-  margin-top: -1px;
+  margin-top: -2px;
 }
 .b-pointer .plabel {
   font-family: var(--f-mono);
@@ -683,8 +683,8 @@ footer{font-size:12px;color:var(--muted)}
 }
 
 </style>
-<link rel="stylesheet" href="assets/css/teaching.css?v=d2b4133595ad">
-<script src="assets/js/teaching.js?v=6b52a3b15901"></script>
+<link rel="stylesheet" href="assets/css/teaching.css?v=4c9c5825c9ba">
+<script src="assets/js/teaching.js?v=89a9bd82c4b5"></script>
 </head>
 <body>
 <div class="wrap">
@@ -1331,8 +1331,8 @@ function renderB(){
   $('#b-flow').innerHTML = [b1, b2, b3, b4].join('<span class="arrow">→</span>');
 
   const targetAddr = mode === 'translate' ? (isValid ? pa : (base + Math.max(0, offset))) : addr;
-  const maxSpan = (base === 300040 || base === 14000) && limit === 120900 && targetAddr <= 600000
-    ? Math.max(base === 14000 ? 180000 : 600000, upper + 20000, targetAddr + 20000)
+  const maxSpan = (base === 300040 || base === 14000) && limit === 120900 && targetAddr <= 550000
+    ? Math.max(base === 14000 ? 175000 : 455000, upper + 20000, targetAddr + 20000)
     : Math.max(1, Math.ceil(Math.max(upper, targetAddr + 1) * 1.15));
   
   const osW = (base / maxSpan) * 100;
@@ -1343,12 +1343,12 @@ function renderB(){
   const ptrValid = isValid;
 
   $('#b-ram-track').innerHTML = `
-    <div class="used" style="width:${osW}%;background:var(--free);border-right:1.5px solid var(--line);display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:12px;font-weight:700;white-space:nowrap;overflow:hidden">
+    <div class="used" style="width:${osW}%;background:var(--free);border-right:1.5px solid var(--line);display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:11.5px;font-weight:700;white-space:nowrap;overflow:hidden;padding:0 4px">
       OS (0..${Math.max(0, base-1)})
     </div>
-    <div style="width:${userW}%;background:var(--ok-soft);border:2px solid var(--ok);display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--ok);padding:0 8px;text-align:center;line-height:1.25">
-      <span style="font-size:12px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Tiến trình [Base: ${base}]</span>
-      <small style="font-family:var(--f-mono);font-size:10.5px;color:var(--fg);opacity:0.85;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${limit} bytes (đến ${validEnd})</small>
+    <div style="width:${userW}%;background:var(--ok-soft);border:2px solid var(--ok);border-radius:6px;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--ok);padding:2px 6px;text-align:center;line-height:1.2;box-sizing:border-box">
+      <div style="font-size:11px;font-weight:800;color:var(--ok);white-space:nowrap">Tiến trình [Base: ${base}]</div>
+      <div style="font-family:var(--f-mono);font-size:10px;font-weight:700;color:var(--fg);opacity:0.9;white-space:nowrap;margin-top:1px">${limit} B (đến ${validEnd})</div>
     </div>
     <div style="width:${otherW}%;background:rgba(0,0,0,0.03);display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:11px;white-space:nowrap;overflow:hidden">
       Ngoài vùng
