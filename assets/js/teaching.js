@@ -178,7 +178,7 @@ window.enhanceMemoryDemo = function (api) {
       }
     }
 
-    return `<div style="font-size:12.5px;line-height:1.5;color:var(--fg);padding:6px 10px;background:var(--free);border-left:3px solid var(--accent);border-radius:6px">${esc(mech || e.change || "Hệ điều hành thực hiện thao tác theo giải thuật.")}</div>`;
+    return `<div class="teach-deep-content">${esc(mech || e.change || "Hệ điều hành thực hiện thao tác theo giải thuật.")}</div>`;
   }
 
   function route(e) {
@@ -620,11 +620,11 @@ window.enhanceMemoryDemo = function (api) {
       if (cap) {
         cap.classList.add("teach-narrator");
         const deepExp = renderDeepExplanation(this.id, e, i);
-        cap.innerHTML = `<div style="font-size:13.5px;font-weight:700;color:var(--accent);margin-bottom:3px">Bước ${i + 1} · ${esc(e.title)}</div>
-          <div style="font-size:13px;margin:2px 0;line-height:1.4"><b>${esc(e.actor)}:</b> ${esc(e.condition)}</div>
-          <div style="font-size:13px;margin-bottom:6px;line-height:1.4;color:var(--fg)">${esc(e.change)}</div>
-          <details class="teach-next" open style="margin-top:6px">
-            <summary style="font-weight:700;color:var(--accent);cursor:pointer;padding:3px 0;font-size:12.5px">▼ Giải thích nguyên lý hoạt động</summary>
+        cap.innerHTML = `<div class="teach-step-title">Bước ${i + 1} · ${esc(e.title)}</div>
+          <div class="teach-step-context"><b>${esc(e.actor)}:</b> ${esc(e.condition)}</div>
+          <div class="teach-step-change">${esc(e.change)}</div>
+          <details class="teach-next" open>
+            <summary>Giải thích nguyên lý hoạt động</summary>
             ${deepExp}
           </details>`;
       }
