@@ -554,11 +554,32 @@
 /* ================= 2-COLUMN VIEWPORT STAGE GRID (1366x768 OPTIMIZED) ================= */
 .demo-stage-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1.55fr) minmax(370px, 1.45fr);
+  grid-template-columns: minmax(0, 1.8fr) minmax(320px, 1.2fr);
   gap: 14px;
   align-items: start;
   margin-top: 6px;
   margin-bottom: 6px;
+}
+
+/* Custom tailored ratios for each demo according to content complexity */
+#grid-p0 {
+  grid-template-columns: minmax(0, 1.8fr) minmax(320px, 1.2fr);
+}
+
+#grid-p1, #grid-p1-ex {
+  grid-template-columns: minmax(0, 1.85fr) minmax(320px, 1.15fr);
+}
+
+#grid-p2 {
+  grid-template-columns: minmax(0, 2.05fr) minmax(310px, 0.95fr);
+}
+
+#grid-p4 {
+  grid-template-columns: minmax(0, 2.05fr) minmax(310px, 0.95fr);
+}
+
+#grid-p3 {
+  grid-template-columns: minmax(0, 1.6fr) minmax(360px, 1.4fr);
 }
 
 .demo-stage-grid.explain-hidden {

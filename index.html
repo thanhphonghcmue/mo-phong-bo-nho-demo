@@ -1332,7 +1332,7 @@ function renderB(){
 
   const targetAddr = mode === 'translate' ? (isValid ? pa : (base + Math.max(0, offset))) : addr;
   const maxSpan = (base === 300040 || base === 14000) && limit === 120900 && targetAddr <= 550000
-    ? Math.max(base === 14000 ? 175000 : 455000, upper + 20000, targetAddr + 20000)
+    ? Math.max(base === 14000 ? 175000 : 520000, upper + 25000, targetAddr + 25000)
     : Math.max(1, Math.ceil(Math.max(upper, targetAddr + 1) * 1.15));
   
   const osW = (base / maxSpan) * 100;

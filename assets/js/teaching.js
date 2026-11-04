@@ -200,6 +200,10 @@ window.enhanceMemoryDemo = function (api) {
         x: b.left + b.width / 2 - r.left,
         y: b.top + b.height / 2 - r.top,
       };
+    if (to && to.id && (to.id === "f-ram" || to.id === "a-ram")) {
+      ac.x += 50;
+      bc.x += 50;
+    }
     const horizontal = Math.abs(ac.x - bc.x) > Math.abs(ac.y - bc.y);
     const x1 = horizontal
       ? ac.x < bc.x
