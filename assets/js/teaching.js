@@ -623,14 +623,19 @@ window.enhanceMemoryDemo = function (api) {
       const cap = $("#" + this.id + "-cap");
       if (cap) {
         cap.classList.add("teach-narrator");
-        const deepExp = renderDeepExplanation(this.id, e, i);
-        cap.innerHTML = `<div style="font-size:14.5px;font-weight:800;color:var(--accent);margin-bottom:4px;letter-spacing:0.2px">Bước ${i + 1} · ${esc(e.title)}</div>
-          <div style="font-size:13.5px;margin:3px 0;line-height:1.45;color:var(--fg)"><b>${esc(e.actor)}:</b> ${esc(e.condition)}</div>
-          <div style="font-size:13.5px;margin-bottom:8px;line-height:1.45;color:var(--fg)">${esc(e.change)}</div>
-          <details class="teach-next" open style="margin-top:6px">
-            <summary style="font-weight:800;color:var(--accent);cursor:pointer;padding:4px 0;font-size:13px">▼ Giải thích nguyên lý hoạt động</summary>
-            ${deepExp}
-          </details>`;
+        if (this.id === "r") {
+          cap.innerHTML = `<div style="font-size:14px;font-weight:800;color:var(--accent);margin-bottom:2px">Bước ${i + 1} · ${esc(e.title)}</div>
+            <div style="font-size:13px;line-height:1.4;color:var(--fg);margin-bottom:6px"><b>${esc(e.actor)}:</b> ${esc(e.condition)} ${esc(e.change)}</div>`;
+        } else {
+          const deepExp = renderDeepExplanation(this.id, e, i);
+          cap.innerHTML = `<div style="font-size:14.5px;font-weight:800;color:var(--accent);margin-bottom:4px;letter-spacing:0.2px">Bước ${i + 1} · ${esc(e.title)}</div>
+            <div style="font-size:13.5px;margin:3px 0;line-height:1.45;color:var(--fg)"><b>${esc(e.actor)}:</b> ${esc(e.condition)}</div>
+            <div style="font-size:13.5px;margin-bottom:8px;line-height:1.45;color:var(--fg)">${esc(e.change)}</div>
+            <details class="teach-next" open style="margin-top:6px">
+              <summary style="font-weight:800;color:var(--accent);cursor:pointer;padding:4px 0;font-size:13px">▼ Giải thích nguyên lý hoạt động</summary>
+              ${deepExp}
+            </details>`;
+        }
       }
       this.noteEl.textContent = e.note || this.note;
       this.history.querySelector("ol").innerHTML = this.events
@@ -1945,27 +1950,9 @@ window.enhanceMemoryDemo = function (api) {
     });
     return out;
   }
-  function clockSVG(st) {
-    const n = R.n,
-      c = 170,
-      r = 112;
-    const a = (st.ptr * 2 * Math.PI) / n - Math.PI / 2,
-      x = c + Math.cos(a) * 72,
-      y = c + Math.sin(a) * 72;
-    return `<svg class="teach-clock" viewBox="0 0 340 340" role="img" aria-label="Vòng Clock: kim tại khung ${st.ptr}; bit R ${st.bit.join(",")}"><defs><marker id="clock-arrow" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="currentColor"/></marker></defs><circle cx="170" cy="170" r="112" fill="none" stroke="var(--line)" stroke-dasharray="4 6"/>${st.fr
-      .map((p, i) => {
-        const a = (i * 2 * Math.PI) / n - Math.PI / 2,
-          x = c + Math.cos(a) * r,
-          y = c + Math.sin(a) * r;
-        return `<g data-clock-frame="${i}"><rect class="clock-frame ${st.bit[i] ? "clock-one" : ""} ${st.ptr === i ? "clock-current" : ""} ${st.phase === "victim" && st.slot === i ? "clock-victim" : ""}" x="${x - 40}" y="${y - 31}" width="80" height="62" rx="10"/><text x="${x}" y="${y - 10}" text-anchor="middle">Frame ${i}</text><text x="${x}" y="${y + 8}" text-anchor="middle" font-weight="700">${p === null ? "trống" : "Trang " + p}</text><text x="${x}" y="${y + 25}" text-anchor="middle">R = ${st.bit[i] || 0}</text></g>`;
-      })
-      .join(
-        "",
-      )}<line x1="170" y1="170" x2="${x}" y2="${y}" stroke="currentColor" stroke-width="5" marker-end="url(#clock-arrow)"/><circle cx="170" cy="170" r="8" fill="currentColor"/><text x="170" y="205" text-anchor="middle">Kim ${st.ptr}</text></svg>`;
-  }
   const evidence = document.createElement("div");
   evidence.className = "teach-evidence";
-  $("#r-cap").before(evidence);
+  $("#r-cap").after(evidence);
   function renderR(e) {
     activeSetup(
       "r",
@@ -2013,11 +2000,123 @@ window.enhanceMemoryDemo = function (api) {
     for (const card of [...$$("#r-slots .card"), $("#r-need .card")])
       if (card && /^\d{3,}$/.test(card.textContent.trim()))
         card.style.fontSize = "26px";
-    const rows = st.fr.map(
-      (p, i) =>
-        `<tr class="${st.phase === "victim" && st.slot === i ? "teach-selected" : ""}"><td>${i}</td><td>${p ?? "—"}</td><td>${p === null ? "—" : proof(i)}</td></tr>`,
-    );
-    evidence.innerHTML = `<h3>${R.alg === "CLOCK" ? "Clock · kim và từng bit R" : "Vì sao chọn trang này? · " + R.alg}</h3><div class="${R.alg === "CLOCK" ? "teach-clock-layout" : ""}">${R.alg === "CLOCK" ? clockSVG(st) : ""}<div>${table(["Frame", "Page", R.alg === "FIFO" ? "Thứ tự nạp" : R.alg === "LRU" ? "Lần truy cập" : R.alg === "OPT" ? "Tham chiếu tương lai" : "Bit tham chiếu"], rows)}<p>${R.alg === "OPT" ? "OPT biết trước tương lai; dùng làm chuẩn so sánh." : R.alg === "CLOCK" ? "R=1 → cho cơ hội thứ hai, hạ về 0. R=0 → chọn victim." : R.alg === "FIFO" ? "Page Hit giữ nguyên thứ tự nạp." : "Page Hit cập nhật lần truy cập gần nhất."}</p></div></div>${route(e)}`;
+
+    // Redesigned algorithm evaluation explanation (no circular clock SVG)
+    let algTitle = "";
+    let bannerHtml = "";
+    let tableHeaders = [];
+    let rows = [];
+    let ruleHtml = "";
+
+    if (R.alg === "CLOCK") {
+      algTitle = "Đánh giá chọn trang · Thuật toán Clock";
+      const clockStatusDesc =
+        st.phase === "inspect"
+          ? `Kim đang kiểm tra Khung ${st.ptr} (Trang ${st.fr[st.ptr] ?? "trống"}, Bit R = ${st.bit[st.ptr]}).`
+          : st.phase === "clear"
+            ? `Trang tại Khung ${st.ptr} có R = 1 → Cho cơ hội 2: Hạ R về 0, chuyển kim tiếp!`
+            : st.phase === "victim"
+              ? `Khung ${st.slot} có R = 0 → Chọn Trang ${st.victim} làm nạn nhân (Victim) để thay thế!`
+              : st.phase === "apply"
+                ? `Đã nạp Trang ${pg} vào Khung ${st.slot}, đặt R = 1. Kim chuyển sang Khung ${(st.slot + 1) % R.n}.`
+                : `Kim quét sẵn sàng tại Khung ${st.ptr}.`;
+
+      bannerHtml = `<div class="teach-clock-banner"><div class="teach-pointer-badge">📍 Vị trí kim quét: <strong>Khung ${st.ptr}</strong></div><div class="teach-clock-step-desc">${clockStatusDesc}</div></div>`;
+      tableHeaders = ["Khung", "Trang", "Bit R", "Đánh giá / Quyết định"];
+      rows = st.fr.map((p, i) => {
+        const isVictim = st.phase === "victim" && st.slot === i;
+        const isPointer = st.ptr === i;
+        const rowClass = isVictim ? "teach-row-victim" : isPointer ? "teach-row-pointer" : "";
+        const pageText = p === null ? "<em>(trống)</em>" : `Trang <b>${p}</b>`;
+        const bitText =
+          p === null
+            ? "—"
+            : st.bit[i] === 1
+              ? '<span class="badge-bit badge-bit-1">R = 1</span>'
+              : '<span class="badge-bit badge-bit-0">R = 0</span>';
+        let evalText = "—";
+        if (isVictim) {
+          evalText = '<span class="badge-eval badge-victim">⚠️ Chọn làm Nạn nhân</span>';
+        } else if (isPointer) {
+          evalText = '<span class="badge-eval badge-pointer">👉 Kim đang trỏ</span>';
+        } else if (p !== null && st.bit[i] === 1) {
+          evalText = '<span class="badge-eval badge-second-chance">Được cơ hội 2</span>';
+        } else if (p !== null && st.bit[i] === 0) {
+          evalText = '<span class="badge-eval badge-ready">Sẵn sàng thay</span>';
+        }
+        return `<tr class="${rowClass}"><td>Khung ${i}</td><td>${pageText}</td><td>${bitText}</td><td>${evalText}</td></tr>`;
+      });
+      ruleHtml = `<div class="teach-rule-box"><span class="teach-rule-title">Nguyên lý Clock (Second Chance):</span><span>Kim duyệt vòng tròn qua các khung. Gặp <code>R = 1</code>: cho cơ hội thứ hai, xóa <code>R → 0</code> và chuyển kim. Gặp <code>R = 0</code>: chọn ngay làm nạn nhân để thay thế, nạp trang mới và đặt lại <code>R = 1</code>.</span></div>`;
+    } else if (R.alg === "FIFO") {
+      algTitle = "Đánh giá chọn trang · Thuật toán FIFO";
+      tableHeaders = ["Khung", "Trang", "Thời điểm nạp vào RAM", "Đánh giá"];
+      const activeLoads = st.load.filter((_, idx) => st.fr[idx] !== null);
+      const minLoad = activeLoads.length ? Math.min(...activeLoads) : Infinity;
+      rows = st.fr.map((p, i) => {
+        const isVictim = st.phase === "victim" && st.slot === i;
+        const isOldest = p !== null && st.load[i] === minLoad;
+        const rowClass = isVictim ? "teach-row-victim" : isOldest && st.phase === "victim" ? "teach-row-pointer" : "";
+        const pageText = p === null ? "<em>(trống)</em>" : `Trang <b>${p}</b>`;
+        const loadText = p === null ? "—" : stamp(st.load[i]);
+        let evalText = "—";
+        if (isVictim) {
+          evalText = '<span class="badge-eval badge-victim">⚠️ Vào sớm nhất → Chọn thay</span>';
+        } else if (isOldest) {
+          evalText = '<span class="badge-eval badge-oldest">Vào sớm nhất</span>';
+        }
+        return `<tr class="${rowClass}"><td>Khung ${i}</td><td>${pageText}</td><td>${loadText}</td><td>${evalText}</td></tr>`;
+      });
+      ruleHtml = `<div class="teach-rule-box"><span class="teach-rule-title">Nguyên lý FIFO (First-In, First-Out):</span><span>Thay thế trang đã ở trong RAM lâu nhất (thời điểm nạp sớm nhất). Khi trúng trang (Hit), thứ tự nạp của các trang giữ nguyên không đổi.</span></div>`;
+    } else if (R.alg === "LRU") {
+      algTitle = "Đánh giá chọn trang · Thuật toán LRU";
+      tableHeaders = ["Khung", "Trang", "Lần truy cập gần nhất", "Đánh giá"];
+      const activeLasts = st.last.filter((_, idx) => st.fr[idx] !== null);
+      const minLast = activeLasts.length ? Math.min(...activeLasts) : Infinity;
+      rows = st.fr.map((p, i) => {
+        const isVictim = st.phase === "victim" && st.slot === i;
+        const isOldest = p !== null && st.last[i] === minLast;
+        const rowClass = isVictim ? "teach-row-victim" : isOldest && st.phase === "victim" ? "teach-row-pointer" : "";
+        const pageText = p === null ? "<em>(trống)</em>" : `Trang <b>${p}</b>`;
+        const lastText = p === null ? "—" : stamp(st.last[i]);
+        let evalText = "—";
+        if (isVictim) {
+          evalText = '<span class="badge-eval badge-victim">⚠️ Lâu chưa dùng nhất → Chọn thay</span>';
+        } else if (isOldest) {
+          evalText = '<span class="badge-eval badge-oldest">Lâu chưa dùng nhất</span>';
+        }
+        return `<tr class="${rowClass}"><td>Khung ${i}</td><td>${pageText}</td><td>${lastText}</td><td>${evalText}</td></tr>`;
+      });
+      ruleHtml = `<div class="teach-rule-box"><span class="teach-rule-title">Nguyên lý LRU (Least Recently Used):</span><span>Thay thế trang có lần truy cập cách hiện tại xa nhất trong quá khứ. Mỗi khi truy cập (Hit hoặc Fault), mốc thời gian của trang được cập nhật lại thành mới nhất.</span></div>`;
+    } else {
+      algTitle = "Đánh giá chọn trang · Thuật toán OPT";
+      tableHeaders = ["Khung", "Trang", "Khoảng cách tương lai", "Đánh giá"];
+      rows = st.fr.map((p, i) => {
+        const isVictim = st.phase === "victim" && st.slot === i;
+        const pageText = p === null ? "<em>(trống)</em>" : `Trang <b>${p}</b>`;
+        let nextUseText = "—";
+        let isInf = false;
+        if (p !== null) {
+          const k = R.refs.indexOf(st.fr[i], t + 1);
+          if (k < 0) {
+            nextUseText = "∞ (Không dùng lại)";
+            isInf = true;
+          } else {
+            nextUseText = `Bước ${k + 1}`;
+          }
+        }
+        let evalText = "—";
+        if (isVictim) {
+          evalText = '<span class="badge-eval badge-victim">⚠️ Lâu dùng lại nhất → Chọn thay</span>';
+        } else if (isInf) {
+          evalText = '<span class="badge-eval badge-subtle">Không dùng lại</span>';
+        }
+        const rowClass = isVictim ? "teach-row-victim" : "";
+        return `<tr class="${rowClass}"><td>Khung ${i}</td><td>${pageText}</td><td>${nextUseText}</td><td>${evalText}</td></tr>`;
+      });
+      ruleHtml = `<div class="teach-rule-box"><span class="teach-rule-title">Nguyên lý OPT (Thuật toán tối ưu):</span><span>Thay thế trang mà trong tương lai sẽ lâu được dùng lại nhất (hoặc không bao giờ dùng nữa). Cần biết trước chuỗi truy cập nên dùng làm chuẩn so sánh lý thuyết.</span></div>`;
+    }
+
+    evidence.innerHTML = `<h3>${algTitle}</h3>${bannerHtml}<div>${table(tableHeaders, rows)}${ruleHtml}</div>${route(e)}`;
     $$("#r-bars .brow").forEach(
       (b) =>
         (b.onclick = () => {

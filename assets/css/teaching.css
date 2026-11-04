@@ -107,8 +107,9 @@
 .teach-allocator,
 .teach-evidence {
   border: 1px solid var(--line);
-  border-radius: 12px;
-  padding: 12px;
+  border-radius: 10px;
+  padding: 8px 10px;
+  margin-top: 6px;
   background: var(--surface);
   min-width: 0;
 }
@@ -274,40 +275,108 @@
 .teach-memory-strip span[data-free="true"] {
   background: var(--free);
 }
-.teach-clock-layout {
-  display: grid;
-  grid-template-columns: minmax(230px, 1fr) minmax(160px, 1fr);
-  align-items: center;
-  gap: 12px;
+/* Demo 5: Clean Algorithm Decision & Clock Pointer layout */
+.teach-clock-banner {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background: var(--free);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 8px 10px;
+  margin-bottom: 6px;
+  font-size: 12.5px;
 }
-.teach-clock {
-  width: 100%;
-  max-width: 390px;
-  display: block;
-  margin: auto;
+.teach-pointer-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-weight: 700;
+  color: var(--accent);
+}
+.teach-clock-step-desc {
+  font-size: 12px;
+  color: var(--fg);
+  line-height: 1.4;
+}
+.badge-bit {
+  display: inline-block;
+  padding: 2px 7px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 700;
+}
+.badge-bit-1 {
+  background: var(--accent-soft);
+  color: var(--accent);
+  border: 1px solid var(--accent);
+}
+.badge-bit-0 {
+  background: var(--free);
+  color: var(--muted);
+  border: 1px solid var(--line);
+}
+.badge-eval {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.badge-eval.badge-victim {
+  background: var(--bad-soft);
+  color: var(--bad);
+  border: 1px solid var(--bad);
+  font-weight: 700;
+}
+.badge-eval.badge-pointer {
+  background: var(--accent-soft);
+  color: var(--accent);
+  border: 1px solid var(--accent);
+  font-weight: 700;
+}
+.badge-eval.badge-second-chance {
+  background: rgba(46, 125, 50, 0.12);
+  color: #2e7d32;
+  border: 1px solid rgba(46, 125, 50, 0.3);
+}
+.badge-eval.badge-ready {
+  background: var(--free);
+  color: var(--muted);
+}
+.badge-eval.badge-oldest {
+  background: rgba(230, 81, 0, 0.12);
+  color: #e65100;
+  border: 1px solid rgba(230, 81, 0, 0.3);
+}
+.badge-eval.badge-subtle {
+  background: var(--free);
+  color: var(--muted);
+}
+.teach-table tr.teach-row-victim {
+  background: var(--bad-soft) !important;
+  font-weight: 700;
+}
+.teach-table tr.teach-row-pointer {
+  background: var(--accent-soft);
+  font-weight: 600;
+}
+.teach-rule-box {
+  margin-top: 6px;
+  padding: 6px 8px;
+  border-left: 3px solid var(--accent);
+  background: var(--free);
+  border-radius: 0 6px 6px 0;
+  font-size: 12px;
+  line-height: 1.45;
   color: var(--fg);
 }
-.teach-clock text {
-  fill: var(--fg);
-  font-family: var(--f-body);
-  font-size: 13px;
-}
-.teach-clock .clock-frame {
-  fill: var(--surface);
-  stroke: var(--line);
-  stroke-width: 2;
-}
-.teach-clock .clock-one {
-  fill: var(--accent-soft);
-}
-.teach-clock .clock-current {
-  stroke: var(--c4);
-  stroke-width: 4;
-}
-.teach-clock .clock-victim {
-  fill: var(--bad-soft);
-  stroke: var(--bad);
-  stroke-width: 3;
+.teach-rule-title {
+  display: block;
+  font-weight: 700;
+  margin-bottom: 2px;
+  color: var(--accent);
 }
 .teach-evidence {
   font-size: 13px;
@@ -579,7 +648,7 @@
 }
 
 #grid-p3 {
-  grid-template-columns: minmax(0, 1.6fr) minmax(360px, 1.4fr);
+  grid-template-columns: minmax(0, 1.85fr) minmax(320px, 1.15fr);
 }
 
 .demo-stage-grid.explain-hidden {
@@ -608,7 +677,7 @@
   background: var(--surface);
   border: 2px solid var(--line);
   border-radius: 12px;
-  padding: 14px 18px;
+  padding: 10px 14px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
 }
 
@@ -789,6 +858,21 @@
   background: #0f3460;
   border-color: #38bdf8;
   color: #ffffff;
+}
+:root[data-theme="dark"] .badge-eval.badge-second-chance {
+  background: rgba(76, 175, 80, 0.2);
+  color: #81c784;
+  border-color: rgba(76, 175, 80, 0.4);
+}
+:root[data-theme="dark"] .badge-eval.badge-oldest {
+  background: rgba(255, 152, 0, 0.2);
+  color: #ffb74d;
+  border-color: rgba(255, 152, 0, 0.4);
+}
+:root[data-theme="dark"] .teach-clock-banner,
+:root[data-theme="dark"] .teach-rule-box {
+  background: #141c26;
+  border-color: #2a3948;
 }
 
 
