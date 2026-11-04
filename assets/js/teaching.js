@@ -495,18 +495,14 @@ window.enhanceMemoryDemo = function (api) {
       options.className = "teach-options";
       options.innerHTML = `<strong>TÙY CHỌN HIỂN THỊ</strong>${[
         ["explain", "Hiện giải thích bước", true],
-        ["note", "Hiện ghi chú học thuật", false],
         ["path", "Hiện đường đi dữ liệu", true],
         ["history", "Hiện lịch sử các bước", true],
-        ["minimal", "Chế độ tối giản khi thuyết trình", false],
       ]
         .map(
           ([key, label, on]) =>
             `<label><input type="checkbox" data-option="${key}" ${on ? "checked" : ""}>${label}</label>`,
         )
-        .join(
-          "",
-        )}<label>Tốc độ <select aria-label="Tốc độ mô phỏng"><option value=".5">0,5×</option><option value="1" selected>1×</option><option value="1.5">1,5×</option><option value="2">2×</option></select></label>`;
+        .join("")}`;
       bar.after(options);
       this.options = options;
       // Speed removed
@@ -1350,7 +1346,7 @@ window.enhanceMemoryDemo = function (api) {
   $("#v-full-dirty").onclick = () => presetV(true, true);
   $("#v-permission").onclick = () => presetV(false, false, 7);
   if ($("#p4 .stage > p.muted")) $("#p4 .stage > p.muted").textContent =
-    "CPU tham chiếu → trap sang OS → định vị trang → nạp vào RAM → cập nhật bảng trang → chạy lại lệnh (PDF tr.24). Nếu RAM đầy, chọn victim; chỉ ghi lại trang dirty.";
+    "CPU tham chiếu → trap sang OS → định vị trang → nạp vào RAM → cập nhật bảng trang → chạy lại lệnh . Nếu RAM đầy, chọn victim; chỉ ghi lại trang dirty.";
   resetV();
   // DEMO 3: run the existing translation planner on a copy, commit only at real events.
   function buildX(addr, base) {
@@ -1759,7 +1755,7 @@ window.enhanceMemoryDemo = function (api) {
   const xp = document.createElement("div");
   xp.className = "bar";
   xp.innerHTML =
-    '<button class="btn" id="x-textbook">MẪU TÀI LIỆU tr.13 · 13 → 9 (4 B)</button><button class="btn" id="x-default">Mẫu gốc · 10000 → 22288 (4 KB)</button>';
+    '<button class="btn" id="x-textbook">Mẫu nhỏ · 13 → 9 (4 B)</button><button class="btn" id="x-default">Mẫu gốc · 10000 → 22288 (4 KB)</button>';
   $("#x-flow").before(xp);
   $("#x-textbook").onclick = () =>
     sampleX({
@@ -2367,7 +2363,7 @@ window.enhanceMemoryDemo = function (api) {
   $("#a-apply").before(gapField);
   const sampleA = document.createElement("button");
   sampleA.className = "btn";
-  sampleA.textContent = "Khôi phục mẫu tr.8–9";
+  sampleA.textContent = "Khôi phục mẫu mặc định";
   sampleA.id = "a-sample";
   $("#a-apply").after(sampleA);
   sampleA.onclick = () => {

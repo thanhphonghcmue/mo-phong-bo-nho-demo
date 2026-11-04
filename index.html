@@ -347,26 +347,28 @@ footer{font-size:12px;color:var(--muted)}
 .b-ram-track {
   position: relative;
   display: flex;
-  height: 64px;
-  border: 2px solid var(--fg);
+  height: 54px;
+  border: 2px solid var(--line);
   border-radius: 10px;
   overflow: visible;
-  margin-top: 14px;
-  margin-bottom: 28px;
+  margin-top: 36px;
+  margin-bottom: 14px;
 }
 .b-pointer {
   position: absolute;
-  top: -24px;
+  top: -30px;
   transform: translateX(-50%);
   display: flex;
   flex-direction: column;
   align-items: center;
-  transition: left .4s cubic-bezier(.2,.8,.2,1);
-  z-index: 10;
+  transition: left .35s cubic-bezier(.2,.8,.2,1);
+  z-index: 25;
+  pointer-events: none;
 }
 .b-pointer .pin {
-  font-size: 20px;
+  font-size: 13px;
   line-height: 1;
+  margin-top: -1px;
 }
 .b-pointer .plabel {
   font-family: var(--f-mono);
@@ -795,7 +797,7 @@ footer{font-size:12px;color:var(--muted)}
             <div class="b-ram-legend">
               <span><i style="background:var(--used)"></i>Hệ điều hành</span>
               <span><i style="background:var(--ok)"></i>Vùng tiến trình được cấp quyền</span>
-              <span><i style="background:repeating-linear-gradient(135deg,var(--free) 0 5px,var(--stripe) 5px 10px)"></i>Vùng nhớ ngoài</span>
+              <span><i style="background:var(--free)"></i>Vùng nhớ ngoài</span>
               <span><i style="background:var(--bad)"></i>Điểm vi phạm (TRAP)</span>
             </div>
           </div>
@@ -983,6 +985,7 @@ footer{font-size:12px;color:var(--muted)}
         <button class="btn" id="x-prev">◀ Lùi</button>
         <button class="btn primary" id="x-next">Bước tiếp ▶</button>
         <button class="btn" id="x-all">Xem kết quả</button>
+        <button class="btn" id="x-play">⏵ Tự chạy</button>
         <button class="btn" id="x-reset">↺ Làm lại</button>
         <button class="btn hist-toggle-btn" id="x-hist-toggle">Lịch sử</button>
         <button class="btn toggle-explain-btn" data-target="grid-p2">Ẩn giải thích</button>
@@ -1171,7 +1174,7 @@ T.forEach(([t, p]) => {
 let timers = {};
 function stopAll(){
   Object.keys(timers).forEach(k => { clearInterval(timers[k]); delete timers[k]; });
-  ['#b-play', '#a-play', '#r-play', '#f-play', '#v-play'].forEach(q => {
+  ['#b-play', '#a-play', '#x-play', '#r-play', '#f-play', '#v-play'].forEach(q => {
     const e = $(q);
     if (e) e.textContent = '⏵ Tự chạy';
   });
@@ -1340,12 +1343,16 @@ function renderB(){
   const ptrValid = isValid;
 
   $('#b-ram-track').innerHTML = `
-    <div class="used" style="width:${osW}%;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:12px;font-weight:700">OS (0..${Math.max(0, base-1)})</div>
-    <div style="width:${userW}%;background:var(--ok-soft);border:2px solid var(--ok);display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--ok);font-size:13px;font-weight:800;padding:0 6px">
-      <span>Tiến trình [Base: ${base}]</span>
-      <small style="font-family:var(--f-mono);font-size:10.5px">${limit} bytes (tới ${validEnd})</small>
+    <div class="used" style="width:${osW}%;background:var(--free);border-right:1.5px solid var(--line);display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:12px;font-weight:700;white-space:nowrap;overflow:hidden">
+      OS (0..${Math.max(0, base-1)})
     </div>
-    <div style="width:${otherW}%;background:repeating-linear-gradient(135deg,var(--free) 0 5px,var(--stripe) 5px 10px);display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:11px">Ngoài vùng</div>
+    <div style="width:${userW}%;background:var(--ok-soft);border:2px solid var(--ok);display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--ok);padding:0 8px;text-align:center;line-height:1.25">
+      <span style="font-size:12px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Tiến trình [Base: ${base}]</span>
+      <small style="font-family:var(--f-mono);font-size:10.5px;color:var(--fg);opacity:0.85;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${limit} bytes (đến ${validEnd})</small>
+    </div>
+    <div style="width:${otherW}%;background:rgba(0,0,0,0.03);display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:11px;white-space:nowrap;overflow:hidden">
+      Ngoài vùng
+    </div>
     <div class="b-pointer" style="left:${ptrPos}%">
       <span class="plabel" style="background:${ptrValid ? 'var(--ok)' : 'var(--bad)'};color:#fff">${mode === 'translate' ? (ptrValid ? `PA=${pa} ✓` : `Offset ${offset} ✗`) : `${addr} ${ptrValid ? '✓' : '✗'}`}</span>
       <span class="pin" style="color:${ptrValid ? 'var(--ok)' : 'var(--bad)'}">▼</span>
