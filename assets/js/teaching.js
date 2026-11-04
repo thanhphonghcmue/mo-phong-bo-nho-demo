@@ -152,56 +152,56 @@ window.enhanceMemoryDemo = function (api) {
     } else if (id === "x") {
       const p = s.plan, size = s.pageSize;
       if (title.startsWith("cpu phát")) {
-        mech = `CPU tạo LA=${p.addr} trong không gian logic của tiến trình. Trang logic và khung RAM có cùng kích thước ${size} byte, nhưng số trang không nhất thiết bằng số khung.`;
+        mech = `Chương trình muốn tìm byte ${p.addr}. CPU gửi yêu cầu này; địa chỉ thật trong RAM chưa được xác định.`;
       } else if (title.startsWith("trap")) {
         mech = "Địa chỉ ngoài không gian logic nên MMU chuyển lỗi truy cập cho OS. Đây không phải một trang hợp lệ đang chờ nạp; không thực hiện I/O để sửa địa chỉ sai.";
       } else if (title.startsWith("tách")) {
-        mech = `Chia LA cho kích thước trang: thương nguyên p=${p.p} chọn mục bảng trang, phần dư d=${p.d} chọn byte trong trang. Khi đổi trang sang khung, d giữ nguyên.`;
+        mech = `Mỗi trang chứa ${size} byte. Chia ${p.addr} cho ${size}: được ${p.p}, dư ${p.d}; vậy cần trang p=${p.p}, tại vị trí d=${p.d} trong trang.`;
       } else if (title.startsWith("tra tlb")) {
         mech = p.hit
-          ? `TLB Hit: MMU lấy ngay bản dịch trang ${p.p} → khung ${p.f} từ cache gần CPU. Không cần đọc bảng trang trong RAM cho bản dịch này; vẫn cần truy cập RAM để lấy dữ liệu.`
-          : `TLB Miss chỉ có nghĩa cache chưa có bản dịch trang ${p.p}. MMU phải tra bảng trang trong RAM; chỉ khi trang chưa hiện diện mới phát sinh Page Fault.`;
+          ? `TLB Hit: sổ nhớ nhanh đã biết trang ${p.p} ở ngăn RAM ${p.f}. Bỏ qua tra bảng trang, nhưng vẫn phải đến RAM để đọc dữ liệu.`
+          : `TLB Miss chỉ có nghĩa sổ nhớ nhanh chưa có chỉ đường cho trang ${p.p}. Máy phải xem bảng trang; chưa thể kết luận trang đang thiếu trong RAM.`;
       } else if (title.startsWith("tra bảng trang")) {
         mech = p.fault
-          ? `Trang ${p.p} hợp lệ nhưng PTE có present=0, nên chưa có dữ liệu trang trong RAM. MMU phát Page Fault để OS nạp trang; chưa được đọc byte dữ liệu.`
-          : `PTE của trang ${p.p} có present=1 và chỉ đến khung ${p.f}. TLB Miss này không gây Page Fault, vì trang vẫn đang nằm trong RAM.`;
+          ? `Bảng trang báo trang ${p.p} chưa nằm trong RAM (present=0). Máy báo lỗi trang để hệ điều hành nạp vào; chưa được đọc dữ liệu.`
+          : `Bảng trang cho biết trang ${p.p} đang ở ngăn ${p.f} (present=1). Lượt này không gây Page Fault: thiếu chỉ đường trong TLB, nhưng dữ liệu vẫn ở RAM.`;
       } else if (title.startsWith("ram đầy")) {
         mech = "Page Fault đã được phát hiện nhưng không có khung trống để nạp trang. Mô hình dịch địa chỉ dừng an toàn; cần cơ chế thay trang ở Demo 4 hoặc thêm khung trống, chưa có PA hợp lệ.";
       } else if (e.kind === "page-in") {
         mech = `OS đọc trang ${p.p} từ bộ nhớ phụ vào khung trống ${p.newF}, rồi cập nhật PTE. Demo này gộp phần xử lý lỗi trang; Demo 4 tách riêng các bước trap, I/O, cập nhật và chạy lại lệnh.`;
       } else if (title.startsWith("điền bản dịch tlb")) {
-        mech = `MMU lưu bản dịch trang ${p.p} → khung ${p.f} vào TLB để lần sau tra nhanh. Nếu cache đầy, mô hình loại mục TLB ít dùng gần đây nhất; việc này không loại trang dữ liệu khỏi RAM.`;
+        mech = `Máy ghi nhớ chỉ đường trang ${p.p} → ngăn ${p.f} vào TLB để lần sau tra nhanh. Thay một mục trong TLB không xóa dữ liệu trang trong RAM.`;
       } else if (title.startsWith("tạo địa chỉ")) {
-        mech = `Đầu khung ${p.f} có địa chỉ ${p.f * size}. Cộng độ lệch ${p.d} được PA=${p.phys}; không dùng số trang logic ${p.p} để thay cho số khung.`;
+        mech = `Ngăn RAM ${p.f} bắt đầu ở byte ${p.f * size}. Thêm vị trí ${p.d} trong ngăn: địa chỉ thật PA=${p.phys}.`;
       } else if (e.kind === "read") {
-        mech = `CPU đọc byte tại PA=${p.phys}, tức offset ${p.d} trong khung ${p.f}. Bảng trang và TLB chứa thông tin ánh xạ, không chứa byte dữ liệu mà lệnh đang cần.`;
+        mech = `CPU đến byte ${p.phys} trong ngăn RAM ${p.f} để đọc dữ liệu. TLB và bảng trang chỉ giữ chỉ đường; dữ liệu cần đọc nằm trong RAM.`;
       }
     } else if (id === "v") {
       const page = s.page, pte = s.pt[page], frame = s.plan.chosenFrame;
       if (title.startsWith("cpu tham chiếu")) {
-        mech = `CPU cần thực hiện ${s.operation === "write" ? "STORE (ghi)" : "LOAD (đọc)"} trên trang ${page}. MMU kiểm tra ánh xạ, quyền và bit hiện diện trước; CPU không đọc dữ liệu trực tiếp từ bộ nhớ phụ.`;
+        mech = `Chương trình muốn ${s.operation === "write" ? "ghi vào" : "đọc"} trang ${page}. Trước tiên, bộ dịch địa chỉ kiểm tra quyền và xem trang đã có trong RAM chưa.`;
       } else if (title.startsWith("từ chối")) {
         mech = "Trang ngoài miền hoặc không có quyền nên truy cập bị từ chối. Trong mô hình này đây là lỗi bảo vệ, không phải thiếu trang hợp lệ để nạp; RAM và bộ nhớ phụ giữ nguyên.";
       } else if (e.kind === "trap") {
-        mech = `Trang ${page} hợp lệ nhưng present=0: phần cứng phát trap Page Fault, lưu trạng thái để OS xử lý. Lệnh đang dừng; trap chưa đọc trang từ bộ nhớ phụ vào RAM.`;
+        mech = `Trang ${page} được phép dùng nhưng chưa ở RAM. Máy báo cho hệ điều hành (OS) bằng trap; trap chưa đọc trang vào RAM, lệnh hiện tại đang tạm dừng.`;
       } else if (title.startsWith("định vị")) {
-        mech = `Bộ xử lý lỗi trang của OS xác định bản lưu của trang ${page} trên bộ nhớ phụ. OS cần một khung đích trước khi lập yêu cầu I/O; bản thân bước tìm vị trí chưa nạp dữ liệu.`;
+        mech = `Hệ điều hành tìm bản lưu của trang ${page} trên bộ nhớ phụ, thường là ổ đĩa. Mới tìm chỗ lưu; chưa chuyển trang vào RAM.`;
       } else if (title.includes("chọn victim")) {
         mech = `RAM hết khung trống nên OS chọn nạn nhân theo ${names[s.policy]}. Chọn nạn nhân chưa đồng nghĩa ghi ra đĩa: chỉ cần ghi nếu dirty=1; trang sạch đã có bản lưu phù hợp.`;
       } else if (e.kind === "page-out") {
         mech = `Trang nạn nhân ${s.plan.victim} đã bị ghi sửa, nên OS phải lưu nội dung mới về bộ nhớ phụ trước khi dùng lại khung. Khi I/O ghi hoàn tất, dirty được xóa; bước này chưa nạp trang ${page}.`;
       } else if (e.kind === "page-in") {
-        mech = `I/O đọc đưa trang ${page} từ bộ nhớ phụ vào khung ${frame}. Dữ liệu đã vào RAM nhưng PTE của trang mới chưa được đánh dấu hiện diện; phải cập nhật bảng trang trước khi CPU chạy lại.`;
+        mech = `Trang ${page} được đọc từ bộ nhớ phụ vào ngăn RAM ${frame}. Dữ liệu đã tới, nhưng bảng trang chưa được đánh dấu hiện diện; phải ghi lại chỉ đường rồi mới chạy tiếp.`;
       } else if (title.startsWith("cập nhật bảng trang")) {
-        mech = `Sau khi I/O hoàn tất, OS ghi frame=${pte.frame} và present=1 vào PTE[${page}]. Nhờ vậy MMU biết nơi chứa trang để dịch lần truy cập lại; không được bật present trước khi dữ liệu nạp xong.`;
+        mech = `Trang đã nạp xong. Hệ điều hành ghi vào bảng: trang ${page} ở ngăn ${pte.frame}, present=1 nghĩa là đã có trong RAM; bộ dịch địa chỉ giờ biết đường đến dữ liệu.`;
       } else if (title.startsWith("khởi động lại")) {
-        mech = `CPU chạy lại đúng lệnh ${s.operation === "write" ? "STORE" : "LOAD"} bị ngắt, không chuyển sang một tham chiếu mới. Trang đã ở khung ${frame} nên lệnh hoàn tất${s.operation === "write" ? "; ghi đặt dirty=1" : ""}; không cộng thêm lỗi trang cho lần thử lại này.`;
+        mech = `CPU thử lại đúng lệnh ${s.operation === "write" ? "ghi" : "đọc"} đang dở. Trang đã ở ngăn ${frame} nên lệnh hoàn tất${s.operation === "write" ? "; ghi làm dirty=1" : ""}; không cộng thêm lỗi trang cho lần thử lại này.`;
       } else if (title.startsWith("page hit")) {
-        mech = `PTE[${page}] có present=1 nên MMU lấy khung ${frame} để phục vụ lệnh. Không có trap Page Fault và không cần I/O với bộ nhớ phụ.`;
+        mech = `Trang ${page} đã ở ngăn RAM ${frame}, máy chỉ cần đến đó. Không có trap Page Fault và không cần đọc trang từ bộ nhớ phụ.`;
       } else if (e.kind === "write" || e.kind === "read") {
         mech = s.operation === "write"
           ? `CPU ghi dữ liệu vào khung ${frame} trong RAM và phần cứng đặt dirty=1. Đây không phải lệnh ghi ngay ra bộ nhớ phụ; bit dirty giúp OS biết cần lưu lại khi thay trang.`
-          : `CPU đọc dữ liệu từ khung ${frame} trong RAM; không đọc bộ nhớ phụ và không làm trang trở thành dirty.`;
+          : `CPU đọc dữ liệu trong ngăn RAM ${frame}. Trang không bị ghi sửa và không cần đọc ổ đĩa.`;
       }
     } else if (id === "r") {
       const r = s.runtime;
@@ -230,6 +230,52 @@ window.enhanceMemoryDemo = function (api) {
     }
 
     return `<div class="teach-deep-content">${esc(mech)}</div>`;
+  }
+  function renderTerms(id, e, open) {
+    if (!["x", "v", "r"].includes(id)) return "";
+    const words = {
+      CPU: "Bộ xử lý: chạy các lệnh của chương trình.",
+      MMU: "Bộ dịch địa chỉ: đổi địa chỉ chương trình thành địa chỉ trong RAM.",
+      RAM: "Bộ nhớ làm việc, chứa dữ liệu đang được chương trình dùng.",
+      Byte: "Đơn vị đo dữ liệu. Mỗi địa chỉ trong mô phỏng chỉ đến một byte.",
+      LA: "Địa chỉ logic: vị trí chương trình muốn tìm, trước khi đổi sang địa chỉ RAM.",
+      PA: "Địa chỉ vật lý: vị trí thật của byte trong RAM.",
+      "Trang (Page)": "Một phần của chương trình có kích thước cố định. Các trang được đánh số từ 0.",
+      "Khung (Frame)": "Một ngăn trong RAM để chứa một trang. Khung và trang có cùng kích thước.",
+      p: "Số thứ tự trang: lấy phần nguyên khi chia địa chỉ logic cho cỡ trang.",
+      d: "Vị trí trong trang: phần dư của phép chia. Khi đổi trang sang khung, d giữ nguyên.",
+      TLB: "Sổ nhớ nhanh vài bản dịch trang → khung, nằm gần CPU/MMU; không chứa dữ liệu trang.",
+      "Bảng trang (Page Table)": "Sổ địa chỉ trong RAM, do OS lập khi bố trí bộ nhớ: cho biết mỗi trang nằm ở khung nào.",
+      Present: "1: trang đã có trong RAM. 0: trang chưa ở RAM. Quyền truy cập được kiểm tra riêng.",
+      OS: "Hệ điều hành: quản lý RAM, chọn khung và yêu cầu đọc/ghi trang.",
+      Trap: "Thông báo do lệnh đang chạy gây ra, chuyển việc xử lý về hệ điều hành.",
+      "Page Fault": "Lỗi trang: trang hợp lệ cần dùng chưa nằm trong RAM; OS phải nạp trang rồi thử lại lệnh.",
+      "Bộ nhớ phụ (Backing Store)": "Nơi giữ bản lưu trang, thường là ổ đĩa. CPU không đọc dữ liệu của lệnh trực tiếp ở đây.",
+      "I/O": "Đọc/ghi với thiết bị. Trong bước nạp trang: đưa dữ liệu giữa bộ nhớ phụ và RAM.",
+      Dirty: "Bit đánh dấu trang đã bị ghi sửa. Khi thay trang này, cần lưu nội dung mới về bộ nhớ phụ.",
+      Victim: "Trang được chọn để nhường ngăn RAM cho trang cần dùng.",
+      "Bit R": "1: đã được tham chiếu từ lần xóa bit gần nhất; 0: chưa. Clock xóa R=1 để cho cơ hội thứ hai.",
+      "Không giới hạn": "Tên trụ cột của bộ nhớ ảo: không cần nạp toàn bộ tiến trình vào RAM. RAM và ổ đĩa thực tế vẫn hữu hạn.",
+    };
+    let keys;
+    const title = e.title.toLocaleLowerCase("vi");
+    if (id === "x") {
+      keys = title.startsWith("cpu") ? ["CPU", "MMU", "LA", "Byte"]
+        : title.startsWith("tách") ? ["Trang (Page)", "p", "d"]
+          : title.includes("tlb") ? ["TLB", "Trang (Page)", "Khung (Frame)"]
+            : title.includes("bảng trang") ? ["Bảng trang (Page Table)", "Present", "Khung (Frame)"]
+              : e.kind === "page-in" || e.kind === "trap" ? ["Page Fault", "OS", "Bộ nhớ phụ (Backing Store)"]
+                : ["PA", "Khung (Frame)", "d"];
+    } else if (id === "v") {
+      keys = title.startsWith("cpu") ? ["CPU", "Trang (Page)", "RAM", "Không giới hạn"]
+        : title.startsWith("cập nhật") || title.startsWith("page hit") ? ["Bảng trang (Page Table)", "Present", "Khung (Frame)"]
+          : e.kind === "trap" ? (e.state.plan.oob ? ["OS", "Trap"] : ["OS", "Trap", "Page Fault"])
+            : e.kind === "page-out" ? ["Dirty", "I/O", "Victim"]
+              : e.kind === "page-in" || title.startsWith("định vị") ? ["Bộ nhớ phụ (Backing Store)", "I/O", "Khung (Frame)"]
+                : title.includes("victim") ? ["Victim", "Dirty", "Khung (Frame)"]
+                  : ["CPU", "RAM", "Dirty"];
+    } else keys = e.state.alg === "CLOCK" ? ["Khung (Frame)", "Victim", "Bit R"] : ["Trang (Page)", "Khung (Frame)", "Page Fault", "Victim"];
+    return `<details class="teach-terms" ${open ? "open" : ""}><summary>Giải nghĩa các chữ trong bước này</summary><dl>${keys.map(key => `<dt>${esc(key)}</dt><dd>${esc(words[key])}</dd>`).join("")}</dl></details>`;
   }
 
   function route(e) {
@@ -475,6 +521,26 @@ window.enhanceMemoryDemo = function (api) {
     LRU: "LRU",
     OPT: "OPT",
   };
+  const pillarIcons = {
+    safety: '<path d="M12 3 4 6v5c0 5 8 10 8 10s8-5 8-10V6Z"/><path d="m8 12 3 3 5-6"/>',
+    efficiency: '<path d="m13 2-8 12h6l-1 8 9-13h-6Z"/>',
+    virtual: '<path d="M9 3H3v6m12-6h6v6M3 15v6h6m12-6v6h-6M3 3l6 6m12-6-6 6M3 21l6-6m12 6-6-6"/>',
+  };
+  for (const [tab, kind, label, meaning] of [
+    ["t0", "safety", "AN TOÀN", "Kiểm tra vùng nhớ trước khi cho phép truy cập."],
+    ["t1", "efficiency", "HIỆU QUẢ", "Chọn vùng trống để sử dụng RAM."],
+    ["t2", "efficiency", "HIỆU QUẢ", "Phân trang và TLB giúp dịch địa chỉ."],
+    ["t4", "virtual", "KHÔNG GIỚI HẠN", "Bộ nhớ ảo không cần nạp toàn bộ tiến trình vào RAM; dung lượng thực tế vẫn có giới hạn."],
+    ["t3", "virtual", "KHÔNG GIỚI HẠN", "Thay trang để dùng lại số khung RAM hữu hạn, không phải RAM vô hạn."],
+  ]) {
+    const button = $("#" + tab), badge = document.createElement("span");
+    badge.className = "teach-pillar";
+    badge.dataset.pillar = kind;
+    badge.title = meaning;
+    badge.innerHTML = `<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${pillarIcons[kind]}</svg><span>${label}</span>`;
+    button.querySelector(".n").textContent = button.querySelector(".n").textContent.replace(/^.*?(?=DEMO\s)/u, "");
+    button.append(badge);
+  }
   const configs = {};
   function integer(raw, label, min = 0, max = 1e9) {
     const text = String(raw).trim(),
@@ -578,6 +644,54 @@ window.enhanceMemoryDemo = function (api) {
     };
     return el;
   }
+  function submitEasyConfig(id, values) {
+    const previous = Object.fromEntries(Object.keys(values).map(key => [key, read(key)]));
+    Object.entries(values).forEach(([key, value]) => set(key, value));
+    configs[id].querySelector(".teach-config-form").requestSubmit();
+    const status = configs[id].querySelector(".teach-config-status");
+    if (status.classList.contains("teach-error")) {
+      Object.entries(previous).forEach(([key, value]) => set(key, value));
+      throw Error(status.textContent);
+    }
+  }
+  function easySetup(id, help, fields, apply, example) {
+    const root = configs[id], original = root.querySelector(".teach-config-form");
+    root.querySelector("summary").textContent = "Đổi đề bài · nhập nhanh hoặc chọn ví dụ";
+    const advanced = document.createElement("details");
+    advanced.className = "teach-advanced-config";
+    advanced.innerHTML = "<summary>Nhập chi tiết: tự đặt RAM và các thông số (không bắt buộc)</summary>";
+    original.before(advanced);
+    advanced.append(original);
+    const quick = document.createElement("form");
+    quick.className = "teach-easy-form";
+    quick.noValidate = true;
+    quick.innerHTML = `<p>${help}</p><div class="teach-easy-grid">${fields}</div><div class="bar"><button type="submit" class="btn primary" id="${id}-easy-apply">Áp dụng đề nhanh</button><button type="button" class="btn" id="${id}-easy-example">Chạy ví dụ dễ hiểu</button><button type="button" class="btn" id="${id}-easy-sample">Khôi phục mẫu cũ</button></div><p class="teach-easy-status" role="status" aria-live="polite"></p>`;
+    advanced.before(quick);
+    const status = quick.querySelector(".teach-easy-status");
+    quick.addEventListener("input", () => {
+      status.className = "teach-easy-status";
+      status.textContent = "Chưa áp dụng: mô phỏng vẫn dùng đề đang chạy.";
+    });
+    quick.onsubmit = e => {
+      e.preventDefault();
+      try {
+        apply();
+        status.className = "teach-easy-status";
+        status.textContent = "Đã áp dụng. Bấm Bước tiếp để xem từng thao tác.";
+        root.open = false;
+      } catch (err) {
+        status.className = "teach-easy-status teach-error";
+        status.textContent = err.message;
+      }
+    };
+    quick.querySelector("#" + id + "-easy-example").onclick = () => { example(); quick.requestSubmit(); };
+    quick.querySelector("#" + id + "-easy-sample").onclick = () => {
+      $("#" + id + "-config-sample").click();
+      status.className = "teach-easy-status";
+      status.textContent = "Đã khôi phục mẫu cũ.";
+      root.open = false;
+    };
+  }
   function activeSetup(id, text) {
     let el = $("#" + id + "-active-setup");
     if (!el) {
@@ -596,12 +710,60 @@ window.enhanceMemoryDemo = function (api) {
       status.className = "teach-config-status";
       status.textContent = "Đang dùng đề đã áp dụng.";
     }
+    const easy = configs[id]?.querySelector(".teach-easy-status");
+    if (easy) { easy.className = "teach-easy-status"; easy.textContent = "Đang dùng đề đã áp dụng."; }
   }
   const read = (id) => $("#" + id).value;
   const set = (id, value) => {
     if ($("#" + id)) $("#" + id).value = value;
   };
   const joined = (items) => items.map((x) => x ?? "-").join(", ");
+  function conclusionFor(id, e, visited) {
+    const s = e.state;
+    if (id === "b") return ["AN TOÀN", !s.isValid
+      ? "Base/Limit chặn truy cập ngoài vùng."
+      : s.mode === "translate" ? "MMU dịch địa chỉ: PA = Base + L." : "Base/Limit bảo vệ vùng nhớ tiến trình."];
+    if (id === "a" || id === "f") {
+      const holes = id === "a" ? s.runtime.free : s.segs.filter(p => !p.name).map(p => p.size);
+      const allocated = id === "a" ? new Set(s.runtime.pieces.flat().map(p => p.k)) : null;
+      const waiting = id === "a" ? s.reqs.filter((_, i) => !allocated.has(i))
+        : s.waiting.map(name => s.waitingSizes?.[name]).filter(Number.isFinite);
+      const total = holes.reduce((n, size) => n + size, 0), largest = Math.max(0, ...holes);
+      if (waiting.some(size => size <= total && size > largest))
+        return ["PHÂN MẢNH NGOÀI", "Đủ tổng trống, vẫn thiếu vùng liên tục."];
+      if (id === "f" && visited.some(step => step.title === "Dồn nén RAM"))
+        return ["DỒN NÉN", "Gom vùng trống, không tăng tổng dung lượng."];
+      if (waiting.length || s.waiting?.length)
+        return ["CẤP PHÁT LIÊN TỤC", "Chỉ cấp khi có một lỗ trống đủ lớn."];
+      const alg = s.allocatorAlg || s.alg;
+      return [names[alg], { first: "Chọn lỗ đủ đầu tiên.", best: "Chọn lỗ nhỏ nhất nhưng đủ chứa yêu cầu.", worst: "Chọn lỗ trống lớn nhất." }[alg]];
+    }
+    if (id === "x") {
+      if (s.plan.err) return ["AN TOÀN", "Chặn địa chỉ ngoài không gian tiến trình."];
+      if (s.plan.blocked) return ["RAM ĐẦY", "Cần thay trang trước khi tiếp tục dịch địa chỉ."];
+      if (s.plan.fault) return ["PAGE FAULT", "Trang hợp lệ chưa nạp phải được đưa vào RAM."];
+      return s.plan.hit ? ["TLB HIT", "Lấy ngay Frame, bỏ qua tra bảng trang."]
+        : ["TLB MISS ≠ PAGE FAULT", "Thiếu bản dịch trong TLB, trang vẫn ở RAM."];
+    }
+    if (id === "v") {
+      if (s.plan.oob) return ["AN TOÀN", "Truy cập ngoài miền hoặc thiếu quyền bị chặn."];
+      const initial = visited[0].state;
+      if (s.writes > initial.writes) return ["DIRTY BIT", "Chỉ ghi lại trang nạn nhân đã bị sửa."];
+      if (s.faults > initial.faults) return ["DEMAND PAGING", "Nạp trang khi cần, rồi chạy lại lệnh."];
+      return ["PAGE HIT", "Trang có sẵn trong RAM, không đọc bộ nhớ phụ."];
+    }
+    if (id === "r") {
+      if (!s.runtime.faults) return ["PAGE HIT", "Các trang cần dùng đã có trong RAM."];
+      if (!visited.some(step => step.state.runtime.phase === "victim"))
+        return ["KHUNG TRỐNG", "Nạp trang mà chưa cần chọn nạn nhân."];
+      return [names[s.alg], {
+        FIFO: "Thay trang vào RAM sớm nhất.",
+        LRU: "Thay trang lâu chưa được dùng nhất.",
+        OPT: "Thay trang lâu nhất mới được dùng lại.",
+        CLOCK: "R=1: cơ hội thứ hai; R=0: thay.",
+      }[s.alg]];
+    }
+  }
   class Timeline {
     constructor(id, panel, target, render, note) {
       this.id = id;
@@ -615,6 +777,14 @@ window.enhanceMemoryDemo = function (api) {
       this.duration = 0;
       timelines[id] = this;
       const bar = $("#" + id + "-next").parentElement;
+      this.conclusion = document.createElement("aside");
+      this.conclusion.id = id + "-conclusion";
+      this.conclusion.className = "teach-conclusion";
+      this.conclusion.hidden = true;
+      this.conclusion.setAttribute("role", "status");
+      this.conclusion.setAttribute("aria-live", "polite");
+      this.conclusion.setAttribute("aria-atomic", "true");
+      bar.before(this.conclusion);
       const options = document.createElement("div");
       options.className = "teach-options";
       options.innerHTML = `<strong>TÙY CHỌN HIỂN THỊ</strong>${[
@@ -736,6 +906,7 @@ window.enhanceMemoryDemo = function (api) {
       this.cursor = i;
       this.seen = Math.max(this.seen, i);
       const e = this.events[i];
+      const termsOpen = $("#" + this.id + "-cap .teach-terms")?.open;
       restore(this.target, e.state);
       const t0 = performance.now();
       this.renderModel(e, this);
@@ -747,7 +918,7 @@ window.enhanceMemoryDemo = function (api) {
         if (this.id === "r") {
           cap.innerHTML = `<div class="teach-step-title">Bước ${i + 1} · ${esc(e.title)}</div>
             <div class="teach-step-context"><b>${esc(e.actor)}:</b> ${esc(e.condition)}</div>
-            <div class="teach-step-change">${esc(e.change)}</div>${deepExp}`;
+            <div class="teach-step-change">${esc(e.change)}</div>${deepExp}${renderTerms(this.id, e, termsOpen)}`;
         } else {
           cap.innerHTML = `<div class="teach-step-title">Bước ${i + 1} · ${esc(e.title)}</div>
             <div class="teach-step-context"><b>${esc(e.actor)}:</b> ${esc(e.condition)}</div>
@@ -755,7 +926,7 @@ window.enhanceMemoryDemo = function (api) {
             <details class="teach-next" open>
               <summary>Giải thích nguyên lý hoạt động</summary>
               ${deepExp}
-            </details>`;
+            </details>${renderTerms(this.id, e, termsOpen)}`;
         }
       }
       this.noteEl.textContent = e.note || this.note;
@@ -775,6 +946,13 @@ window.enhanceMemoryDemo = function (api) {
       );
       $("#" + this.id + "-prev").disabled = i === 0;
       $("#" + this.id + "-next").disabled = !this.canNext();
+      const completed = i > 0 && $("#" + this.id + "-next").disabled;
+      this.conclusion.hidden = !completed;
+      if (completed) {
+        const [keyword, message] = conclusionFor(this.id, e, this.events.slice(0, i + 1));
+        const html = `<span class="teach-conclusion-label">KẾT LUẬN</span><strong>${esc(keyword)}</strong><span>${esc(message)}</span>`;
+        if (this.conclusion.innerHTML !== html) this.conclusion.innerHTML = html;
+      } else this.conclusion.textContent = "";
       const all = $("#" + this.id + "-all");
       if (all) all.disabled = !this.canNext();
       this.applyOptions();
@@ -1164,7 +1342,7 @@ window.enhanceMemoryDemo = function (api) {
   function renderV(e) {
     activeSetup(
       "v",
-      `${V.pt.length} trang, ${V.ram.length} khung; ${names[V.policy]}; ${V.operation === "write" ? "ghi" : "đọc"} trang ${V.page}${V.sequence ? `; tham chiếu ${V.seqIndex + 1}/${V.sequence.length}` : ""}.`,
+      `${V.operation === "write" ? "Ghi vào" : "Đọc"} trang ${V.page} từ yêu cầu của chương trình · RAM có ${V.ram.length} ngăn${V.sequence ? ` · lần ${V.seqIndex + 1}/${V.sequence.length}` : ""}.`,
     );
     const absent = vBase.pt.filter(
         (p) => p.mapped && p.permission && !p.present,
@@ -1188,9 +1366,9 @@ window.enhanceMemoryDemo = function (api) {
     const faultStage = stage.startsWith("CPU") ? 0 : e.kind === "trap" ? 1
       : stage.startsWith("Định vị") ? 2 : stage.startsWith("Cập nhật") ? 4
         : stage.startsWith("Khởi động") ? 5 : 3;
-    const labels = denied ? ["CPU", "Từ chối / OS"] : hit
-      ? ["CPU", "Dịch địa chỉ", V.operation === "write" ? "Ghi RAM" : "Đọc RAM"]
-      : ["CPU", "Trap → OS", "Định vị", "Nạp trang", "Cập nhật PTE", "Chạy lại"];
+    const labels = denied ? ["Yêu cầu", "OS chặn"] : hit
+      ? ["Yêu cầu", "Tìm ngăn RAM", V.operation === "write" ? "Ghi RAM" : "Đọc RAM"]
+      : ["Yêu cầu", "Báo OS", "Tìm trên đĩa", "Nạp vào RAM", "Sửa bảng trang", "Thử lại"];
     const current = denied ? (stage.startsWith("CPU") ? 0 : 1)
       : hit ? (stage.startsWith("CPU") ? 0 : e.kind === "translation" ? 1 : 2) : faultStage;
     const row = (p) => `<tr data-page="${p.page}"><td>${p.page}</td><td>${+p.present}</td><td>${p.frame ?? "—"}</td><td>${+p.dirty}</td></tr>`;
@@ -1203,15 +1381,15 @@ window.enhanceMemoryDemo = function (api) {
     const victim = chosen && V.plan.victim !== null && V.ram[frame] !== V.page;
     const expanded = $("#v-memory-details")?.open;
     const frameBody = chosen
-      ? `<div id="v-frame-${frame}" data-frame="${frame}" class="teach-frame teach-focus-frame ${victim ? "teach-victim" : ""}"><span>Frame ${frame}${victim ? " · Victim" : ""}</span><b>${V.ram[frame] === null ? "trống" : "Trang " + V.ram[frame]}</b>${V.policy === "CLOCK" ? `<small>R=${V.replacement.bit[frame]}</small>` : ""}</div>`
-      : '<div class="teach-frame teach-focus-frame"><span>Khung dữ liệu</span><b>Chưa chọn khung</b></div>';
-    const ramBody = `<div class="teach-ram-focus"><div id="v-pt-focus" class="teach-endpoint"><b>Page Table</b>${table(["Trang", "Present", "Frame", "Dirty"], focus.length ? focus.map(row) : ['<tr><td colspan="4">Không có PTE hợp lệ</td></tr>'])}</div>${frameBody}</div>`;
+      ? `<div id="v-frame-${frame}" data-frame="${frame}" class="teach-frame teach-focus-frame ${victim ? "teach-victim" : ""}"><span>Ngăn ${frame} (Frame)${victim ? " · nhường chỗ" : ""}</span><b>${V.ram[frame] === null ? "trống" : "Trang " + V.ram[frame]}</b>${V.policy === "CLOCK" ? `<small>R=${V.replacement.bit[frame]}</small>` : ""}</div>`
+      : '<div class="teach-frame teach-focus-frame"><span>Ngăn chứa dữ liệu</span><b>Chưa chọn ngăn</b></div>';
+    const ramBody = `<div class="teach-ram-focus"><div id="v-pt-focus" class="teach-endpoint"><b>Bảng trang</b><span>Cho biết trang nằm ở ngăn nào</span>${table(["Trang", "Trong RAM?", "Ngăn", "Dirty"], focus.length ? focus.map(row) : ['<tr><td colspan="4">Không có mục hợp lệ</td></tr>'])}</div>${frameBody}</div>`;
     $("#v-flow").className = "teach-schematic";
     $("#v-flow").innerHTML = stepRail(labels, current) + `<div class="teach-layout-v">
-      ${unit("v-processor", "CPU / MMU", `<div id="v-cpu" class="teach-endpoint"><b>${V.operation === "write" ? "STORE M" : "LOAD M"} · Trang ${V.page}</b></div><div id="v-mmu" class="teach-endpoint"><span>MMU · kiểm tra truy cập</span><b>${permissions}</b></div>`)}
-      ${unit("v-os", "OS · xử lý lỗi trang", `<b>${denied ? "Xử lý lỗi bảo vệ" : hit ? "Không cần xử lý Page Fault" : stage.startsWith("CPU") ? "Chờ trap từ MMU" : esc(labels[current])}</b><p>${!hit && !denied && !V.freeFrames.length ? `RAM đầy · ${names[V.policy]}` : "Kiểm tra quyền · quản lý khung"}</p>`)}
-      ${unit("v-store", "Bộ nhớ phụ · Backing Store", `<b>${denied ? "Không nạp trang bị từ chối" : "Bản lưu Trang " + V.page}</b><p>${e.kind === "page-out" ? `Nhận dữ liệu Trang ${V.plan.victim} đã sửa` : e.kind === "page-in" ? `Đọc Trang ${V.page} → Frame ${frame}` : "Chưa truyền dữ liệu ở bước này"}</p>`)}
-      ${unit("v-ram", "RAM · bảng trang và khung dữ liệu", ramBody)}
+      ${unit("v-processor", "Bộ xử lý / Bộ dịch địa chỉ", `<div id="v-cpu" class="teach-endpoint"><span>CPU · chương trình gửi yêu cầu</span><b>${V.operation === "write" ? "Ghi (STORE)" : "Đọc (LOAD)"} trang ${V.page}</b></div><div id="v-mmu" class="teach-endpoint"><span>MMU · kiểm tra trước khi vào RAM</span><b>${permissions}</b></div>`)}
+      ${unit("v-os", "Hệ điều hành (OS)", `<b>${denied ? "Xử lý lỗi bảo vệ" : hit ? "Không cần nạp trang" : stage.startsWith("CPU") ? "Chờ báo thiếu trang" : esc(labels[current])}</b><p>${!hit && !denied && !V.freeFrames.length ? `RAM đầy · chọn trang nhường chỗ theo ${names[V.policy]}` : "Quản lý các ngăn trong RAM"}</p>`)}
+      ${unit("v-store", "Bộ nhớ phụ · ổ đĩa", `<b>${denied ? "Không nạp trang bị từ chối" : "Bản lưu Trang " + V.page}</b><p>${e.kind === "page-out" ? `Nhận dữ liệu Trang ${V.plan.victim} đã sửa` : e.kind === "page-in" ? `Đọc Trang ${V.page} → ngăn ${frame}` : "Backing Store · chưa truyền dữ liệu"}</p>`)}
+      ${unit("v-ram", "RAM · bộ nhớ đang làm việc", ramBody)}
       </div><details id="v-memory-details" class="teach-full-table teach-all-state" ${expanded ? "open" : ""}><summary>Xem toàn bộ bảng trang và RAM (${V.ram.length} khung)</summary><div class="teach-table-scroll">${table(["Trang", "Ánh xạ", "Quyền", "Present", "Frame", "Dirty"], V.pt.map(p => `<tr><td>${p.page}</td><td>${+p.mapped}</td><td>${+p.permission}</td><td>${+p.present}</td><td>${p.frame ?? "—"}</td><td>${+p.dirty}</td></tr>`))}</div><div class="teach-compact-frames">${V.ram.map((p, f) => `<div data-overview-frame="${f}" class="teach-frame"><span>Frame ${f}</span><b>${p === null ? "trống" : "Trang " + p}</b>${V.policy === "CLOCK" ? `<small>R=${V.replacement.bit[f]}${V.replacement.ptr === f ? " · kim" : ""}</small>` : ""}</div>`).join("")}</div></details>` + route(e);
     if ($("#v-free-frames")) $("#v-free-frames").textContent = V.freeFrames.length
       ? V.freeFrames.map((f) => "Khung " + f).join(" · ")
@@ -1228,6 +1406,9 @@ window.enhanceMemoryDemo = function (api) {
   const vt = new Timeline("v", "p4", V, renderV, "");
   function syncVConfig() {
     resetConfigNotice("v");
+    set("v-easy-frames", vBase.ram.length);
+    set("v-easy-refs", joined(vRefs));
+    set("v-easy-policy", vBase.policy);
     set("v-c-pages", vBase.pt.length);
     set("v-c-frames", vBase.ram.length);
     set("v-c-ram", joined(vBase.ram));
@@ -1639,14 +1820,14 @@ window.enhanceMemoryDemo = function (api) {
   }
   function renderX(e) {
     $("#p2 .quick > span.muted").textContent =
-      `Trang ${X.pageSize} B · ${X.pt.length} trang · ${X.frameCount} khung · TLB ${X.tlbCapacity} mục`;
+      `Mỗi trang ${X.pageSize} byte · RAM có ${X.frameCount} ngăn`;
     activeSetup(
       "x",
-      `${X.pageSize} B/trang; LA 0..${X.pt.length * X.pageSize - 1}; yêu cầu ${X.plan.addr}; TLB ban đầu theo cấu hình đã áp dụng.`,
+      `Địa chỉ muốn tìm: ${X.plan.addr} byte (ô nhập phía trên) · mỗi trang chứa ${X.pageSize} byte (đề cho).`,
     );
     const P = X.plan;
     $("#p2 h2").textContent =
-      `Địa chỉ logic ${P.addr} được dịch đến đâu trong RAM?`;
+      `Chương trình cần byte ${P.addr}. Byte đó đang ở đâu trong RAM?`;
     $("#x-flow").className = "teach-schematic";
     if (P.err) {
       $("#x-flow").innerHTML =
@@ -1679,17 +1860,17 @@ window.enhanceMemoryDemo = function (api) {
     const knownFrame = ready || (P.hit && X.st >= 2) || (!P.hit && X.st >= 3 && X.pt[P.p] !== null);
     const bypass = P.hit && X.st >= 2;
     const expanded = $("#x-memory-details")?.open;
-    const processor = `<div id="x-cpu" class="teach-endpoint"><span>Địa chỉ logic CPU phát</span><b>LA = ${P.addr}</b></div>
-      <div id="x-mmu" class="teach-endpoint"><span>MMU · tách địa chỉ</span><b>${split ? `p = ${P.p} · d = ${P.d}` : "Chờ tách p, d"}</b></div>
-      <div id="x-pa" class="teach-endpoint"><span>MMU · địa chỉ vật lý</span><b>${ready ? `PA = ${P.phys}` : "Chưa tạo PA"}</b>${ready ? `<small>${P.f} × ${X.pageSize} + ${P.d}</small>` : ""}</div>`;
+    const processor = `<div id="x-cpu" class="teach-endpoint"><span>CPU · địa chỉ chương trình muốn tìm</span><b>LA = ${P.addr}</b></div>
+      <div id="x-mmu" class="teach-endpoint"><span>MMU · chia địa chỉ thành trang</span><b>${split ? `p = ${P.p} · d = ${P.d}` : "Chờ tách p, d"}</b><small>${split ? `${P.addr} ÷ ${X.pageSize} = ${P.p}, dư ${P.d}<br>` : ""}p: số trang · d: vị trí trong trang</small></div>
+      <div id="x-pa" class="teach-endpoint"><span>MMU · địa chỉ thật trong RAM</span><b>${ready ? `PA = ${P.phys}` : "Chưa tạo PA"}</b>${ready ? `<small>Ngăn ${P.f} × ${X.pageSize} + vị trí ${P.d}</small>` : ""}</div>`;
     const focusedFrame = knownFrame
-      ? `<div id="x-frame-${P.f}" data-frame="${P.f}" class="teach-frame teach-focus-frame"><span>Frame ${P.f}</span><b>Trang ${X.pt.indexOf(P.f)}</b><small>${isRead ? `Đọc byte +${P.d}` : "Chờ đọc dữ liệu"}</small></div>`
-      : '<div class="teach-frame teach-focus-frame"><span>Khung dữ liệu</span><b>Chờ bản dịch</b></div>';
+      ? `<div id="x-frame-${P.f}" data-frame="${P.f}" class="teach-frame teach-focus-frame"><span>Ngăn ${P.f} (Frame)</span><b>Trang ${X.pt.indexOf(P.f)}</b><small>${P.fault ? "OS vừa cấp ngăn" : P.hit ? "Tìm được từ TLB" : "Tìm được từ bảng trang"}</small><small>${isRead ? `Đọc ở vị trí +${P.d}` : "Chờ đọc dữ liệu"}</small></div>`
+      : '<div class="teach-frame teach-focus-frame"><span>Ngăn chứa dữ liệu</span><b>Chờ tìm được địa chỉ</b></div>';
     $("#x-flow").innerHTML = `<div class="teach-layout-x">
-      ${unit("x-processor", "CPU / MMU", processor)}
-      ${unit("x-tlb", "TLB · gần CPU", `<b class="teach-lookup-status">${tlbStatus}</b>${table(["Page", "Frame"], [`<tr><td>${split ? P.p : "?"}</td><td>${split ? cached?.frame ?? "—" : "—"}</td></tr>`])}`)}
-      ${unit("x-pt-focus", "Bảng trang · trong RAM", `${bypass ? '<p>TLB Hit · bỏ qua bước tra này</p>' : ""}${table(["Page", "Present", "Frame"], split ? [ptRow(X.pt[P.p], P.p)] : ['<tr><td colspan="3">Chờ số trang p</td></tr>'])}`, bypass ? "teach-bypassed" : "")}
-      ${unit("x-data", "RAM · dữ liệu", focusedFrame)}
+      ${unit("x-processor", "Bộ xử lý / Bộ dịch địa chỉ", processor)}
+      ${unit("x-tlb", "TLB · sổ nhớ nhanh", `<p>Ở gần CPU / MMU</p><b class="teach-lookup-status">${tlbStatus}</b>${table(["Trang p", "Ngăn f"], [`<tr><td>${split ? P.p : "?"}</td><td>${split ? cached?.frame ?? "—" : "—"}</td></tr>`])}`)}
+      ${unit("x-pt-focus", "Bảng trang · trong RAM", `${bypass ? '<p>TLB Hit · bỏ qua bước tra này</p>' : ""}${table(["Trang p", "Trong RAM?", "Ngăn f"], split ? [ptRow(X.pt[P.p], P.p)] : ['<tr><td colspan="3">Chờ số trang p</td></tr>'])}`, bypass ? "teach-bypassed" : "")}
+      ${unit("x-data", "RAM · bộ nhớ làm việc", focusedFrame)}
       </div>` +
       (P.fault ? unit("x-os", "OS / Backing Store", `<p>${P.blocked ? "Không có khung trống · cần thay trang" : e.kind === "page-in" ? `Đã nạp Trang ${P.p} vào Frame ${P.newF}` : "Nạp trang hợp lệ khi có Page Fault · xem chi tiết ở Demo 4"}</p>`) : "") +
       `<details id="x-memory-details" class="teach-full-table teach-all-state" ${expanded ? "open" : ""}><summary>Xem toàn bộ TLB, bảng trang và RAM</summary><div class="teach-detail-grid"><div><b>TLB</b><div class="teach-table-scroll">${tlb}</div></div><div><b>Bảng trang</b><div class="teach-table-scroll">${table(["Page", "Present", "Frame"], X.pt.map(ptRow))}</div></div></div><b>RAM · ${X.frameCount} khung · ${X.pageSize} byte/khung</b><div class="teach-compact-frames">${Array.from({ length: X.frameCount }, (_, f) => `<div data-overview-frame="${f}" class="teach-frame"><span>Frame ${f}</span><b>${X.pt.includes(f) ? "Trang " + X.pt.indexOf(f) : X.other.includes(f) ? "khác" : "trống"}</b></div>`).join("")}</div></details>` + route(e);
@@ -1729,6 +1910,8 @@ window.enhanceMemoryDemo = function (api) {
   }
   function syncXConfig() {
     resetConfigNotice("x");
+    set("x-easy-addr", xConfig.addr);
+    set("x-easy-size", xConfig.pageSize);
     set("x-c-size", xConfig.pageSize);
     set("x-c-pages", xConfig.pt.length);
     set("x-c-frames", xConfig.frameCount);
@@ -2256,6 +2439,8 @@ window.enhanceMemoryDemo = function (api) {
   const rt = new Timeline("r", "p3", R, renderR, "");
   function syncRConfig() {
     resetConfigNotice("r");
+    set("r-easy-frames", R.n);
+    set("r-easy-refs", joined(R.refs));
     set("r-c-n", R.n);
     set("r-c-refs", joined(R.refs));
     set("r-str", R.refs.join(" "));
@@ -3308,6 +3493,36 @@ window.enhanceMemoryDemo = function (api) {
   });
 
   startB();
+  $("label[for='x-addr']").textContent = "Địa chỉ muốn tìm (byte)";
+  $("label[for='v-page']").textContent = "Trang chương trình cần";
+  easySetup("x", "Chỉ nhập 2 số. Máy tự bố trí trang vào các ngăn RAM; muốn tự đặt bảng trang thì mở Nhập chi tiết.",
+    field("x-easy-addr", "Địa chỉ muốn tìm (byte)", X.plan.addr, "number", "Ví dụ: 13.") +
+    field("x-easy-size", "Mỗi trang chứa (byte)", X.pageSize, "number", "Ví dụ: 4. Dùng 1, 2, 4, 8… hoặc 4096."),
+    () => {
+      const addr = integer(read("x-easy-addr"), "Địa chỉ", 0, 2097151);
+      const size = integer(read("x-easy-size"), "Cỡ trang", 1, 65536);
+      const count = Math.max(4, Math.floor(addr / size) + 1);
+      if (count > 32) throw Error("Đề nhanh tối đa 32 trang. Tăng cỡ trang hoặc giảm địa chỉ; ví dụ 13 và 4.");
+      const pool = [5, 6, 1, 2, ...Array.from({ length: 32 }, (_, i) => i).filter(i => ![5, 6, 1, 2].includes(i))];
+      const pt = pool.slice(0, count);
+      submitEasyConfig("x", { "x-addr": addr, "x-c-size": size, "x-c-pages": count, "x-c-frames": Math.max(8, ...pt.map(f => f + 1)), "x-c-tlb": 4, "x-c-pt": joined(pt), "x-c-other": "", "x-c-cache": "" });
+    },
+    () => { set("x-easy-addr", 13); set("x-easy-size", 4); });
+  easySetup("v", "Nhập số ngăn RAM và dãy trang cần đọc. RAM bắt đầu trống, mọi trang trong đề đều được phép truy cập.",
+    field("v-easy-frames", "Số ngăn trong RAM", V.ram.length, "number", "Ví dụ: 2. Từ 1 đến 16.") +
+    field("v-easy-refs", "Thứ tự các trang cần đọc", joined(vRefs), "text", "Ví dụ: 3 1 3 — đọc trang 3, rồi 1, rồi 3.") +
+    '<label class="field"><span>Khi RAM đầy, chọn cách</span><select id="v-easy-policy"><option value="FIFO">FIFO · trang vào sớm nhất</option><option value="LRU">LRU · trang lâu chưa dùng</option><option value="CLOCK">Clock · cơ hội thứ hai</option></select></label>',
+    () => {
+      const frames = integer(read("v-easy-frames"), "Số ngăn RAM", 1, 16);
+      const refs = numbers(read("v-easy-refs"), "Các trang cần đọc", { max: 31 });
+      submitEasyConfig("v", { "v-c-pages": Math.max(8, ...refs.map(p => p + 1)), "v-c-frames": frames, "v-c-ram": "", "v-c-refs": joined(refs), "v-c-policy": read("v-easy-policy"), "v-c-dirty": "", "v-c-denied": "", "v-c-unmapped": "", "v-c-order": "", "v-c-recent": "", "v-c-bits": "", "v-c-hand": 0, "v-op": "read" });
+    },
+    () => { set("v-easy-frames", 2); set("v-easy-refs", "3 1 3"); set("v-easy-policy", "FIFO"); });
+  easySetup("r", "Chọn thuật toán ở phía trên. Chỉ cần nhập 2 ô dưới đây; RAM bắt đầu trống, không cần nhập bit hay vị trí kim.",
+    field("r-easy-frames", "Số ngăn trong RAM", R.n, "number", "Ví dụ: 3. Từ 1 đến 8.") +
+    field("r-easy-refs", "Thứ tự các trang cần dùng", joined(R.refs), "text", "Ví dụ: 1 2 3 1 4 2. Mỗi số là một trang; tối đa 48 số."),
+    () => submitEasyConfig("r", { "r-c-n": read("r-easy-frames"), "r-c-refs": read("r-easy-refs"), "r-c-ram": "", "r-c-order": "", "r-c-recent": "", "r-c-bits": "", "r-c-hand": 0 }),
+    () => { set("r-easy-frames", 3); set("r-easy-refs", "1 2 3 1 4 2"); });
   let resizeTimer;
   window.addEventListener("resize", () => {
     clearTimeout(resizeTimer);

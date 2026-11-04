@@ -1,11 +1,20 @@
 # Nhập đề bài và trạng thái ban đầu
 
-Mở từng Demo, chọn **Đổi đề bài & trạng thái ban đầu**, sửa số liệu rồi bấm **Áp dụng & bắt đầu lại**. Demo 1 dùng trực tiếp các ô Base/Limit/A và nút **Kiểm tra**; bài tập lỗ trống của Demo 2 dùng **Đổi dữ liệu → Áp dụng**.
+Demo 3–5: mở **Đổi đề bài · nhập nhanh hoặc chọn ví dụ**. Có thể bấm **Chạy ví dụ dễ hiểu** rồi bấm **Bước tiếp**, hoặc sửa ít ô ở phần nhập nhanh:
+
+| Demo | Nhập nhanh | Ví dụ và trạng thái tự tạo |
+| --- | --- | --- |
+| 3 | Địa chỉ muốn tìm, số byte mỗi trang | `13` và `4` → p=3, d=1, Frame=2, PA=9. Bảng trang/RAM tự bố trí theo bảng mẫu; TLB bắt đầu rỗng. Số trang tự tính để chứa địa chỉ, tối thiểu 4, tối đa 32; các trang đều đã ở RAM. |
+| 4 | Số ngăn RAM, dãy trang cần đọc; có thể giữ FIFO | `2` ngăn, dãy `3 1 3` → 2 lỗi trang, 1 hit. RAM ban đầu trống, các trang trong đề đều được phép dùng. Mã trang 0..31; tối đa 32 tham chiếu. |
+| 5 | Số ngăn RAM, dãy trang cần dùng; chọn thuật toán ở phía trên | `3` ngăn, dãy `1 2 3 1 4 2`. RAM ban đầu trống. FIFO cho 4 lỗi trang, 2 hit. |
+
+Nếu đề yêu cầu một bảng trang, RAM, quyền, bit R hoặc vị trí kim cụ thể, mở **Nhập chi tiết** để dùng đầy đủ các ô cũ rồi bấm **Áp dụng & bắt đầu lại**. **Khôi phục mẫu cũ** giữ các bộ dữ liệu trước đây. Các mục dưới đây mô tả chế độ nhập chi tiết. Demo 1 dùng các ô Base/Limit/A; bài tập lỗ trống Demo 2 dùng **Đổi dữ liệu → Áp dụng**.
 
 - Dữ liệu đang gõ chưa làm thay đổi bài đang chạy. Dòng **Đề đang chạy** hiển thị cấu hình thực sự được dùng.
 - Áp dụng tạo phiên mới và xóa lịch sử cũ. **Làm lại** chạy từ trạng thái ban đầu của đề đã áp dụng; **Khôi phục mẫu giáo trình** trở về dữ liệu mẫu.
 - Nhập sai báo lỗi và giữ nguyên mô hình. Bật/tắt giải thích, ghi chú và lịch sử không thay đổi kết quả.
-- Mỗi bước có tên thao tác, thành phần xử lý, điều kiện và kết quả theo số liệu thực. Mở **Vì sao / bước tiếp theo?** khi cần; ghi chú học thuật vẫn mặc định thu gọn.
+- Demo 3 chỉ rõ p, d từ phép chia địa chỉ cho cỡ trang và số khung lấy từ TLB/bảng trang. Mở **Giải nghĩa các chữ trong bước này** bên cột giải thích nếu chưa biết thuật ngữ.
+- Khi hoàn tất, mỗi demo hiện **Kết luận** bằng từ khóa và một câu ngắn theo kết quả thực. Quay lui hoặc làm lại sẽ ẩn kết luận; bật/tắt phần giải thích không đổi kết quả.
 
 ## Demo 1 — Base/Limit
 

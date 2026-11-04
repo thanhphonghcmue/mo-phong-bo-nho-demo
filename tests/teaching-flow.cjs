@@ -46,6 +46,8 @@ const path = require('node:path');
   }
   async function config(id, values) {
     await page.locator('#' + id + '-config').evaluate(d => d.open = true);
+    const advanced = page.locator('#' + id + '-config .teach-advanced-config');
+    if (await advanced.count()) await advanced.evaluate(d => d.open = true);
     for (const [key, val] of Object.entries(values)) {
       const input = page.locator('#' + key);
       if (await input.evaluate(e => e.tagName === 'SELECT')) await input.selectOption(String(val));

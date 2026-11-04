@@ -1,4 +1,47 @@
 /* Additive teaching components. Original dashboard, typography and telemetry are retained. */
+.teach-pillar {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 5px;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.3;
+}
+.teach-pillar svg { width: 16px; height: 16px; flex-shrink: 0; }
+.teach-pillar[data-pillar="safety"] { color: #0969b0; }
+.teach-pillar[data-pillar="efficiency"] { color: #16713f; }
+.teach-pillar[data-pillar="virtual"] { color: #b72727; }
+.dash-tab[aria-selected="true"] .teach-pillar { color: inherit; }
+:root[data-theme="dark"] .teach-pillar[data-pillar="safety"] { color: #82c7ff; }
+:root[data-theme="dark"] .teach-pillar[data-pillar="efficiency"] { color: #83dba2; }
+:root[data-theme="dark"] .teach-pillar[data-pillar="virtual"] { color: #ffaaa4; }
+.teach-easy-form { display: flex; flex-direction: column; gap: 12px; margin-top: 12px; }
+.teach-easy-form > p { font-size: 14px; line-height: 1.6; }
+.teach-easy-grid { display: grid; grid-template-columns: minmax(100px, .7fr) minmax(0, 1.3fr); gap: 12px; }
+.teach-easy-grid .field > span { font-size: 14px; font-weight: 700; }
+.teach-easy-grid input, .teach-easy-grid select {
+  width: 100%; min-width: 0; font: inherit; font-size: 16px;
+  border: 1px solid var(--line); border-radius: 8px;
+  color: var(--fg); background: var(--bg); padding: 9px;
+}
+.teach-easy-grid small { color: var(--muted); font-size: 13px; line-height: 1.5; }
+.teach-easy-grid .field:has(select) { grid-column: 1 / -1; }
+.teach-advanced-config { margin-top: 14px; }
+.teach-terms { margin-top: 10px; }
+.teach-terms summary { color: var(--accent); font-size: 1rem; line-height: 1.5; }
+.teach-terms dl { margin: 8px 0 0; font-size: 1.125rem; line-height: 1.6; }
+.teach-terms dt { margin-top: 10px; font-weight: 700; }
+.teach-terms dd { margin: 2px 0 0; }
+#x-active-setup, #v-active-setup {
+  border: 1px solid var(--line); border-left: 3px solid var(--accent);
+  border-radius: 7px; padding: 8px 10px; background: var(--free);
+  color: var(--fg); font-size: 14px;
+}
+#x-mmu small, #x-pa small { display: block; margin-top: 5px; font-size: 13px; line-height: 1.5; }
+@media (max-width: 600px) {
+  .teach-easy-grid { grid-template-columns: minmax(0, 1fr); }
+}
 .teach-options {
   border: 1px solid var(--line);
   border-radius: 10px;
@@ -77,6 +120,27 @@
   font-size: 1.125rem;
   line-height: 1.6;
   overflow-wrap: anywhere;
+}
+.teach-conclusion {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 6px 12px;
+  padding: 10px 14px;
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--accent);
+  border-radius: 10px;
+  background: var(--accent-soft);
+  color: var(--fg);
+  font-size: 1.125rem;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+.teach-conclusion strong { color: var(--accent); text-transform: uppercase; }
+.teach-conclusion .teach-conclusion-label {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
 }
 .teach-step-title {
   font-size: 1.25rem;

@@ -34,10 +34,17 @@ Lần tinh giản tiếp theo chỉ thay phần mô phỏng Demo 3–4. Demo 3 �
 
 ## Kiểm chứng
 
+Nhãn trụ cột: Demo 1 **An toàn**, Demo 2–3 **Hiệu quả**, Demo 4–5 **Không giới hạn**. Nhãn cuối mang nghĩa bộ nhớ ảo/tái sử dụng khung theo bài giảng; phần giải nghĩa nói rõ tài nguyên thực tế hữu hạn. Không bổ sung cơ chế chưa mô phỏng như bảng trang nhiều cấp hoặc thrashing chỉ vì chúng xuất hiện trên trang tổng kết.
+
+Phần hướng dẫn người mới dùng cách nói “ngăn RAM” đi kèm Frame, “sổ nhớ nhanh” đi kèm TLB; vẫn giữ ký hiệu và phép tính chuẩn. Dữ liệu nguồn luôn lấy từ đề đang áp dụng, không lấy ô nháp chưa gửi. Giải nghĩa thuật ngữ thay đổi theo bước và mở rộng khi cần. Chế độ nhập nhanh tự tạo cấu hình hợp lệ theo giả định ghi ngay trên form; chế độ chi tiết vẫn giữ nguyên quyền điều khiển trạng thái ban đầu.
+
+Kết luận chỉ là lớp đọc snapshot và các bước đã chạy: phân biệt phân mảnh ngoài/chiến lược cấp phát, Hit/Fault, có/không có thay trang, từng quy tắc FIFO/LRU/OPT/Clock. Với Demo 4, xét mức tăng I/O và fault trong kịch bản hiện tại để không đem kết quả dirty/fault từ lần chạy trước sang lần hit mới.
+
 Chạy với máy chủ tĩnh ở cổng 8080:
 
 ```sh
 node tests/teaching-flow.cjs
+node tests/beginner-guidance.cjs
 node tests/seeded-algorithms.cjs
 node tests/acceptance-verification.cjs
 ```
