@@ -288,23 +288,8 @@ window.enhanceMemoryDemo = function (api) {
     let d = horizontal
       ? `M ${x1} ${y1} L ${mid} ${y1} L ${mid} ${y2} L ${x2} ${y2}`
       : `M ${x1} ${y1} L ${x1} ${mid} L ${x2} ${mid} L ${x2} ${y2}`;
-    // Route around frame cells, through the padding and row gaps, so labels stay clear.
-    if (root.id === "v-flow" && (from.matches("[data-frame]") || to.matches("[data-frame]"))) {
-      const fromFrame = from.matches("[data-frame]");
-      const f = fromFrame ? a : b;
-      const ramBox = $("#v-ram").getBoundingClientRect();
-      const stacked = ramBox.left < (fromFrame ? b.right : a.right) - 1;
-      const gutter = stacked ? ramBox.right - r.left - 5 : ramBox.left - r.left + 5;
-      const fx = f.left + f.width / 2 - r.left, fy = f.top - r.top;
-      d = stacked ? (fromFrame
-        ? `M ${fx} ${fy} L ${fx} ${fy - 5} L ${gutter} ${fy - 5} L ${gutter} ${b.bottom - r.top + 5} L ${bc.x} ${b.bottom - r.top + 5} L ${bc.x} ${b.bottom - r.top}`
-        : `M ${ac.x} ${a.bottom - r.top} L ${ac.x} ${a.bottom - r.top + 5} L ${gutter} ${a.bottom - r.top + 5} L ${gutter} ${fy - 5} L ${fx} ${fy - 5} L ${fx} ${fy}`) : fromFrame
-        ? `M ${fx} ${fy} L ${fx} ${fy - 5} L ${gutter} ${fy - 5} L ${gutter} ${bc.y} L ${b.right - r.left} ${bc.y}`
-        : `M ${a.right - r.left} ${ac.y} L ${gutter} ${ac.y} L ${gutter} ${fy - 5} L ${fx} ${fy - 5} L ${fx} ${fy}`;
-    } else if (root.id === "x-flow" && to.matches("[data-frame]")) {
-      const gutter = $("#x-data").getBoundingClientRect().left - r.left + 5;
-      d = `M ${a.left - r.left} ${ac.y} L ${gutter} ${ac.y} L ${gutter} ${b.top - r.top - 5} L ${bc.x} ${b.top - r.top - 5} L ${bc.x} ${b.top - r.top}`;
-    }
+    if (root.matches("#x-flow, #v-flow"))
+      d = memoryPath(root, from, to, r, a, b, d);
     const color =
       e.kind === "trap"
         ? "var(--bad)"
@@ -325,6 +310,43 @@ window.enhanceMemoryDemo = function (api) {
       : `<circle r="5" fill="${color}"><animateMotion dur="${0.8 / speed}s" path="${d}" repeatCount="1" fill="freeze"/></circle>`;
     svg.innerHTML = `<defs><marker id="${id}" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L0,6 L7,3 z" fill="${color}"/></marker></defs><path d="${d}" fill="none" stroke="${color}" stroke-width="2.5" ${["trap", "request"].includes(e.kind) ? 'stroke-dasharray="5 4"' : ""} marker-end="url(#${id})"/>${motion}`;
     root.append(svg);
+  }
+  // Keep the active edge in the gaps between the four teaching blocks.
+  function memoryPath(root, from, to, r, a, b, fallback) {
+    const ax = a.left + a.width / 2 - r.left, ay = a.top + a.height / 2 - r.top;
+    const bx = b.left + b.width / 2 - r.left, by = b.top + b.height / 2 - r.top;
+    const layout = root.querySelector(".teach-layout-x, .teach-layout-v");
+    if (!layout || matchMedia("(max-width: 620px)").matches) return fallback;
+    if (root.id === "x-flow") {
+      if (to.matches("[data-frame]")) {
+        const gap = layout.getBoundingClientRect().bottom - r.top + 10;
+        return `M ${ax} ${from.id === "x-os" ? a.top - r.top : a.bottom - r.top} L ${ax} ${gap} L ${bx} ${gap} L ${bx} ${b.bottom - r.top}`;
+      }
+      if (to.id === "x-os") {
+        const x = 4, y = b.top - r.top - 8;
+        return `M ${a.left - r.left} ${ay} L ${x} ${ay} L ${x} ${y} L ${bx} ${y} L ${bx} ${b.top - r.top}`;
+      }
+    } else {
+      const ram = root.querySelector("#v-ram").getBoundingClientRect();
+      const os = root.querySelector("#v-os").getBoundingClientRect();
+      const gap = (ram.bottom + os.top) / 2 - r.top;
+      if ((from.id === "v-cpu" && to.matches("[data-frame]")) || (from.matches("[data-frame]") && to.id === "v-cpu")) {
+        const f = from.matches("[data-frame]") ? a : b;
+        const cpu = from.id === "v-cpu" ? a : b;
+        const fx = f.left + f.width / 2 - r.left, cx = cpu.right - r.left;
+        const cy = cpu.top + cpu.height / 2 - r.top, x = (cpu.right + ram.left) / 2 - r.left;
+        return from.id === "v-cpu"
+          ? `M ${cx} ${cy} L ${x} ${cy} L ${x} ${gap} L ${fx} ${gap} L ${fx} ${f.bottom - r.top}`
+          : `M ${fx} ${f.bottom - r.top} L ${fx} ${gap} L ${x} ${gap} L ${x} ${cy} L ${cx} ${cy}`;
+      }
+      if (from.id === "v-os" && to.matches("[data-frame]"))
+        return `M ${ax} ${a.top - r.top} L ${ax} ${gap} L ${bx} ${gap} L ${bx} ${b.bottom - r.top}`;
+      if (from.id === "v-store" && to.matches("[data-frame]"))
+        return `M ${ax} ${a.top - r.top} L ${ax} ${gap} L ${bx} ${gap} L ${bx} ${b.bottom - r.top}`;
+      if (from.matches("[data-frame]") && to.id === "v-store")
+        return `M ${ax} ${a.bottom - r.top} L ${ax} ${gap} L ${bx} ${gap} L ${bx} ${b.top - r.top}`;
+    }
+    return fallback;
   }
   function drawEvent(t, e) {
     const id = t.id;
@@ -1177,17 +1199,20 @@ window.enhanceMemoryDemo = function (api) {
     const pte = V.pt[V.page];
     const permissions = !pte ? "Trang ngoài miền" : !pte.mapped ? "Chưa được ánh xạ"
       : !pte.permission ? "Không có quyền truy cập" : "Trang hợp lệ · có quyền";
-    const ramBody = `<div id="v-pt-focus" class="teach-endpoint"><b>Page Table · trong RAM</b>${table(["Trang", "Present", "Frame", "Dirty"], focus.length ? focus.map(row) : ['<tr><td colspan="4">Không có PTE hợp lệ</td></tr>'])}</div>
-      <div class="teach-frames-title">Khung dữ liệu · ${V.ram.length} Frame</div>
-      <div class="teach-compact-frames">${V.ram.map((p, f) => `<div id="v-frame-${f}" data-frame="${f}" class="teach-frame ${stage.includes("chọn victim") && f === frame ? "teach-victim" : ""}"><span>Frame ${f}</span><b>${p === null ? "trống" : "Trang " + p}</b>${V.policy === "CLOCK" ? `<small>R=${V.replacement.bit[f]}${V.replacement.ptr === f ? " · kim" : ""}</small>` : ""}</div>`).join("")}</div>
-      <details class="teach-full-table"><summary>Xem toàn bộ bảng trang</summary><div class="teach-table-scroll">${table(["Trang", "Ánh xạ", "Quyền", "Present", "Frame", "Dirty"], V.pt.map(p => `<tr><td>${p.page}</td><td>${+p.mapped}</td><td>${+p.permission}</td><td>${+p.present}</td><td>${p.frame ?? "—"}</td><td>${+p.dirty}</td></tr>`))}</div></details>`;
+    const chosen = !denied && (hit || stage.includes("chọn victim") || ["page-in", "page-out", "translation", "read", "write"].includes(e.kind));
+    const victim = chosen && V.plan.victim !== null && V.ram[frame] !== V.page;
+    const expanded = $("#v-memory-details")?.open;
+    const frameBody = chosen
+      ? `<div id="v-frame-${frame}" data-frame="${frame}" class="teach-frame teach-focus-frame ${victim ? "teach-victim" : ""}"><span>Frame ${frame}${victim ? " · Victim" : ""}</span><b>${V.ram[frame] === null ? "trống" : "Trang " + V.ram[frame]}</b>${V.policy === "CLOCK" ? `<small>R=${V.replacement.bit[frame]}</small>` : ""}</div>`
+      : '<div class="teach-frame teach-focus-frame"><span>Khung dữ liệu</span><b>Chưa chọn khung</b></div>';
+    const ramBody = `<div class="teach-ram-focus"><div id="v-pt-focus" class="teach-endpoint"><b>Page Table</b>${table(["Trang", "Present", "Frame", "Dirty"], focus.length ? focus.map(row) : ['<tr><td colspan="4">Không có PTE hợp lệ</td></tr>'])}</div>${frameBody}</div>`;
     $("#v-flow").className = "teach-schematic";
     $("#v-flow").innerHTML = stepRail(labels, current) + `<div class="teach-layout-v">
-      ${unit("v-processor", "CPU / MMU", `<div id="v-cpu" class="teach-endpoint"><b>${V.operation === "write" ? "STORE M" : "LOAD M"}</b> · Trang ${V.page}</div><div id="v-mmu" class="teach-endpoint"><span>MMU · kiểm tra truy cập</span><b>${permissions}</b></div>`)}
-      ${unit("v-os", "OS · Page Fault Handler", `<b>${denied ? "Xử lý lỗi bảo vệ" : hit ? "Không cần xử lý Page Fault" : stage.startsWith("CPU") ? "Chờ trap từ MMU" : esc(labels[current])}</b><p>Chính sách khi RAM đầy: ${names[V.policy]}</p>`)}
+      ${unit("v-processor", "CPU / MMU", `<div id="v-cpu" class="teach-endpoint"><b>${V.operation === "write" ? "STORE M" : "LOAD M"} · Trang ${V.page}</b></div><div id="v-mmu" class="teach-endpoint"><span>MMU · kiểm tra truy cập</span><b>${permissions}</b></div>`)}
+      ${unit("v-os", "OS · xử lý lỗi trang", `<b>${denied ? "Xử lý lỗi bảo vệ" : hit ? "Không cần xử lý Page Fault" : stage.startsWith("CPU") ? "Chờ trap từ MMU" : esc(labels[current])}</b><p>${!hit && !denied && !V.freeFrames.length ? `RAM đầy · ${names[V.policy]}` : "Kiểm tra quyền · quản lý khung"}</p>`)}
       ${unit("v-store", "Bộ nhớ phụ · Backing Store", `<b>${denied ? "Không nạp trang bị từ chối" : "Bản lưu Trang " + V.page}</b><p>${e.kind === "page-out" ? `Nhận dữ liệu Trang ${V.plan.victim} đã sửa` : e.kind === "page-in" ? `Đọc Trang ${V.page} → Frame ${frame}` : "Chưa truyền dữ liệu ở bước này"}</p>`)}
-      ${unit("v-ram", "RAM · bảng trang và dữ liệu", ramBody)}
-      </div>` + route(e);
+      ${unit("v-ram", "RAM · bảng trang và khung dữ liệu", ramBody)}
+      </div><details id="v-memory-details" class="teach-full-table teach-all-state" ${expanded ? "open" : ""}><summary>Xem toàn bộ bảng trang và RAM (${V.ram.length} khung)</summary><div class="teach-table-scroll">${table(["Trang", "Ánh xạ", "Quyền", "Present", "Frame", "Dirty"], V.pt.map(p => `<tr><td>${p.page}</td><td>${+p.mapped}</td><td>${+p.permission}</td><td>${+p.present}</td><td>${p.frame ?? "—"}</td><td>${+p.dirty}</td></tr>`))}</div><div class="teach-compact-frames">${V.ram.map((p, f) => `<div data-overview-frame="${f}" class="teach-frame"><span>Frame ${f}</span><b>${p === null ? "trống" : "Trang " + p}</b>${V.policy === "CLOCK" ? `<small>R=${V.replacement.bit[f]}${V.replacement.ptr === f ? " · kim" : ""}</small>` : ""}</div>`).join("")}</div></details>` + route(e);
     if ($("#v-free-frames")) $("#v-free-frames").textContent = V.freeFrames.length
       ? V.freeFrames.map((f) => "Khung " + f).join(" · ")
       : "Hết khung trống";
@@ -1648,18 +1673,26 @@ window.enhanceMemoryDemo = function (api) {
         : ['<tr><td colspan="2">TLB rỗng</td></tr>'],
     );
     const ptRow = (f, p) => `<tr data-page="${p}"><td>${p}</td><td>${+(f !== null)}</td><td>${f ?? "—"}</td></tr>`;
-    const tlbStatus = current < 2 ? "Chờ tra cứu" : !P.hit && X.tlb.some(t => t.page === P.p) ? "Đã lưu bản dịch"
-      : P.hit ? "HIT · bỏ qua bảng trang" : "MISS · cần tra bảng trang";
-    const processor = `<div class="teach-processor-pair"><div id="x-cpu" class="teach-endpoint"><span>CPU · địa chỉ logic</span><b>LA = ${P.addr}</b></div>
-      <div id="x-mmu" class="teach-endpoint"><span>MMU · tách địa chỉ</span><b>${split ? `p = ${P.p} · d = ${P.d}` : "Chưa tách p, d"}</b></div></div>
-      <div id="x-pa" class="teach-endpoint"><span>MMU · địa chỉ vật lý</span><b>${ready ? `${P.f} × ${X.pageSize} + ${P.d} = ${P.phys}` : "PA = frame × cỡ trang + d"}</b></div>`;
-    $("#x-flow").innerHTML = stepRail(["CPU", "Tách p,d", "TLB", "Page Table", "Tạo PA", "RAM"], current) +
-      `<div class="teach-layout-x">${unit("x-processor", "CPU / MMU", processor)}
-      ${unit("x-tlb", "TLB · cache gần CPU", `<b class="teach-lookup-status">${tlbStatus}</b><p>Tra trang p = ${P.p}</p><div class="teach-table-scroll">${tlb}</div>`)}
-      ${unit("x-pt", "RAM · Page Table", `<p>Ánh xạ trang → khung</p><div id="x-pt-focus" class="teach-endpoint">${table(["Page", "Present", "Frame"], [ptRow(X.pt[P.p], P.p)])}</div><details class="teach-full-table"><summary>Toàn bộ bảng trang</summary><div class="teach-table-scroll">${table(["Page", "Present", "Frame"], X.pt.map(ptRow))}</div></details>`)}
+    const tlbStatus = current < 2 ? "Chờ tra" : !P.hit && X.tlb.some(t => t.page === P.p) ? "Đã lưu bản dịch"
+      : P.hit ? "HIT" : "MISS";
+    const cached = X.tlb.find(t => t.page === P.p);
+    const knownFrame = ready || (P.hit && X.st >= 2) || (!P.hit && X.st >= 3 && X.pt[P.p] !== null);
+    const bypass = P.hit && X.st >= 2;
+    const expanded = $("#x-memory-details")?.open;
+    const processor = `<div id="x-cpu" class="teach-endpoint"><span>Địa chỉ logic CPU phát</span><b>LA = ${P.addr}</b></div>
+      <div id="x-mmu" class="teach-endpoint"><span>MMU · tách địa chỉ</span><b>${split ? `p = ${P.p} · d = ${P.d}` : "Chờ tách p, d"}</b></div>
+      <div id="x-pa" class="teach-endpoint"><span>MMU · địa chỉ vật lý</span><b>${ready ? `PA = ${P.phys}` : "Chưa tạo PA"}</b>${ready ? `<small>${P.f} × ${X.pageSize} + ${P.d}</small>` : ""}</div>`;
+    const focusedFrame = knownFrame
+      ? `<div id="x-frame-${P.f}" data-frame="${P.f}" class="teach-frame teach-focus-frame"><span>Frame ${P.f}</span><b>Trang ${X.pt.indexOf(P.f)}</b><small>${isRead ? `Đọc byte +${P.d}` : "Chờ đọc dữ liệu"}</small></div>`
+      : '<div class="teach-frame teach-focus-frame"><span>Khung dữ liệu</span><b>Chờ bản dịch</b></div>';
+    $("#x-flow").innerHTML = `<div class="teach-layout-x">
+      ${unit("x-processor", "CPU / MMU", processor)}
+      ${unit("x-tlb", "TLB · gần CPU", `<b class="teach-lookup-status">${tlbStatus}</b>${table(["Page", "Frame"], [`<tr><td>${split ? P.p : "?"}</td><td>${split ? cached?.frame ?? "—" : "—"}</td></tr>`])}`)}
+      ${unit("x-pt-focus", "Bảng trang · trong RAM", `${bypass ? '<p>TLB Hit · bỏ qua bước tra này</p>' : ""}${table(["Page", "Present", "Frame"], split ? [ptRow(X.pt[P.p], P.p)] : ['<tr><td colspan="3">Chờ số trang p</td></tr>'])}`, bypass ? "teach-bypassed" : "")}
+      ${unit("x-data", "RAM · dữ liệu", focusedFrame)}
       </div>` +
-      unit("x-data", `RAM · ${X.frameCount} khung dữ liệu · ${X.pageSize} byte/khung`, `<div class="teach-compact-frames">${Array.from({ length: X.frameCount }, (_, f) => `<div id="x-frame-${f}" data-frame="${f}" class="teach-frame"><span>Frame ${f}</span><b>${X.pt.includes(f) ? "Trang " + X.pt.indexOf(f) : X.other.includes(f) ? "khác" : "trống"}</b>${isRead && P.f === f ? `<small>Byte +${P.d}</small>` : ""}</div>`).join("")}</div>`) +
-      (P.fault ? unit("x-os", "OS / Backing Store", `<p>${P.blocked ? "Không có khung trống · cần thay trang" : e.kind === "page-in" ? `Đã nạp Trang ${P.p} vào Frame ${P.newF}` : "Nạp trang hợp lệ khi có Page Fault · xem chi tiết ở Demo 4"}</p>`) : "") + route(e);
+      (P.fault ? unit("x-os", "OS / Backing Store", `<p>${P.blocked ? "Không có khung trống · cần thay trang" : e.kind === "page-in" ? `Đã nạp Trang ${P.p} vào Frame ${P.newF}` : "Nạp trang hợp lệ khi có Page Fault · xem chi tiết ở Demo 4"}</p>`) : "") +
+      `<details id="x-memory-details" class="teach-full-table teach-all-state" ${expanded ? "open" : ""}><summary>Xem toàn bộ TLB, bảng trang và RAM</summary><div class="teach-detail-grid"><div><b>TLB</b><div class="teach-table-scroll">${tlb}</div></div><div><b>Bảng trang</b><div class="teach-table-scroll">${table(["Page", "Present", "Frame"], X.pt.map(ptRow))}</div></div></div><b>RAM · ${X.frameCount} khung · ${X.pageSize} byte/khung</b><div class="teach-compact-frames">${Array.from({ length: X.frameCount }, (_, f) => `<div data-overview-frame="${f}" class="teach-frame"><span>Frame ${f}</span><b>${X.pt.includes(f) ? "Trang " + X.pt.indexOf(f) : X.other.includes(f) ? "khác" : "trống"}</b></div>`).join("")}</div></details>` + route(e);
     $("#x-stats").textContent =
       `TLB Hit ${X.hit} / Miss ${X.miss} · Page Fault ${X.faults}`;
   }
@@ -3268,6 +3301,8 @@ window.enhanceMemoryDemo = function (api) {
         document.querySelectorAll(`.toggle-explain-btn[data-target="${targetId}"]`).forEach(b => {
           b.textContent = isHidden ? "Hiện giải thích" : "Ẩn giải thích";
         });
+        const timeline = targetId === "grid-p2" ? timelines.x : targetId === "grid-p4" ? timelines.v : null;
+        if (timeline?.events.length) drawEvent(timeline, timeline.events[timeline.cursor]);
       }
     };
   });

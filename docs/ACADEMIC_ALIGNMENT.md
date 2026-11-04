@@ -30,6 +30,8 @@ Mỗi sự kiện phục hồi snapshot trước khi vẽ. Nơi nhận xử lý 
 
 Demo 3 dùng CPU/MMU, TLB, PTE đang tra và các khung RAM gọn. Demo 4 dùng CPU/MMU, OS, Backing Store và RAM kèm PTE đang xử lý. Bảng trang đầy đủ vẫn xem được bằng mục thu gọn. Các ví dụ, dữ liệu tùy chỉnh, thuật toán nền và cơ chế timeline được giữ; thay đổi ở lớp biểu diễn và lời giải. Bộ kiểm tra đầu vào được sửa để chấp nhận dấu âm khi miền nhập cho phép, nhằm đưa `L=-5` vào phép kiểm tra bảo vệ như ví dụ biên.
 
+Lần tinh giản tiếp theo chỉ thay phần mô phỏng Demo 3–4. Demo 3 đặt CPU/MMU bên trái, TLB và bảng trang ở giữa, khung dữ liệu bên phải; nhánh Hit ghi rõ bỏ qua bảng trang. Demo 4 dùng bốn khối CPU/MMU, OS, bộ nhớ phụ và RAM; giữ sáu giai đoạn xử lý Page Fault. Màn hình chính chỉ hiện khung đang xét, không hiện trước kết quả chọn khung/dịch địa chỉ. Toàn bộ TLB, bảng trang và RAM được gom vào một mục thu gọn; mở mục này và chuyển bước không thay đổi dữ liệu. Demo 1, 2, 5 và phần giải thích/điều khiển dùng chung giữ nguyên.
+
 ## Kiểm chứng
 
 Chạy với máy chủ tĩnh ở cổng 8080:

@@ -545,18 +545,47 @@ tr.teach-spotlight {
 }
 .teach-layout-x {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 12px;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr) minmax(0, 1fr);
+  gap: 20px 24px;
+  margin-bottom: 12px;
 }
+#x-processor { grid-column: 1; grid-row: 1 / 3; }
+#x-tlb { grid-column: 2; grid-row: 1; }
+#x-pt-focus { grid-column: 2; grid-row: 2; }
+#x-data { grid-column: 3; grid-row: 1 / 3; }
+#x-data { display: flex; flex-direction: column; justify-content: center; }
 .teach-layout-v {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr);
-  gap: 12px;
+  gap: 24px;
 }
 #v-processor { grid-column: 1; grid-row: 1; }
 #v-os { grid-column: 1; grid-row: 2; }
-#v-store { grid-column: 1; grid-row: 3; }
-#v-ram { grid-column: 2; grid-row: 1 / 4; }
+#v-store { grid-column: 2; grid-row: 2; }
+#v-ram { grid-column: 2; grid-row: 1; }
+.teach-ram-focus {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+  align-items: center;
+  gap: 12px;
+}
+#x-flow .teach-focus-frame,
+#v-flow .teach-focus-frame {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  min-height: 104px;
+  padding: 12px 8px;
+}
+#x-flow .teach-focus-frame b,
+#v-flow .teach-focus-frame b { font-size: 18px; }
+#x-flow .teach-focus-frame span,
+#v-flow .teach-focus-frame span { font-size: 14px; }
+.teach-bypassed { border-style: dashed; color: var(--muted); }
+.teach-detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 10px; }
+.teach-all-state[open] { margin-top: 2px; }
 .teach-unit {
   min-width: 0;
   border: 1px solid var(--line);
@@ -623,7 +652,8 @@ tr.teach-spotlight {
 }
 @media (max-width: 620px) {
   .teach-layout-x, .teach-layout-v { grid-template-columns: minmax(0, 1fr); }
-  .teach-layout-v > section { grid-column: auto !important; grid-row: auto !important; }
+  .teach-layout-x > section, .teach-layout-v > section { grid-column: auto !important; grid-row: auto !important; }
+  .teach-ram-focus, .teach-detail-grid { grid-template-columns: minmax(0, 1fr); }
   .teach-stage-rail { flex-wrap: wrap; }
   .teach-stage-rail li { flex-basis: 26%; }
 }
