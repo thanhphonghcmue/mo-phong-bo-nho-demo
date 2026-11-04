@@ -683,8 +683,8 @@ footer{font-size:12px;color:var(--muted)}
 }
 
 </style>
-<link rel="stylesheet" href="assets/css/teaching.css?v=4c9c5825c9ba">
-<script src="assets/js/teaching.js?v=89a9bd82c4b5"></script>
+<link rel="stylesheet" href="assets/css/teaching.css?v=0866d4a22119">
+<script src="assets/js/teaching.js?v=31ff033202a3"></script>
 </head>
 <body>
 <div class="wrap">
@@ -757,7 +757,7 @@ footer{font-size:12px;color:var(--muted)}
           <input type="number" id="b-limit" value="120900" min="1" max="9999999" style="width:115px">
         </div>
         <div class="field">
-          <label for="b-addr" id="b-addr-lbl">Địa chỉ CPU truy cập (A)</label>
+          <label for="b-addr" id="b-addr-lbl">Địa chỉ vật lý cần kiểm tra (A)</label>
           <input type="number" id="b-addr" value="300040" min="-9999999" max="9999999" style="width:130px">
         </div>
         <button class="btn primary" id="b-go">Kiểm tra ▶</button>
@@ -1258,9 +1258,9 @@ function renderB(){
   let b1, b2, b3, b4;
   if (mode === 'translate'){
     b1 = `<div class="${boxClass(0)}">
-      <h3>① CPU phát độ lệch L</h3>
+      <h3>CPU · địa chỉ logic L</h3>
       <div class="big">${offset}</div>
-      <div class="formula">Độ lệch logic trong tiến trình</div>
+      <div class="formula">Độ lệch tính từ đầu tiến trình</div>
     </div>`;
 
     b2 = `<div class="${boxClass(1, st >= 1 && (!cond1 || !cond2))}">
@@ -1293,9 +1293,9 @@ function renderB(){
     </div>`;
   } else {
     b1 = `<div class="${boxClass(0)}">
-      <h3>① CPU phát địa chỉ A</h3>
+      <h3>CPU · yêu cầu bộ nhớ</h3>
       <div class="big">${addr}</div>
-      <div class="formula">Yêu cầu truy cập byte ${addr}</div>
+      <div class="formula">Địa chỉ vật lý cần kiểm tra</div>
     </div>`;
 
     b2 = `<div class="${boxClass(1, st >= 1 && !cond1)}">

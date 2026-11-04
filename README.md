@@ -29,6 +29,7 @@ mo-phong-bo-nho-demo/
 │       └── logo-it.jpg                # Logo chính thức Khoa Công nghệ Thông tin - HCMUE
 │
 ├── docs/                              # Tài liệu kỹ thuật & hướng dẫn chi tiết
+│   ├── ACADEMIC_ALIGNMENT.md          # Đối chiếu 8 giáo trình, quy tắc kiến thức và luồng từng demo
 │   ├── CUSTOM_PROBLEMS.md             # Hướng dẫn tùy biến đề bài, thông số RAM, chuỗi tham chiếu
 │   └── UPGRADE_NOTES.md               # Đặc tả kỹ thuật và kiến trúc nâng cấp hệ thống
 │
@@ -45,6 +46,8 @@ mo-phong-bo-nho-demo/
 ├── index.html                         # Điểm vào ứng dụng chính (Entry point cho GitHub Pages)
 └── README.md                          # Tài liệu tổng quan và hướng dẫn dự án trên GitHub
 ```
+
+Phần biên soạn kiến thức và quy tắc biểu diễn từng bước được ghi trong [Đối chiếu giáo trình](docs/ACADEMIC_ALIGNMENT.md). Kiểm tra luồng, vùng sáng và lời giải trên trình duyệt bằng `node tests/teaching-flow.cjs` khi máy chủ tĩnh đang chạy ở cổng 8080.
 
 ---
 
