@@ -93,11 +93,21 @@ Mỗi bước chuyển tiếp ở cả 5 Demo đều tích hợp mục giải th
 
 ---
 
-## 📊 Giám sát thông số máy tính thực tế (Real-Time Performance Monitor)
+## 🖥️ Điểm cải tiến và Tối ưu trải nghiệm (UX/UI Enhancements)
 
-Bên dưới mỗi demo đều tích hợp bảng đo lường hiệu năng thời gian thực:
-- **Thông số máy thật (Browser & Hardware API):** Số luồng CPU logic (`navigator.hardwareConcurrency`), RAM thiết bị ước lượng (`navigator.deviceMemory`), bộ nhớ JS Heap, thời gian thực thi thuật toán (`performance.now()`), thời gian dựng giao diện DOM.
-- **Thông số mô hình (Simulated OS Metrics):** Số khung RAM, chính sách thay thế, số lần Hit/Fault, tỉ lệ lỗi trang, số lần đọc/ghi I/O đĩa.
+- **📐 Bố cục 2 cột chuẩn trình chiếu (1366 × 768):**
+  - Vùng mô phỏng trực quan chiếm khoảng 2/3 bên trái, bảng giải thích và đánh giá chiếm 1/3 bên phải.
+  - Cập nhật tại chỗ mượt mà khi chuyển bước, theo dõi đồng thời toàn bộ tiến trình và thanh điều khiển mà không cần cuộn trang.
+  - Nút **"Ẩn/Hiện giải thích"** linh hoạt, tự động mở rộng vùng mô phỏng khi cần tập trung vào sơ đồ.
+- **🌓 Chế độ Sáng / Tối (Light & Dark Mode):**
+  - Tích hợp nút chuyển đổi ngay trên thanh điều khiển và header, tự động ghi nhớ tùy chọn vào `localStorage`.
+  - Chế độ tối sử dụng nền tương phản cao, tối ưu viền nổi bật cho các ô nhớ RAM và bảng trang.
+- **✨ Tinh gọn chú thích học thuật:**
+  - Loại bỏ hoàn toàn các trích dẫn giáo trình, số chương, số trang rườm rà.
+  - Giữ lại đầy đủ các nhãn kỹ thuật cốt lõi (CPU, MMU, RAM, Page Table, Frame, Base, Limit).
+- **🔄 Bảng đánh giá thuật toán Demo 5 hiện đại:**
+  - Thiết kế bảng đánh giá khung trang chuyên nghiệp cho cả 4 thuật toán: **FIFO, LRU, OPT, CLOCK**.
+  - Thuật toán Clock hiển thị rõ ràng vị trí kim quét (`📍 Kim đang trỏ`), bit tham chiếu $R$, cơ chế Second Chance và thẻ đánh dấu nạn nhân (`⚠️ Victim`), loại bỏ hình vẽ kim đồng hồ cũ.
 
 ---
 
