@@ -1775,8 +1775,9 @@ window.enhanceMemoryDemo = function (api) {
   }
   const op = document.createElement("label");
   op.className = "muted";
+  op.style.display = "none";
   op.innerHTML =
-    'Thao tác <select id="v-op" aria-label="Thao tác truy cập"><option value="read">Đọc (LOAD)</option><option value="write">Ghi (STORE)</option></select>';
+    '<select id="v-op" aria-label="Thao tác truy cập" style="display:none"><option value="read" selected>Đọc (LOAD)</option><option value="write">Ghi (STORE)</option></select>';
   $("#v-go").after(op);
   configPanel(
     "v",
@@ -1873,7 +1874,7 @@ window.enhanceMemoryDemo = function (api) {
   const vp = document.createElement("div");
   vp.className = "bar";
   vp.innerHTML =
-    '<span class="muted">MÔ HÌNH GIẢ ĐỊNH:</span><button class="btn" id="v-full-clean">RAM đầy · victim sạch</button><button class="btn" id="v-full-dirty">RAM đầy · victim dirty</button><button class="btn" id="v-permission">Trang 7 · không có quyền</button>';
+    '<span class="muted">MÔ HÌNH GIẢ ĐỊNH:</span><button class="btn" id="v-full-clean">RAM đầy · victim sạch</button><button class="btn" id="v-full-dirty">RAM đầy · victim dirty</button><button class="btn" id="v-permission" style="display:none">Trang 7 · không có quyền</button>';
   $("#v-flow").before(vp);
   $("#v-full-clean").onclick = () => presetV(true, false);
   $("#v-full-dirty").onclick = () => presetV(true, true);
