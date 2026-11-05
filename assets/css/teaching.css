@@ -1,5 +1,7 @@
 /* Additive teaching components. Original dashboard, typography and telemetry are retained. */
-.teach-concepts { margin-top: 10px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); }
+.teach-concepts { --concept-danger: #b4232c; --concept-danger-soft: #fff0f0; margin-top: 10px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); }
+:root[data-theme="dark"] .teach-concepts { --concept-danger: #ff9da4; --concept-danger-soft: #371c24; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .teach-concepts { --concept-danger: #ff9da4; --concept-danger-soft: #371c24; } }
 .teach-concepts > summary { padding: 13px; color: var(--accent); font-weight: 700; cursor: pointer; }
 .teach-concepts > summary > span { margin-left: 12px; color: var(--muted); font-size: 13px; font-weight: 400; }
 .concept-body { padding: 0 16px 16px; font-size: 18px; line-height: 1.55; }
@@ -11,11 +13,17 @@
 .concept-card { padding: 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); overflow-wrap: anywhere; }
 .concept-card dt { font-weight: 700; color: var(--accent); }
 .concept-card dd { margin: 3px 0 0; }
+.concept-card { transition: border-color .15s ease, box-shadow .15s ease; }
+.concept-card:hover { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-soft); }
+.concept-analogy { display: block; margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--line); font-size: 16px; color: var(--muted); }
 .concept-more { margin-top: 10px; }
 .concept-more summary { cursor: pointer; padding: 8px 0; color: var(--accent); }
 .concept-flow { display: flex; align-items: stretch; gap: 7px; margin-bottom: 9px; }
 .concept-node { flex: 1; min-width: 0; border: 1px solid var(--line); border-radius: 8px; padding: 10px; background: var(--bg); overflow-wrap: anywhere; }
 .concept-node b, .concept-node span, .concept-node small { display: block; }
+.concept-node > b { display: flex; align-items: flex-start; gap: 7px; margin-bottom: 5px; }
+.concept-node .concept-step-no { display: inline-flex; justify-content: center; align-items: center; flex-shrink: 0; min-width: 26px; height: 26px; padding: 0 3px; border-radius: 6px; background: var(--accent-soft); color: var(--accent); font-size: 14px; }
+.concept-down { text-align: center; font-size: 22px; color: var(--accent); line-height: 1.2; margin: 4px 0; }
 .concept-node small { color: var(--accent); font-weight: 700; }
 .concept-arrow { align-self: center; color: var(--accent); font-size: 22px; }
 .concept-node.is-current, .concept-clock-slot.is-current { border-color: var(--accent); background: var(--accent-soft); box-shadow: 0 0 0 2px var(--accent-soft); }
@@ -23,6 +31,25 @@
 .concept-branches > span { font-size: 13px; color: var(--muted); }
 .concept-example { background: var(--accent-soft); border-radius: 8px; padding: 12px; margin-top: 12px; }
 .concept-example p { margin: 5px 0 0; }
+.concept-example[data-result="ok"], .concept-node[data-result="ok"] { background: var(--ok-soft); border: 1px solid var(--ok); }
+.concept-example[data-result="ok"] .concept-result-label, .concept-example[data-result="ok"] > b { color: var(--ok); }
+.concept-example[data-result="trap"], .concept-node[data-result="trap"] { background: var(--concept-danger-soft); border: 1px solid var(--concept-danger); }
+.concept-example[data-result="trap"] .concept-result-label, .concept-example[data-result="trap"] > b { color: var(--concept-danger); }
+.concept-result-label { font-weight: 700; }
+.concept-math { font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.concept-supplement { margin: 0 16px 16px; border: 1px solid var(--line); border-radius: 8px; padding: 12px; font-size: 18px; line-height: 1.55; }
+.concept-supplement > summary { color: var(--accent); cursor: pointer; font-weight: 700; }
+.concept-supplement > p { color: var(--muted); margin: 10px 0; }
+.concept-exercise-fields { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin: 12px 0; }
+.concept-exercise-fields label { display: flex; flex-direction: column; gap: 6px; font-size: 16px; }
+.concept-exercise-fields input, .concept-exercise-fields select { width: 100%; min-width: 0; padding: 9px; font: inherit; color: var(--fg); background: var(--bg); border: 1px solid var(--line); border-radius: 7px; }
+.concept-exercise-form .bar { flex-wrap: wrap; }
+.concept-exercise-error { color: var(--concept-danger); }
+.concept-exercise-result h4 { margin: 14px 0 10px; }
+.concept-segment-table { overflow-x: auto; }
+.concept-segment-table table { margin-top: 8px; width: 100%; }
+.concept-segment-table .is-selected { background: var(--accent-soft); }
+@media (prefers-reduced-motion: reduce) { .concept-card { transition: none; } }
 .concept-takeaway { border-left: 3px solid var(--accent); padding-left: 10px; }
 .concept-ram { display: flex; gap: 3px; flex-wrap: wrap; margin-top: 12px; }
 .concept-ram > span { flex: 1; padding: 8px; text-align: center; border: 1px solid var(--line); border-radius: 5px; }
@@ -37,6 +64,7 @@
   .concept-cards { grid-template-columns: minmax(0, 1fr); }
   .concept-flow { flex-direction: column; }
   .concept-arrow { transform: rotate(90deg); line-height: 1; }
+  .concept-exercise-fields { grid-template-columns: minmax(0, 1fr); }
 }
 .teach-pillar {
   display: inline-flex;

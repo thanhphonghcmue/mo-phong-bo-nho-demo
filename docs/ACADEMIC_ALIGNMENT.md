@@ -36,6 +36,10 @@ Lần tinh giản tiếp theo chỉ thay phần mô phỏng Demo 3–4. Demo 3 �
 
 Khu **Giải thích khái niệm trực quan** nằm ngay sau lịch sử, mặc định đóng. Từ điển và sơ đồ riêng cho mỗi demo; ví dụ đọc snapshot của đề đang áp dụng, không đọc ô nháp. TLB hit/miss là hai nhánh; fault khi còn khung trống và fault khi RAM đầy cũng được tách riêng. Vòng Clock dùng khung, bit và kim thực của bước đang xem. Mở/đóng khu này không đổi timeline hay trạng thái thuật toán.
 
+Workflow dùng bước đánh số và mũi tên, kèm ẩn dụ ngắn cho Base/Limit/LA/PA/MMU/Trap. Màu xanh biểu thị truy cập hợp lệ, đỏ biểu thị trap bảo vệ; lỗi trang đang chờ OS xử lý dùng trạng thái trung tính. Công thức phân trang luôn là `PA=f×cỡ_trang+d`, trong đó f là số khung, không phải địa chỉ bắt đầu khung.
+
+Theo lựa chọn của người dùng, giữ các chủ đề demo hiện có. Dịch địa chỉ động là ví dụ tương tác riêng dưới Demo 2; Phân đoạn là ví dụ tương tác riêng dưới Demo 4. Dữ liệu ví dụ không can thiệp mô phỏng chính. Cả hai kiểm tra `0≤offset<Limit` trước khi cho phép RAM; số âm và địa chỉ bằng Limit bị chặn. Bảng đoạn ví dụ cho s=0: Base 4000/Limit 1000; s=1: Base 8000/Limit 600. Đoạn có độ dài riêng, không đánh đồng với trang có kích thước cố định.
+
 Nhãn trụ cột: Demo 1 **An toàn**, Demo 2–3 **Hiệu quả**, Demo 4–5 **Không giới hạn**. Nhãn cuối mang nghĩa bộ nhớ ảo/tái sử dụng khung theo bài giảng; phần giải nghĩa nói rõ tài nguyên thực tế hữu hạn. Không bổ sung cơ chế chưa mô phỏng như bảng trang nhiều cấp hoặc thrashing chỉ vì chúng xuất hiện trên trang tổng kết.
 
 Phần hướng dẫn người mới dùng cách nói “ngăn RAM” đi kèm Frame, “sổ nhớ nhanh” đi kèm TLB; vẫn giữ ký hiệu và phép tính chuẩn. Dữ liệu nguồn luôn lấy từ đề đang áp dụng, không lấy ô nháp chưa gửi. Giải nghĩa thuật ngữ thay đổi theo bước và mở rộng khi cần. Chế độ nhập nhanh tự tạo cấu hình hợp lệ theo giả định ghi ngay trên form; chế độ chi tiết vẫn giữ nguyên quyền điều khiển trạng thái ban đầu.

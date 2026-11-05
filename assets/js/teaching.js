@@ -764,16 +764,82 @@ window.enhanceMemoryDemo = function (api) {
       }[s.alg]];
     }
   }
+  function conceptStep(n, label, detail, active = false, tone = "") {
+    return `<div class="concept-node${active ? " is-current" : ""}"${tone ? ` data-result="${tone}"` : ""}><b><span class="concept-step-no">${n}</span><span>${esc(label)}</span></b><span>${esc(detail)}</span>${active ? '<small>Đang xét</small>' : ''}</div>`;
+  }
+  function conceptFlow(...nodes) {
+    return `<div class="concept-flow">${nodes.join('<span class="concept-arrow" aria-hidden="true">→</span>')}</div>`;
+  }
+  // Independent exercises retain their own inputs across timeline redraws.
+  function mountConceptExercise(id, root) {
+    if (!["a", "f", "v"].includes(id)) return;
+    const segment = id === "v", prefix = id + "-exercise-";
+    const exercise = document.createElement("details");
+    exercise.className = "concept-supplement";
+    exercise.innerHTML = `<summary>Thử thêm · ${segment ? "Phân đoạn (Segmentation)" : "Dịch địa chỉ động (Dynamic Relocation)"}</summary>
+      <p>Ví dụ riêng để hiểu thêm; không thay đổi đề hoặc RAM của demo phía trên.</p>
+      ${segment ? '<div class="concept-segment-table"><b>Bảng đoạn của ví dụ · đề cho</b><table><thead><tr><th>Đoạn s</th><th>Base</th><th>Limit (byte)</th></tr></thead><tbody><tr data-segment="0"><td>0 · Mã lệnh</td><td>4000</td><td>1000</td></tr><tr data-segment="1"><td>1 · Dữ liệu</td><td>8000</td><td>600</td></tr></tbody></table></div>' : ''}
+      <form class="concept-exercise-form" novalidate><div class="concept-exercise-fields">
+        ${segment ? `<label for="${prefix}s">Đoạn muốn dùng (s)<select id="${prefix}s" name="segment"><option value="0">0 · Mã lệnh</option><option value="1" selected>1 · Dữ liệu</option></select></label>` : `<label for="${prefix}base">Base · bắt đầu RAM<input id="${prefix}base" name="base" type="number" step="1" value="14000" required></label><label for="${prefix}limit">Limit · số byte được dùng<input id="${prefix}limit" name="limit" type="number" step="1" value="1000" required></label>`}
+        <label for="${prefix}offset">${segment ? 'Offset d · vị trí trong đoạn' : 'LA · vị trí chương trình muốn dùng'}<input id="${prefix}offset" name="offset" type="number" step="1" value="${segment ? 120 : 346}" required></label>
+      </div><div class="bar"><button class="btn primary" type="submit">Kiểm tra ví dụ</button><button class="btn" type="button" data-example="valid">Mẫu hợp lệ</button><button class="btn" type="button" data-example="invalid">Mẫu vượt giới hạn</button></div>
+      <p class="concept-exercise-error" role="alert" hidden></p></form>
+      <div class="concept-exercise-result" role="status" aria-live="polite"></div>`;
+    root.append(exercise);
+    const form = exercise.querySelector("form"), output = exercise.querySelector(".concept-exercise-result"), error = exercise.querySelector(".concept-exercise-error");
+    function show() {
+      try {
+        const number = (name, min) => {
+          const value = form.elements[name].value.trim();
+          if (!/^-?\d+$/.test(value) || Number(value) < min || Number(value) > 1000000000) throw Error(segment ? "Nhập offset là số nguyên từ −1000000000 đến 1000000000. Ví dụ: đoạn 1, offset 120." : "Nhập số nguyên: Base từ 0, Limit từ 1; LA từ −1000000000 đến 1000000000. Ví dụ: Base 14000, Limit 1000, LA 346.");
+          return Number(value);
+        };
+        const index = segment ? Number(form.elements.segment.value) : null;
+        const base = segment ? [4000, 8000][index] : number("base", 0);
+        const limit = segment ? [1000, 600][index] : number("limit", 1);
+        const offset = number("offset", -1000000000), valid = offset >= 0 && offset < limit;
+        const tone = valid ? "ok" : "trap", symbol = segment ? "d" : "LA";
+        const check = segment
+          ? `0 ≤ d < Limit → 0 ≤ ${offset} < ${limit}: ${valid ? "đạt" : "không đạt"}.`
+          : `Base ≤ PA < Base + Limit → ${base} ≤ ${base + offset} < ${base + limit}: ${valid ? "đạt" : "không đạt"}.`;
+        error.hidden = true;
+        const steps = [conceptStep(1, "CPU phát địa chỉ", segment ? `LA = (s=${index}, d=${offset})` : `LA = ${offset}`)];
+        if (segment) steps.push(conceptStep(2, "Tra bảng đoạn", `Đoạn ${index} → Base ${base}, Limit ${limit}`));
+        else steps.push(conceptStep(2, "MMU cộng LA với Base", `PA dự kiến = ${base} + ${offset} = ${base + offset}`));
+        steps.push(conceptStep(3, "MMU kiểm tra giới hạn", check));
+        steps.push(conceptStep(4, valid ? (segment ? "Cộng Base → vào RAM" : "Cho phép truy cập RAM") : "Báo TRAP → OS", valid ? `PA = ${base} + ${offset} = ${base + offset}` : "Không đọc hoặc ghi RAM", false, tone));
+        output.innerHTML = `<h4>Luồng hoạt động (Workflow)</h4>${conceptFlow(...steps)}<div class="concept-example" data-result="${tone}"><b>${valid ? "HỢP LỆ · Cho phép vào RAM" : "TRAP · Chặn truy cập"}</b><p class="concept-math">${esc(check)}</p>${valid ? `<p class="concept-math">PA = Base + ${symbol} = ${base} + ${offset} = <strong>${base + offset}</strong></p><p>Trong vùng RAM: ${base} ≤ ${base + offset} < ${base + limit}.</p>` : '<p>Vị trí âm hoặc chạm/vượt Limit → phát trap bảo vệ; không dùng địa chỉ này để vào RAM.</p>'}</div><p class="concept-takeaway">${segment ? 'Đoạn là phần như mã lệnh hoặc dữ liệu, có độ dài riêng. s chọn đúng đoạn; d phải nằm trong đoạn đó.' : 'Base + Limit là cận trên, không thuộc vùng được phép. Kiểm tra cả cận dưới để chặn LA âm.'}</p>`;
+        exercise.querySelectorAll("[data-segment]").forEach(row => row.classList.toggle("is-selected", Number(row.dataset.segment) === index));
+      } catch (err) {
+        error.textContent = err.message; error.hidden = false;
+        output.textContent = "";
+      }
+    }
+    form.addEventListener("submit", ev => { ev.preventDefault(); show(); });
+    form.querySelectorAll("[data-example]").forEach(button => button.addEventListener("click", () => {
+      if (segment) form.elements.segment.value = "1";
+      else { form.elements.base.value = "14000"; form.elements.limit.value = "1000"; }
+      form.elements.offset.value = button.dataset.example === "valid" ? (segment ? "120" : "346") : (segment ? "600" : "1000");
+      show();
+    }));
+    const clearDraftResult = () => {
+      output.textContent = ""; error.hidden = true;
+      exercise.querySelectorAll("[data-segment]").forEach(row => row.classList.remove("is-selected"));
+    };
+    form.addEventListener("input", clearDraftResult);
+    form.addEventListener("change", clearDraftResult);
+    show();
+  }
   // A separate, read-only foundation layer. Examples use the applied snapshot,
   // never draft inputs; opening it does not advance or reset the simulation.
   function conceptContent(id, e) {
     const s = e.state, title = e.title.toLocaleLowerCase("vi");
     const common = {
       CPU: "Bộ xử lý chạy lệnh và phát yêu cầu đọc hoặc ghi dữ liệu.",
-      MMU: "Bộ phận kiểm tra, dịch địa chỉ trước khi truy cập RAM.",
+      MMU: "Trọng tài tự động kiểm tra và dịch địa chỉ trước khi vào RAM.",
       RAM: "Bộ nhớ làm việc, chứa dữ liệu chương trình đang dùng.",
-      LA: "Địa chỉ logic: vị trí chương trình yêu cầu, trước khi dịch.",
-      PA: "Địa chỉ vật lý: vị trí thật của byte trong RAM.",
+      LA: "Logical Address · địa chỉ logic (địa chỉ ảo) do CPU tạo ra khi chạy chương trình.",
+      PA: "Physical Address · địa chỉ vật lý, vị trí chính xác của byte trên RAM.",
       Page: "Trang: một phần có kích thước cố định của chương trình.",
       Frame: "Khung: một ngăn RAM chứa được một trang. Trang và khung có cùng cỡ.",
       TLB: "Bảng nhớ rất nhanh gần CPU, giữ vài bản dịch trang → khung; không giữ dữ liệu trang.",
@@ -787,22 +853,36 @@ window.enhanceMemoryDemo = function (api) {
       OPT: "Thay trang có lần dùng tiếp theo xa nhất; không dùng lại thì ưu tiên thay. Cần biết trước tương lai nên dùng để so sánh.",
       Clock: "Đi vòng kiểm tra R: gặp 1 thì xóa về 0 và đi tiếp; gặp 0 thì chọn thay.",
     };
-    let terms, diagram = "", example = "", takeaway = "";
-    const box = (label, detail, active = false) => `<div class="concept-node${active ? " is-current" : ""}"><b>${esc(label)}</b><span>${esc(detail)}</span>${active ? '<small>Đang xét</small>' : ''}</div>`;
-    const flow = (...nodes) => `<div class="concept-flow">${nodes.join('<span class="concept-arrow" aria-hidden="true">→</span>')}</div>`;
+    const analogies = {
+      Base: '“Số nhà đầu tiên” của khu đất bạn thuê.',
+      Limit: '“Chiều rộng khu đất”, không phải số nhà kết thúc.',
+      LA: 'Số thứ tự phòng trong sơ đồ nội bộ của bạn.',
+      PA: 'Như vị trí GPS chỉ đúng chỗ ngoài đời thực.',
+      MMU: '“Bảo vệ cổng” kiểm tra vé và chỉ đúng chỗ.',
+      Trap: id === "b" ? '“Còi báo động” khi bước qua rào sang nhà bên.' : 'Chuông gọi người quản lý đến xử lý tình huống.',
+    };
+    let terms, diagram = "", example = "", takeaway = "", result = "neutral", resultLabel = "", calculations = [];
+    const box = conceptStep, flow = conceptFlow;
+    const down = '<div class="concept-down" aria-hidden="true">↓</div>';
     const list = keys => keys.map(k => [k, common[k]]);
     if (id === "b") {
-      terms = [["Base", "Địa chỉ bắt đầu vùng RAM tiến trình được dùng."], ["Limit", "Độ dài vùng được cấp, không phải địa chỉ kết thúc."], ...list(["LA", "PA", "CPU", "MMU"]), ["Vùng hợp lệ", "Từ Base đến ngay trước Base + Limit. Không được chạm mốc cuối."], ...list(["Trap"])];
+      terms = [["Base", "Địa chỉ gốc: vị trí bắt đầu vùng RAM được cấp cho chương trình."], ["Limit", "Số byte chương trình được phép dùng; không phải địa chỉ kết thúc."], ...list(["LA", "PA", "CPU", "MMU"]), ["Vùng hợp lệ", "Từ Base đến ngay trước Base + Limit. Không được chạm mốc cuối."], ["Trap", "Bẫy bảo vệ: MMU báo hệ điều hành khi truy cập ngoài vùng được cấp."]];
       const translate = s.mode === "translate", valid = s.isValid;
-      diagram = flow(box("CPU", translate ? `LA = ${s.offset}` : `PA cần kiểm tra = ${s.addr}`, s.st === 0), box("MMU kiểm tra", translate ? "0 ≤ LA < Limit" : "Base ≤ PA < Base + Limit", s.st === 1 || s.st === 2), box(valid ? "RAM · được phép" : "TRAP → hệ điều hành", valid ? "Chỉ dùng vùng được cấp" : "Chặn truy cập, không đọc RAM", s.st === 3));
+      result = valid ? "ok" : "trap";
+      resultLabel = valid ? "HỢP LỆ · Cho phép vào RAM" : "TRAP · Chặn truy cập";
+      const steps = [box(1, "CPU phát yêu cầu", translate ? `LA = ${s.offset}` : `PA cần kiểm tra = ${s.addr}`, s.st === 0), box(2, "MMU kiểm tra điều kiện", translate ? "0 ≤ LA < Limit" : "Base ≤ PA < Base + Limit", s.st === 1 || (!translate && s.st === 2))];
+      if (translate && valid) steps.push(box(3, "MMU cộng Base", `PA = ${s.base} + ${s.offset} = ${s.pa}`, s.st === 2));
+      steps.push(box(translate && valid ? 4 : 3, valid ? "Cho phép truy cập RAM" : "Báo TRAP → OS", valid ? "Chỉ dùng vùng được cấp" : "Chặn truy cập, không đọc RAM", s.st === 3, result));
+      diagram = flow(...steps);
       diagram += `<div class="concept-ram"><span>OS / vùng khác</span><span class="allowed">Vùng tiến trình được dùng<br>${esc(s.base)} ≤ PA &lt; ${esc(s.base + s.limit)}</span><span>Ngoài phạm vi</span></div><small>Thanh minh họa ranh giới, không theo tỉ lệ.</small>`;
       example = translate ? `LA = ${s.offset}; Limit = ${s.limit}. ${valid ? `Hợp lệ → PA = ${s.base} + ${s.offset} = ${s.pa}.` : "Ngoài giới hạn → TRAP; không cộng Base để truy cập RAM."}` : `PA = ${s.addr}; vùng được phép [${s.base}, ${s.base + s.limit}). ${valid ? "Địa chỉ nằm trong vùng → cho phép." : "Địa chỉ ngoài vùng → chặn."}`;
+      calculations = [`Base = ${s.base}; Limit = ${s.limit} byte.`, translate ? `0 ≤ LA < Limit → 0 ≤ ${s.offset} < ${s.limit}: ${valid ? "đạt" : "không đạt"}.` : `Base ≤ PA < Base + Limit → ${s.base} ≤ ${s.addr} < ${s.base + s.limit}: ${valid ? "đạt" : "không đạt"}.`, translate && valid ? `PA = Base + LA = ${s.base} + ${s.offset} = ${s.pa}.` : example];
       takeaway = "Chế độ kiểm tra nhận PA có sẵn; chế độ dịch nhận LA rồi mới cộng Base.";
     } else if (id === "a" || id === "f") {
       terms = [["Tiến trình", "Một chương trình đang chạy, cần chỗ trong RAM."], ...list(["RAM"]), ["Lỗ trống", "Một vùng RAM liên tục chưa được dùng."], ["Cấp phát", "Dành một vùng trống đủ lớn cho tiến trình."], ["First-fit", "Gặp lỗ đầu tiên đủ chỗ thì dùng luôn."], ["Best-fit", "Chọn lỗ nhỏ nhất trong các lỗ đủ chỗ."], ["Worst-fit", "Chọn lỗ lớn nhất trong các lỗ đủ chỗ."], ["Phân mảnh ngoài", "Tổng trống đủ, nhưng bị chia nhỏ: không lỗ riêng lẻ nào đủ cho yêu cầu."], ["Dồn nén", "Dời các tiến trình để gom chỗ trống lại. Không làm RAM lớn thêm."]];
       const holes = id === "f" ? s.segs.filter(x => !x.name).map(x => x.size) : (s.runtime?.free || s.holes);
       const total = holes.reduce((a,b) => a+b,0), largest = Math.max(0,...holes);
-      diagram = flow(box("Tiến trình", "Xin một vùng liên tục"), box("Bộ cấp phát", names[s.allocatorAlg || s.alg], true), box("RAM", "Chọn một lỗ đủ lớn"));
+      diagram = flow(box(1, "Tiến trình xin chỗ", "Cần một vùng liên tục"), box(2, "Bộ cấp phát chọn lỗ", names[s.allocatorAlg || s.alg], true), box(3, "Đặt vào RAM", "Nếu không lỗ nào đủ: chờ"));
       diagram += `<div class="concept-ram">${holes.map((h,i) => `<span class="allowed">Lỗ ${i+1}<br>${esc(h)} KB</span>`).join('') || '<span>Không còn lỗ trống</span>'}</div>`;
       example = `Các lỗ ở bước đang xem: ${holes.join(', ') || 'không có'} KB. Tổng trống ${total} KB; lỗ lớn nhất ${largest} KB.`;
       takeaway = "Một yêu cầu phải vừa trong một lỗ; không ghép các lỗ rời nhau để cấp phát liên tục.";
@@ -810,31 +890,39 @@ window.enhanceMemoryDemo = function (api) {
       terms = [["p", "Số trang cần tìm: lấy phần nguyên của LA chia cỡ trang."], ["d / Offset", "Vị trí trong trang: phần dư của phép chia. Khi dịch, d giữ nguyên."], ...list(["Page", "Frame", "CPU", "MMU", "LA", "PA", "TLB", "Page Table", "RAM"])];
       const p=s.plan.p, d=s.plan.d, frame=s.pt[p], size=s.pageSize;
       const tlb = title.includes("tlb"), table = title.includes("bảng trang"), phys = title.includes("vật lý"), read = e.kind === "read";
-      diagram = flow(box("CPU → MMU", `LA ${s.plan.addr} → p ${p}, d ${d}`, title.startsWith("cpu") || title.startsWith("tách")), box("TLB · tra p", "Có bản dịch?", tlb));
-      diagram += `<div class="concept-branches">${box("HIT · có", "Lấy số khung ngay")}<span>hoặc</span>${box("MISS · chưa có", "Tra bảng trang để tìm khung", table)}</div>`;
-      diagram += flow(box("Khung f + d", "PA = f × cỡ trang + d", phys), box("RAM · dữ liệu thật", "Đọc byte tại PA", read));
+      diagram = flow(box(1, "CPU phát LA", `Địa chỉ ${s.plan.addr}`, title.startsWith("cpu")), box(2, "MMU tách p và d", `p = ${p}; d = ${d}`, title.startsWith("tách")), box(3, "Tra TLB bằng p", "Có bản dịch nhanh?", tlb));
+      diagram += down + `<div class="concept-branches">${box("4a", "HIT · lấy khung f", "Bỏ qua bảng trang")}<span>hoặc</span>${box("4b", "MISS · tra bảng trang", "Lấy f; nếu chưa ở RAM → OS nạp", table)}</div>`;
+      diagram += down + flow(box(5, "MMU tính PA", "PA = f × cỡ trang + d", phys), box(6, "Đọc dữ liệu RAM", "Tìm byte tại PA", read));
       example = `LA = ${s.plan.addr}; mỗi trang ${size} byte → p = ${p}, d = ${d}. ` + (Number.isInteger(frame) && frame >= 0 ? `Bảng trang: Trang ${p} → Frame ${frame}. PA = ${frame} × ${size} + ${d} = ${frame*size+d}.` : "Trang chưa có khung RAM → phải nhờ hệ điều hành nạp; chưa thể tính PA để đọc.");
+      const resident = Number.isInteger(frame) && frame >= 0;
+      result = resident ? "ok" : "pending";
+      resultLabel = resident ? "CÓ BẢN DỊCH · Đọc dữ liệu trong RAM" : "PAGE FAULT · Cần OS nạp trang";
+      calculations = [`LA = ${s.plan.addr}; mỗi trang ${size} byte → p = ${p}, d = ${d}.`, resident ? `Trang ${p} → Frame ${frame}.` : "Trang chưa có khung RAM; chờ nạp xong.", resident ? `PA = ${frame} × ${size} + ${d} = ${frame*size+d}.` : "Chưa thể tính PA để đọc dữ liệu."];
       takeaway = "TLB miss chỉ thiếu bản dịch nhanh. Nếu bảng trang cho biết trang đã ở RAM thì không có Page Fault. Dữ liệu nằm trong RAM, không nằm trong TLB.";
       if (s.plan.err) {
-        diagram = flow(box("CPU → MMU", `Địa chỉ ${s.plan.addr}`), box("TRAP → OS", "Địa chỉ ngoài miền hợp lệ", true));
+        result = "trap"; resultLabel = "TRAP · Chặn địa chỉ ngoài miền";
+        diagram = flow(box(1, "CPU phát yêu cầu", `Địa chỉ ${s.plan.addr}`), box(2, "MMU kiểm tra miền", "Địa chỉ không hợp lệ"), box(3, "Báo TRAP → OS", "Không truy cập RAM", true, "trap"));
         example = "Địa chỉ đang yêu cầu không hợp lệ → chặn truy cập, không tính PA để đọc RAM.";
+        calculations = [];
       }
     } else if (id === "v") {
       terms = [...list(["Page Fault", "RAM"]), ["Valid / Invalid", "Đánh dấu hợp lệ tùy cách tổ chức bảng trang. Demo tách quyền/ánh xạ với present để biết bị cấm hay chỉ chưa nạp."], ["Present", "1: trang đang ở RAM; 0: chưa ở RAM. Chưa có trong RAM không có nghĩa là bị cấm."], ["Backing Store", "Bộ nhớ phụ giữ bản lưu trang khi chưa ở RAM."], ["SSD / HDD", "Các loại ổ lưu trữ. OS yêu cầu đọc trang từ đây vào RAM; CPU không đọc lệnh trực tiếp ở ổ đĩa."], ...list(["Trap", "Page Table"]), ["Khung trống", "Ngăn RAM chưa chứa trang, có thể dùng để nạp trang mới."], ["Nạp trang", "Chuyển dữ liệu từ bộ nhớ phụ vào một khung RAM."], ["Chạy lại lệnh", "Sau khi nạp và sửa bảng trang, thử lại đúng lệnh vừa bị ngắt."], ["Dirty", "Trang đã bị sửa; phải lưu nội dung mới trước khi thay trang đó."]];
-      diagram = flow(box("CPU → MMU", `Cần Trang ${s.page}`, title.startsWith("cpu")), box("Bảng trang", "Kiểm tra quyền và present"));
-      if(s.plan.oob) diagram += flow(box("TRAP → OS", "Bị cấm / ngoài miền", true), box("Chặn", "Không nạp trang"));
-      else if(s.plan.hit) diagram += flow(box("Đã ở RAM", "Đọc/ghi ngay", true), box("Tiếp tục lệnh", "Không đọc ổ đĩa"));
+      diagram = flow(box(1, "CPU phát yêu cầu", `Cần Trang ${s.page}`, title.startsWith("cpu")), box(2, "MMU tra bảng trang", "Kiểm tra quyền và present"));
+      if(s.plan.oob) diagram += down + flow(box(3, "Báo TRAP → OS", "Bị cấm / ngoài miền", true, "trap"), box(4, "Chặn truy cập", "Không nạp trang"));
+      else if(s.plan.hit) diagram += down + flow(box(3, "Đọc/ghi RAM", "Trang đã có trong RAM", true), box(4, "Tiếp tục lệnh", "Không đọc ổ đĩa"));
       else {
-        diagram += flow(box("Page Fault → OS", "Tìm trang và chọn khung", e.kind === "trap" || title.includes("định vị")), box("SSD / HDD → RAM", "OS yêu cầu nạp dữ liệu", e.kind === "page-in"));
-        diagram += flow(box("Sửa bảng trang", "Chỉ sau khi nạp xong", title.startsWith("cập nhật")), box("Chạy lại lệnh", "Dữ liệu đã có trong RAM", title.includes("chạy lại")));
+        diagram += down + flow(box(3, "Page Fault → OS", "Tìm trang, chọn khung; lưu trang dirty nếu thay", e.kind === "trap" || title.includes("định vị")), box(4, "Nạp từ SSD/HDD vào RAM", "OS yêu cầu nạp dữ liệu", e.kind === "page-in"));
+        diagram += down + flow(box(5, "Sửa bảng trang", "Chỉ sau khi nạp xong", title.startsWith("cập nhật")), box(6, "Chạy lại lệnh", "Dữ liệu đã có trong RAM", title.includes("chạy lại")));
       }
+      result = s.plan.oob ? "trap" : (s.pt[s.page]?.present ? "ok" : "pending");
+      resultLabel = s.plan.oob ? "TRAP BẢO VỆ · Chặn truy cập" : (result === "ok" ? "TRANG ĐÃ Ở RAM · Có thể tiếp tục" : "PAGE FAULT · OS đang xử lý");
       example = `Trang đang yêu cầu: ${s.page}. ` + (s.plan.oob ? "Không được phép truy cập → OS chặn, không nạp." : s.plan.hit ? `Đã có trong RAM tại khung ${s.plan.frame}; không cần nạp trang.` : `Lúc yêu cầu chưa có trong RAM → OS nạp trang${s.pt[s.page]?.present ? ` vào khung ${s.pt[s.page].frame}; bảng trang đã cập nhật` : '; đợi nạp xong mới đánh dấu present = 1'}.`);
       takeaway = "Bảng trang chỉ đường; RAM giữ dữ liệu đang dùng; ổ đĩa giữ bản lưu. Trang không tự nhảy vào RAM: hệ điều hành xử lý việc nạp.";
     } else {
       terms = [...list(["Hit", "Fault"]), ["Page replacement", "Thay trang: khi không còn khung trống, chọn trang cũ nhường chỗ cho trang cần nạp."], ["Victim page", "Trang bị chọn rời RAM để nhường khung. Không phải trang mới cần nạp."], ...list(["FIFO", "LRU", "OPT", "Clock"]), ["Bit tham chiếu R", "Dùng trang thì đặt R = 1. Clock xóa về 0 khi cho cơ hội thứ hai."], ["Kim đồng hồ", "Vị trí Clock sẽ kiểm tra tiếp. Hit đặt R = 1 nhưng không làm kim quay."]];
       const rt=s.runtime, pg=s.refs[Math.max(0, rt.t)];
-      diagram = flow(box("Dãy trang cần dùng", s.refs.join(' → ')), box("Đã ở RAM?", "Hit → dùng ngay", e.status === "hit"));
-      diagram += `<div class="concept-branches">${box("Fault · còn khung trống", "Nạp vào khung trống")}<span>hoặc</span>${box("Fault · RAM đầy", `${names[s.alg]} chọn trang nhường chỗ rồi nạp`, rt.victim != null)}</div>`;
+      diagram = flow(box(1, "Lấy trang tiếp theo", `Dãy: ${s.refs.join(' → ')}`), box(2, "Kiểm tra RAM", "Hit → dùng ngay; Fault → cần nạp", e.status === "hit"));
+      diagram += down + `<div class="concept-branches">${box("3a", "Fault · còn khung trống", "Nạp vào khung trống")}<span>hoặc</span>${box("3b", "Fault · RAM đầy", `${names[s.alg]} chọn trang nhường chỗ rồi nạp`, rt.victim != null)}</div>`;
       if(s.alg === "CLOCK") {
         diagram += `<div class="concept-clock" role="img" aria-label="Vòng Clock, kim ở khung ${rt.ptr}"><div class="concept-clock-center">Kim → ${esc(rt.ptr)}<br>R=1: xóa, đi tiếp<br>R=0: chọn</div>${rt.fr.map((page,i) => {
           const angle=2*Math.PI*i/rt.fr.length-Math.PI/2;
@@ -844,8 +932,8 @@ window.enhanceMemoryDemo = function (api) {
       example = `${s.n} khung RAM; đang dùng ${names[s.alg]}. Trang ${pg}; RAM ở bước này: [${rt.fr.map(p=>p??'trống').join(', ')}].`;
       takeaway = "Fault chưa chắc phải đuổi trang: chỉ thay khi không còn khung trống. Các thuật toán khác nhau ở cách chọn trang nhường chỗ.";
     }
-    const cards = entries => entries.map(([name, text]) => `<div class="concept-card"><dt>${esc(name)}</dt><dd>${esc(text)}</dd></div>`).join('');
-    return `<p class="concept-intro">Chưa quen các chữ trong mô hình? Xem cách chúng nối với nhau. Số liệu bên dưới theo đề và bước đang xem.</p><div class="concept-layout"><div><h3>Từ điển nhanh</h3><dl class="concept-cards">${cards(terms.slice(0,4))}</dl><details class="concept-more"><summary>Thêm ${terms.length-4} khái niệm</summary><dl class="concept-cards">${cards(terms.slice(4))}</dl></details></div><div><h3>Nhìn luồng để hiểu</h3>${diagram}<div class="concept-example"><b>Ví dụ theo đề đang chạy</b><p>${esc(example)}</p></div><p class="concept-takeaway">${esc(takeaway)}</p></div></div>`;
+    const cards = entries => entries.map(([name, text]) => `<div class="concept-card"><dt>${esc(name)}</dt><dd>${esc(text)}${analogies[name] ? `<span class="concept-analogy"><b>Hình dung:</b> ${esc(analogies[name])}</span>` : ''}</dd></div>`).join('');
+    return `<p class="concept-intro">Chưa quen các chữ trong mô hình? Xem cách chúng nối với nhau. Số liệu bên dưới theo đề và bước đang xem.</p><div class="concept-layout"><div><h3>Từ điển nhanh</h3><dl class="concept-cards">${cards(terms.slice(0,4))}</dl><details class="concept-more"><summary>Thêm ${terms.length-4} khái niệm</summary><dl class="concept-cards">${cards(terms.slice(4))}</dl></details></div><div><h3>Luồng hoạt động (Workflow)</h3>${diagram}<div class="concept-example" data-result="${result}"><b>Ví dụ theo đề đang chạy</b>${resultLabel ? `<p class="concept-result-label">${esc(resultLabel)}</p>` : ''}${(calculations.length ? calculations : [example]).map(line => `<p class="concept-math">${esc(line)}</p>`).join('')}</div><p class="concept-takeaway">${esc(takeaway)}</p></div></div>`;
   }
   function updateConcepts(t, e) {
     if (!t.concepts.open) return;
@@ -900,6 +988,7 @@ window.enhanceMemoryDemo = function (api) {
       this.concepts.className = "teach-concepts";
       this.concepts.id = id + "-concepts";
       this.concepts.innerHTML = '<summary>GIẢI THÍCH KHÁI NIỆM TRỰC QUAN <span>Hiểu nhanh thuật ngữ · sơ đồ · ví dụ</span></summary><div class="concept-body"></div>';
+      mountConceptExercise(id, this.concepts);
       history.after(this.concepts);
       this.concepts.addEventListener('toggle', () => {
         if (this.events.length) updateConcepts(this, this.events[this.cursor]);
