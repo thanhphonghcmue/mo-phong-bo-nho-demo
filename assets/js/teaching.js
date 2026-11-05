@@ -764,6 +764,95 @@ window.enhanceMemoryDemo = function (api) {
       }[s.alg]];
     }
   }
+  // A separate, read-only foundation layer. Examples use the applied snapshot,
+  // never draft inputs; opening it does not advance or reset the simulation.
+  function conceptContent(id, e) {
+    const s = e.state, title = e.title.toLocaleLowerCase("vi");
+    const common = {
+      CPU: "Bộ xử lý chạy lệnh và phát yêu cầu đọc hoặc ghi dữ liệu.",
+      MMU: "Bộ phận kiểm tra, dịch địa chỉ trước khi truy cập RAM.",
+      RAM: "Bộ nhớ làm việc, chứa dữ liệu chương trình đang dùng.",
+      LA: "Địa chỉ logic: vị trí chương trình yêu cầu, trước khi dịch.",
+      PA: "Địa chỉ vật lý: vị trí thật của byte trong RAM.",
+      Page: "Trang: một phần có kích thước cố định của chương trình.",
+      Frame: "Khung: một ngăn RAM chứa được một trang. Trang và khung có cùng cỡ.",
+      TLB: "Bảng nhớ rất nhanh gần CPU, giữ vài bản dịch trang → khung; không giữ dữ liệu trang.",
+      "Page Table": "Bảng trang: sổ chỉ đường trong RAM, cho biết trang đang ở khung nào.",
+      Trap: "Tín hiệu chuyển quyền xử lý sang hệ điều hành khi lệnh gặp tình huống cần xử lý.",
+      "Page Fault": "Trang cần dùng chưa ở RAM. Nếu truy cập hợp lệ, hệ điều hành nạp trang rồi chạy lại lệnh.",
+      Hit: "Trang cần dùng đã có trong RAM; dùng ngay, không phải nạp từ ổ đĩa.",
+      Fault: "Trang cần dùng chưa ở RAM; phải nạp trang vào.",
+      FIFO: "Thay trang được nạp vào RAM sớm nhất. Dùng lại trang không đổi thứ tự vào.",
+      LRU: "Thay trang lâu nhất chưa được dùng lại.",
+      OPT: "Thay trang có lần dùng tiếp theo xa nhất; không dùng lại thì ưu tiên thay. Cần biết trước tương lai nên dùng để so sánh.",
+      Clock: "Đi vòng kiểm tra R: gặp 1 thì xóa về 0 và đi tiếp; gặp 0 thì chọn thay.",
+    };
+    let terms, diagram = "", example = "", takeaway = "";
+    const box = (label, detail, active = false) => `<div class="concept-node${active ? " is-current" : ""}"><b>${esc(label)}</b><span>${esc(detail)}</span>${active ? '<small>Đang xét</small>' : ''}</div>`;
+    const flow = (...nodes) => `<div class="concept-flow">${nodes.join('<span class="concept-arrow" aria-hidden="true">→</span>')}</div>`;
+    const list = keys => keys.map(k => [k, common[k]]);
+    if (id === "b") {
+      terms = [["Base", "Địa chỉ bắt đầu vùng RAM tiến trình được dùng."], ["Limit", "Độ dài vùng được cấp, không phải địa chỉ kết thúc."], ...list(["LA", "PA", "CPU", "MMU"]), ["Vùng hợp lệ", "Từ Base đến ngay trước Base + Limit. Không được chạm mốc cuối."], ...list(["Trap"])];
+      const translate = s.mode === "translate", valid = s.isValid;
+      diagram = flow(box("CPU", translate ? `LA = ${s.offset}` : `PA cần kiểm tra = ${s.addr}`, s.st === 0), box("MMU kiểm tra", translate ? "0 ≤ LA < Limit" : "Base ≤ PA < Base + Limit", s.st === 1 || s.st === 2), box(valid ? "RAM · được phép" : "TRAP → hệ điều hành", valid ? "Chỉ dùng vùng được cấp" : "Chặn truy cập, không đọc RAM", s.st === 3));
+      diagram += `<div class="concept-ram"><span>OS / vùng khác</span><span class="allowed">Vùng tiến trình được dùng<br>${esc(s.base)} ≤ PA &lt; ${esc(s.base + s.limit)}</span><span>Ngoài phạm vi</span></div><small>Thanh minh họa ranh giới, không theo tỉ lệ.</small>`;
+      example = translate ? `LA = ${s.offset}; Limit = ${s.limit}. ${valid ? `Hợp lệ → PA = ${s.base} + ${s.offset} = ${s.pa}.` : "Ngoài giới hạn → TRAP; không cộng Base để truy cập RAM."}` : `PA = ${s.addr}; vùng được phép [${s.base}, ${s.base + s.limit}). ${valid ? "Địa chỉ nằm trong vùng → cho phép." : "Địa chỉ ngoài vùng → chặn."}`;
+      takeaway = "Chế độ kiểm tra nhận PA có sẵn; chế độ dịch nhận LA rồi mới cộng Base.";
+    } else if (id === "a" || id === "f") {
+      terms = [["Tiến trình", "Một chương trình đang chạy, cần chỗ trong RAM."], ...list(["RAM"]), ["Lỗ trống", "Một vùng RAM liên tục chưa được dùng."], ["Cấp phát", "Dành một vùng trống đủ lớn cho tiến trình."], ["First-fit", "Gặp lỗ đầu tiên đủ chỗ thì dùng luôn."], ["Best-fit", "Chọn lỗ nhỏ nhất trong các lỗ đủ chỗ."], ["Worst-fit", "Chọn lỗ lớn nhất trong các lỗ đủ chỗ."], ["Phân mảnh ngoài", "Tổng trống đủ, nhưng bị chia nhỏ: không lỗ riêng lẻ nào đủ cho yêu cầu."], ["Dồn nén", "Dời các tiến trình để gom chỗ trống lại. Không làm RAM lớn thêm."]];
+      const holes = id === "f" ? s.segs.filter(x => !x.name).map(x => x.size) : (s.runtime?.free || s.holes);
+      const total = holes.reduce((a,b) => a+b,0), largest = Math.max(0,...holes);
+      diagram = flow(box("Tiến trình", "Xin một vùng liên tục"), box("Bộ cấp phát", names[s.allocatorAlg || s.alg], true), box("RAM", "Chọn một lỗ đủ lớn"));
+      diagram += `<div class="concept-ram">${holes.map((h,i) => `<span class="allowed">Lỗ ${i+1}<br>${esc(h)} KB</span>`).join('') || '<span>Không còn lỗ trống</span>'}</div>`;
+      example = `Các lỗ ở bước đang xem: ${holes.join(', ') || 'không có'} KB. Tổng trống ${total} KB; lỗ lớn nhất ${largest} KB.`;
+      takeaway = "Một yêu cầu phải vừa trong một lỗ; không ghép các lỗ rời nhau để cấp phát liên tục.";
+    } else if (id === "x") {
+      terms = [["p", "Số trang cần tìm: lấy phần nguyên của LA chia cỡ trang."], ["d / Offset", "Vị trí trong trang: phần dư của phép chia. Khi dịch, d giữ nguyên."], ...list(["Page", "Frame", "CPU", "MMU", "LA", "PA", "TLB", "Page Table", "RAM"])];
+      const p=s.plan.p, d=s.plan.d, frame=s.pt[p], size=s.pageSize;
+      const tlb = title.includes("tlb"), table = title.includes("bảng trang"), phys = title.includes("vật lý"), read = e.kind === "read";
+      diagram = flow(box("CPU → MMU", `LA ${s.plan.addr} → p ${p}, d ${d}`, title.startsWith("cpu") || title.startsWith("tách")), box("TLB · tra p", "Có bản dịch?", tlb));
+      diagram += `<div class="concept-branches">${box("HIT · có", "Lấy số khung ngay")}<span>hoặc</span>${box("MISS · chưa có", "Tra bảng trang để tìm khung", table)}</div>`;
+      diagram += flow(box("Khung f + d", "PA = f × cỡ trang + d", phys), box("RAM · dữ liệu thật", "Đọc byte tại PA", read));
+      example = `LA = ${s.plan.addr}; mỗi trang ${size} byte → p = ${p}, d = ${d}. ` + (Number.isInteger(frame) && frame >= 0 ? `Bảng trang: Trang ${p} → Frame ${frame}. PA = ${frame} × ${size} + ${d} = ${frame*size+d}.` : "Trang chưa có khung RAM → phải nhờ hệ điều hành nạp; chưa thể tính PA để đọc.");
+      takeaway = "TLB miss chỉ thiếu bản dịch nhanh. Nếu bảng trang cho biết trang đã ở RAM thì không có Page Fault. Dữ liệu nằm trong RAM, không nằm trong TLB.";
+      if (s.plan.err) {
+        diagram = flow(box("CPU → MMU", `Địa chỉ ${s.plan.addr}`), box("TRAP → OS", "Địa chỉ ngoài miền hợp lệ", true));
+        example = "Địa chỉ đang yêu cầu không hợp lệ → chặn truy cập, không tính PA để đọc RAM.";
+      }
+    } else if (id === "v") {
+      terms = [...list(["Page Fault", "RAM"]), ["Valid / Invalid", "Đánh dấu hợp lệ tùy cách tổ chức bảng trang. Demo tách quyền/ánh xạ với present để biết bị cấm hay chỉ chưa nạp."], ["Present", "1: trang đang ở RAM; 0: chưa ở RAM. Chưa có trong RAM không có nghĩa là bị cấm."], ["Backing Store", "Bộ nhớ phụ giữ bản lưu trang khi chưa ở RAM."], ["SSD / HDD", "Các loại ổ lưu trữ. OS yêu cầu đọc trang từ đây vào RAM; CPU không đọc lệnh trực tiếp ở ổ đĩa."], ...list(["Trap", "Page Table"]), ["Khung trống", "Ngăn RAM chưa chứa trang, có thể dùng để nạp trang mới."], ["Nạp trang", "Chuyển dữ liệu từ bộ nhớ phụ vào một khung RAM."], ["Chạy lại lệnh", "Sau khi nạp và sửa bảng trang, thử lại đúng lệnh vừa bị ngắt."], ["Dirty", "Trang đã bị sửa; phải lưu nội dung mới trước khi thay trang đó."]];
+      diagram = flow(box("CPU → MMU", `Cần Trang ${s.page}`, title.startsWith("cpu")), box("Bảng trang", "Kiểm tra quyền và present"));
+      if(s.plan.oob) diagram += flow(box("TRAP → OS", "Bị cấm / ngoài miền", true), box("Chặn", "Không nạp trang"));
+      else if(s.plan.hit) diagram += flow(box("Đã ở RAM", "Đọc/ghi ngay", true), box("Tiếp tục lệnh", "Không đọc ổ đĩa"));
+      else {
+        diagram += flow(box("Page Fault → OS", "Tìm trang và chọn khung", e.kind === "trap" || title.includes("định vị")), box("SSD / HDD → RAM", "OS yêu cầu nạp dữ liệu", e.kind === "page-in"));
+        diagram += flow(box("Sửa bảng trang", "Chỉ sau khi nạp xong", title.startsWith("cập nhật")), box("Chạy lại lệnh", "Dữ liệu đã có trong RAM", title.includes("chạy lại")));
+      }
+      example = `Trang đang yêu cầu: ${s.page}. ` + (s.plan.oob ? "Không được phép truy cập → OS chặn, không nạp." : s.plan.hit ? `Đã có trong RAM tại khung ${s.plan.frame}; không cần nạp trang.` : `Lúc yêu cầu chưa có trong RAM → OS nạp trang${s.pt[s.page]?.present ? ` vào khung ${s.pt[s.page].frame}; bảng trang đã cập nhật` : '; đợi nạp xong mới đánh dấu present = 1'}.`);
+      takeaway = "Bảng trang chỉ đường; RAM giữ dữ liệu đang dùng; ổ đĩa giữ bản lưu. Trang không tự nhảy vào RAM: hệ điều hành xử lý việc nạp.";
+    } else {
+      terms = [...list(["Hit", "Fault"]), ["Page replacement", "Thay trang: khi không còn khung trống, chọn trang cũ nhường chỗ cho trang cần nạp."], ["Victim page", "Trang bị chọn rời RAM để nhường khung. Không phải trang mới cần nạp."], ...list(["FIFO", "LRU", "OPT", "Clock"]), ["Bit tham chiếu R", "Dùng trang thì đặt R = 1. Clock xóa về 0 khi cho cơ hội thứ hai."], ["Kim đồng hồ", "Vị trí Clock sẽ kiểm tra tiếp. Hit đặt R = 1 nhưng không làm kim quay."]];
+      const rt=s.runtime, pg=s.refs[Math.max(0, rt.t)];
+      diagram = flow(box("Dãy trang cần dùng", s.refs.join(' → ')), box("Đã ở RAM?", "Hit → dùng ngay", e.status === "hit"));
+      diagram += `<div class="concept-branches">${box("Fault · còn khung trống", "Nạp vào khung trống")}<span>hoặc</span>${box("Fault · RAM đầy", `${names[s.alg]} chọn trang nhường chỗ rồi nạp`, rt.victim != null)}</div>`;
+      if(s.alg === "CLOCK") {
+        diagram += `<div class="concept-clock" role="img" aria-label="Vòng Clock, kim ở khung ${rt.ptr}"><div class="concept-clock-center">Kim → ${esc(rt.ptr)}<br>R=1: xóa, đi tiếp<br>R=0: chọn</div>${rt.fr.map((page,i) => {
+          const angle=2*Math.PI*i/rt.fr.length-Math.PI/2;
+          return `<div class="concept-clock-slot${i===rt.ptr?' is-current':''}" style="left:${50+38*Math.cos(angle)}%;top:${50+38*Math.sin(angle)}%"><b>Khung ${i}</b><span>${page===null?'Trống':'Trang '+esc(page)}</span><span>R=${esc(rt.bit[i])}${i===rt.ptr?' ← kim':''}</span></div>`;
+        }).join('')}</div>`;
+      }
+      example = `${s.n} khung RAM; đang dùng ${names[s.alg]}. Trang ${pg}; RAM ở bước này: [${rt.fr.map(p=>p??'trống').join(', ')}].`;
+      takeaway = "Fault chưa chắc phải đuổi trang: chỉ thay khi không còn khung trống. Các thuật toán khác nhau ở cách chọn trang nhường chỗ.";
+    }
+    const cards = entries => entries.map(([name, text]) => `<div class="concept-card"><dt>${esc(name)}</dt><dd>${esc(text)}</dd></div>`).join('');
+    return `<p class="concept-intro">Chưa quen các chữ trong mô hình? Xem cách chúng nối với nhau. Số liệu bên dưới theo đề và bước đang xem.</p><div class="concept-layout"><div><h3>Từ điển nhanh</h3><dl class="concept-cards">${cards(terms.slice(0,4))}</dl><details class="concept-more"><summary>Thêm ${terms.length-4} khái niệm</summary><dl class="concept-cards">${cards(terms.slice(4))}</dl></details></div><div><h3>Nhìn luồng để hiểu</h3>${diagram}<div class="concept-example"><b>Ví dụ theo đề đang chạy</b><p>${esc(example)}</p></div><p class="concept-takeaway">${esc(takeaway)}</p></div></div>`;
+  }
+  function updateConcepts(t, e) {
+    if (!t.concepts.open) return;
+    const moreOpen = t.concepts.querySelector('.concept-more')?.open;
+    t.concepts.querySelector('.concept-body').innerHTML = conceptContent(t.id, e);
+    t.concepts.querySelector('.concept-more').open = !!moreOpen;
+  }
   class Timeline {
     constructor(id, panel, target, render, note) {
       this.id = id;
@@ -807,10 +896,18 @@ window.enhanceMemoryDemo = function (api) {
         "<summary>LỊCH SỬ CÁC BƯỚC ĐÃ THỰC HIỆN</summary><ol></ol>";
       options.after(history);
       this.history = history;
+      this.concepts = document.createElement("details");
+      this.concepts.className = "teach-concepts";
+      this.concepts.id = id + "-concepts";
+      this.concepts.innerHTML = '<summary>GIẢI THÍCH KHÁI NIỆM TRỰC QUAN <span>Hiểu nhanh thuật ngữ · sơ đồ · ví dụ</span></summary><div class="concept-body"></div>';
+      history.after(this.concepts);
+      this.concepts.addEventListener('toggle', () => {
+        if (this.events.length) updateConcepts(this, this.events[this.cursor]);
+      });
       const noteEl = document.createElement("div");
       noteEl.className = "teach-note";
       noteEl.hidden = true;
-      history.after(noteEl);
+      this.concepts.after(noteEl);
       this.noteEl = noteEl;
       const root = bar.closest(".stage");
       this.root = root;
@@ -910,6 +1007,7 @@ window.enhanceMemoryDemo = function (api) {
       restore(this.target, e.state);
       const t0 = performance.now();
       this.renderModel(e, this);
+      updateConcepts(this, e);
       drawEvent(this, e);
       const cap = $("#" + this.id + "-cap");
       if (cap) {

@@ -1,4 +1,43 @@
 /* Additive teaching components. Original dashboard, typography and telemetry are retained. */
+.teach-concepts { margin-top: 10px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); }
+.teach-concepts > summary { padding: 13px; color: var(--accent); font-weight: 700; cursor: pointer; }
+.teach-concepts > summary > span { margin-left: 12px; color: var(--muted); font-size: 13px; font-weight: 400; }
+.concept-body { padding: 0 16px 16px; font-size: 18px; line-height: 1.55; }
+.concept-intro { margin: 0 0 14px; color: var(--muted); }
+.concept-layout { display: grid; grid-template-columns: minmax(0, .85fr) minmax(0, 1.15fr); gap: 20px; }
+.concept-layout > div { min-width: 0; }
+.concept-layout h3 { margin: 0 0 10px; font-size: 18px; color: var(--accent); }
+.concept-cards { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin: 0; }
+.concept-card { padding: 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); overflow-wrap: anywhere; }
+.concept-card dt { font-weight: 700; color: var(--accent); }
+.concept-card dd { margin: 3px 0 0; }
+.concept-more { margin-top: 10px; }
+.concept-more summary { cursor: pointer; padding: 8px 0; color: var(--accent); }
+.concept-flow { display: flex; align-items: stretch; gap: 7px; margin-bottom: 9px; }
+.concept-node { flex: 1; min-width: 0; border: 1px solid var(--line); border-radius: 8px; padding: 10px; background: var(--bg); overflow-wrap: anywhere; }
+.concept-node b, .concept-node span, .concept-node small { display: block; }
+.concept-node small { color: var(--accent); font-weight: 700; }
+.concept-arrow { align-self: center; color: var(--accent); font-size: 22px; }
+.concept-node.is-current, .concept-clock-slot.is-current { border-color: var(--accent); background: var(--accent-soft); box-shadow: 0 0 0 2px var(--accent-soft); }
+.concept-branches { display: flex; gap: 8px; align-items: center; border-left: 2px solid var(--accent); padding-left: 10px; margin: 10px 0; }
+.concept-branches > span { font-size: 13px; color: var(--muted); }
+.concept-example { background: var(--accent-soft); border-radius: 8px; padding: 12px; margin-top: 12px; }
+.concept-example p { margin: 5px 0 0; }
+.concept-takeaway { border-left: 3px solid var(--accent); padding-left: 10px; }
+.concept-ram { display: flex; gap: 3px; flex-wrap: wrap; margin-top: 12px; }
+.concept-ram > span { flex: 1; padding: 8px; text-align: center; border: 1px solid var(--line); border-radius: 5px; }
+.concept-ram .allowed { background: var(--accent-soft); }
+.concept-clock { width: min(100%, 340px); aspect-ratio: 1; position: relative; margin: 14px auto; border: 1px dashed var(--line); border-radius: 50%; }
+.concept-clock-center { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); text-align: center; font-size: 13px; }
+.concept-clock-slot { position: absolute; transform: translate(-50%, -50%); padding: 4px; border: 1px solid var(--line); border-radius: 8px; font-size: 12px; background: var(--surface); text-align: center; }
+.concept-clock-slot span { display: block; }
+@media (max-width: 850px) { .concept-layout { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 500px) {
+  .teach-concepts > summary > span { display: block; margin: 4px 0 0; }
+  .concept-cards { grid-template-columns: minmax(0, 1fr); }
+  .concept-flow { flex-direction: column; }
+  .concept-arrow { transform: rotate(90deg); line-height: 1; }
+}
 .teach-pillar {
   display: inline-flex;
   align-items: center;
