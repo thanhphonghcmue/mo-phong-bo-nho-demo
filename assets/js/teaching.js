@@ -121,8 +121,8 @@ window.enhanceMemoryDemo = function (api) {
               : `A=${s.addr} không nhỏ hơn Base+Limit=${s.base + s.limit}, nên vượt vùng được cấp. Limit là kích thước; địa chỉ bằng Base+Limit đã nằm ngoài vùng.`;
         } else {
           mech = s.isValid
-            ? `Cả hai so sánh đều đúng nên phần cứng cho RAM nhận A=${s.addr}. Chế độ này chỉ kiểm tra địa chỉ vật lý; không cộng Base thêm lần nữa.`
-            : "Ít nhất một điều kiện biên sai nên phần cứng phát trap lỗi bảo vệ về OS. RAM không được đọc/ghi tại địa chỉ bị từ chối.";
+            ? `Cả hai so sánh đều đúng, địa chỉ vật lý A=${s.addr} hợp lệ nên MMU chuyển quyền cho RAM nhận truy cập tại ô nhớ [${s.addr}]. Chế độ này chỉ kiểm tra địa chỉ vật lý; không cộng Base thêm lần nữa.`
+            : "Ít nhất một điều kiện biên sai nên phần cứng MMU phát trap lỗi bảo vệ về OS. RAM không được đọc/ghi tại địa chỉ bị từ chối.";
         }
       }
     } else if (id === "f" || id === "a") {
@@ -3286,11 +3286,13 @@ window.enhanceMemoryDemo = function (api) {
       "Quyết định MMU",
     ];
     const descriptions = [
-      `A=${B.addr} là đầu vào vật lý của phép kiểm tra bảo vệ. RAM chưa được truy cập.`,
-      `${B.addr} ≥ Base (${B.base}): ${B.cond1 ? "đạt cận dưới; còn kiểm tra cận trên" : "vi phạm cận dưới; truy cập bị chặn"}.`,
+      `A=${B.addr} là địa chỉ vật lý cần kiểm tra an toàn. RAM chưa được truy cập.`,
+      `${B.addr} ≥ Base (${B.base}): ${B.cond1 ? "đạt cận dưới (A ≥ Base); chuyển sang kiểm tra cận trên." : "vi phạm cận dưới (A < Base); truy cập bị chặn."}`,
       !B.cond1 ? "Cận dưới đã vi phạm; không thể cho phép RAM dù cận trên có đúng."
-        : `${B.addr} < Base+Limit (${B.base + B.limit}): ${B.cond2 ? "đạt cận trên" : "vượt cận trên"}.`,
-      B.isValid ? `Cho phép RAM truy cập địa chỉ vật lý A=${B.addr}.` : "MMU phát trap lỗi bảo vệ → OS; không đọc/ghi RAM.",
+        : `${B.addr} < Base+Limit (${B.base + B.limit}): ${B.cond2 ? "đạt cận trên (A < Base+Limit)." : "vượt cận trên (A ≥ Base+Limit)."}.`,
+      B.isValid 
+        ? `Địa chỉ vật lý A=${B.addr} hợp lệ (thỏa mãn cả 2 cận) → MMU chuyển quyền cho phép truy cập RAM [${B.addr}].` 
+        : `Địa chỉ A=${B.addr} không hợp lệ (vi phạm an toàn) → MMU phát trap lỗi bảo vệ → OS; không đọc/ghi RAM.`,
     ];
     return event(
       B,

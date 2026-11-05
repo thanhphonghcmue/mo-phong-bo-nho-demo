@@ -1287,13 +1287,13 @@ function renderB(){
       <h3>④ RAM vật lý</h3>
       ${st >= 3 ? (
         isValid 
-          ? `<div class="big" style="color:var(--ok)">RAM [${pa}]</div><div class="verdict ok">✓ Truy cập byte vật lý ${pa}</div>`
-          : `<div class="big" style="color:var(--bad)">TRAP to OS</div><div class="verdict bad">✗ BÁO LỖI BẢO VỆ (Segmentation Fault)</div>`
-      ) : '<div class="big muted">?</div><div class="verdict">Đang xử lý...</div>'}
+          ? `<div class="formula" style="color:var(--ok);font-weight:700">Dịch thành công → Cho phép vào RAM</div><div class="big" style="color:var(--ok)">RAM [${pa}]</div><div class="verdict ok">✓ Truy cập byte vật lý ${pa}</div>`
+          : `<div class="formula" style="color:var(--bad);font-weight:700">Lỗi offset → Bẫy bảo vệ TRAP</div><div class="big" style="color:var(--bad)">TRAP to OS</div><div class="verdict bad">✗ BÁO LỖI BẢO VỆ (Segmentation Fault)</div>`
+      ) : '<div class="formula">Chờ kết quả dịch địa chỉ</div><div class="big muted">?</div><div class="verdict">Đang xử lý...</div>'}
     </div>`;
   } else {
     b1 = `<div class="${boxClass(0)}">
-      <h3>CPU · yêu cầu bộ nhớ</h3>
+      <h3>① CPU · yêu cầu bộ nhớ</h3>
       <div class="big">${addr}</div>
       <div class="formula">Địa chỉ vật lý cần kiểm tra</div>
     </div>`;
@@ -1322,9 +1322,9 @@ function renderB(){
       <h3>④ Quyết định MMU</h3>
       ${st >= 3 ? (
         isValid 
-          ? `<div class="big" style="color:var(--ok)">RAM [${addr}]</div><div class="verdict ok">✓ HỢP LỆ · Cho phép truy cập</div>`
-          : `<div class="big" style="color:var(--bad)">TRAP to OS</div><div class="verdict bad">✗ BÁO LỖI BẢO VỆ (Segmentation Fault)</div>`
-      ) : '<div class="big muted">?</div><div class="verdict">Đang xử lý...</div>'}
+          ? `<div class="formula" style="color:var(--ok);font-weight:700">Địa chỉ hợp lệ → Chuyển qua RAM</div><div class="big" style="color:var(--ok)">RAM [${addr}]</div><div class="verdict ok">✓ HỢP LỆ · Cho phép truy cập</div>`
+          : `<div class="formula" style="color:var(--bad);font-weight:700">Địa chỉ vi phạm → Chặn &amp; TRAP</div><div class="big" style="color:var(--bad)">TRAP to OS</div><div class="verdict bad">✗ BÁO LỖI BẢO VỆ (Segmentation Fault)</div>`
+      ) : `<div class="formula">Địa chỉ vật lý cần kiểm tra</div><div class="big muted">${addr}</div><div class="verdict">Chờ thẩm định MMU...</div>`}
     </div>`;
   }
 
@@ -1375,8 +1375,8 @@ function renderB(){
       `<b>Bước 1: Kiểm tra cận dưới.</b> So sánh địa chỉ <b>A (${addr})</b> với <b>Base (${base})</b>.` + (cond1 ? ` <b class="ok">Thỏa mãn (A ≥ Base)</b>.` : ` <b class="bad">Vi phạm! A < Base</b>.`),
       `<b>Bước 2: Kiểm tra cận trên.</b> So sánh địa chỉ <b>A (${addr})</b> với <b>Base + Limit (${upper})</b>.` + (cond2 ? (cond1 ? ` <b class="ok">Thỏa mãn (A < Base + Limit)</b>.` : ` Đã vi phạm ở cận dưới.`) : ` <b class="bad">Vi phạm! A ≥ Base + Limit</b>.`),
       isValid
-        ? `<b>Bước 3: Quyết định MMU.</b> Địa chỉ <b>${addr}</b> nằm trong miền an toàn. <b class="ok">Cho phép truy cập RAM tại ${addr}</b>.`
-        : `<b>Bước 3: Quyết định MMU.</b> Địa chỉ <b>${addr}</b> ngoài miền. <b class="bad">Phần cứng phát sinh ngắt TRAP bảo vệ bộ nhớ</b>!`
+        ? `<b>Bước 3: Quyết định MMU.</b> Địa chỉ vật lý cần kiểm tra <b>A = ${addr}</b> hợp lệ (nằm trong vùng an toàn [${base} → ${validEnd}]). <b class="ok">Hợp lệ → MMU chuyển yêu cầu cho phép truy cập RAM tại [${addr}]</b>.`
+        : `<b>Bước 3: Quyết định MMU.</b> Địa chỉ vật lý cần kiểm tra <b>A = ${addr}</b> không hợp lệ (ngoài vùng an toàn). <b class="bad">Vi phạm an toàn → MMU phát sinh ngắt trap bảo vệ bộ nhớ tới Hệ điều hành</b>!`
     ];
   }
 
