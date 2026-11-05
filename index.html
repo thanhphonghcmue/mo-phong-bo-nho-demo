@@ -703,7 +703,6 @@ footer{font-size:12px;color:var(--muted)}
         <span style="color:#ffffff;font-size:11px">5 PHÂN HỆ QUẢN LÝ BỘ NHỚ</span>
       </div>
       <button id="theme-toggle" class="theme-btn theme-toggle-btn" aria-label="Sáng / Tối" title="Sáng / Tối">
-        <span class="theme-icon">🌙</span>
         <span class="theme-text">Sáng / Tối</span>
       </button>
     </div>
@@ -711,23 +710,23 @@ footer{font-size:12px;color:var(--muted)}
 
   <nav class="dash-tabs" role="tablist" aria-label="5 Demo Quản lý Bộ nhớ">
     <button class="dash-tab" role="tab" id="t0" aria-controls="p0" aria-selected="true">
-      <span class="n">📁 DEMO 1 · NỀN TẢNG</span>
+      <span class="n">DEMO 1 · NỀN TẢNG</span>
       <span class="t">Bảo vệ Base/Limit</span>
     </button>
     <button class="dash-tab" role="tab" id="t1" aria-controls="p1" aria-selected="false">
-      <span class="n">🖴 DEMO 2 · CẤP PHÁT BỘ NHỚ</span>
+      <span class="n">DEMO 2 · CẤP PHÁT BỘ NHỚ</span>
       <span class="t">Cấp phát bộ nhớ (Bãi đỗ xe)</span>
     </button>
     <button class="dash-tab" role="tab" id="t2" aria-controls="p2" aria-selected="false">
-      <span class="n">⊞ DEMO 3 · PHÂN TRANG</span>
+      <span class="n">DEMO 3 · PHÂN TRANG</span>
       <span class="t">Cơ chế phân trang</span>
     </button>
     <button class="dash-tab" role="tab" id="t4" aria-controls="p4" aria-selected="false">
-      <span class="n">💾 DEMO 4 · BỘ NHỚ ẢO</span>
+      <span class="n">DEMO 4 · BỘ NHỚ ẢO</span>
       <span class="t">Demand Paging</span>
     </button>
     <button class="dash-tab" role="tab" id="t3" aria-controls="p3" aria-selected="false">
-      <span class="n">🔄 DEMO 5 · THAY THẾ TRANG</span>
+      <span class="n">DEMO 5 · THAY THẾ TRANG</span>
       <span class="t">Thuật toán thay thế trang</span>
     </button>
   </nav>
@@ -769,7 +768,7 @@ footer{font-size:12px;color:var(--muted)}
         <button class="btn" id="b-pre-high" style="padding:4px 8px;font-size:12.5px">420939 (Cận trên ✓)</button>
         <button class="btn" id="b-pre-over" style="padding:4px 8px;font-size:12.5px;border-color:var(--bad);color:var(--bad)">420940 (Quá biên ✗ TRAP)</button>
         <button class="btn" id="b-pre-under" style="padding:4px 8px;font-size:12.5px;border-color:var(--bad);color:var(--bad)">256000 (Dưới cận ✗ TRAP)</button>
-        <button class="btn" id="b-pre-rand" style="padding:4px 8px;font-size:12.5px">🎲 Ngẫu nhiên</button>
+        <button class="btn" id="b-pre-rand" style="padding:4px 8px;font-size:12.5px">Ngẫu nhiên</button>
       </div>
 
       <div class="bar" id="b-presets-trans" style="gap:6px;display:none">
@@ -778,7 +777,7 @@ footer{font-size:12px;color:var(--muted)}
         <button class="btn" id="b-pre-t-low" style="padding:4px 8px;font-size:12.5px">L=0 (Cận dưới → PA=14000)</button>
         <button class="btn" id="b-pre-t-over" style="padding:4px 8px;font-size:12.5px;border-color:var(--bad);color:var(--bad)">L=120900 (Bằng Limit ✗ TRAP)</button>
         <button class="btn" id="b-pre-t-under" style="padding:4px 8px;font-size:12.5px;border-color:var(--bad);color:var(--bad)">L=-5 (Lỗi âm ✗ TRAP)</button>
-        <button class="btn" id="b-pre-t-rand" style="padding:4px 8px;font-size:12.5px">🎲 Ngẫu nhiên offset</button>
+        <button class="btn" id="b-pre-t-rand" style="padding:4px 8px;font-size:12.5px">Ngẫu nhiên offset</button>
       </div>
 
       <!-- Sân khấu 2 cột: Trái mô phỏng (~2/3), Phải giải thích (~1/3) -->
@@ -960,7 +959,7 @@ footer{font-size:12px;color:var(--muted)}
         <label for="x-addr" class="muted" style="font-weight:600;font-size:13px">Địa chỉ logic</label>
         <input type="number" id="x-addr" value="10000" min="0" max="32767" style="width:100px">
         <button class="btn primary" id="x-go">Dịch ▶</button>
-        <button class="btn" id="x-rand">🎲 Ngẫu nhiên</button>
+        <button class="btn" id="x-rand">Ngẫu nhiên</button>
         <button class="btn" id="x-fault">Thử lỗi trang</button>
         <span class="muted" style="font-size:12.5px">Trang 4 KB · 8 trang · RAM 16 khung</span>
       </div>
@@ -1084,7 +1083,7 @@ footer{font-size:12px;color:var(--muted)}
           <div class="scene">
             <div class="need" id="r-need"></div>
             <div class="ramzone"><span class="zone-t">RAM · bàn học</span><div class="slots" id="r-slots"></div></div>
-            <div class="disk"><span class="zone-t">Bộ nhớ phụ</span><div class="icon">💾</div><div id="r-out"></div></div>
+            <div class="disk"><span class="zone-t">Bộ nhớ phụ</span><div id="r-out"></div></div>
           </div>
         </div>
 
@@ -1521,7 +1520,7 @@ function renderV(){
   $('#v-disk-status').style.color = diskActive ? 'var(--bad)' : 'var(--fg)';
 
   const b3 = `<div class="box ${diskActive ? 'act' : ''}">
-    <h3>③ Bộ nhớ phụ (Đĩa 💾)</h3>
+    <h3>③ Bộ nhớ phụ (SSD/HDD)</h3>
     <div style="display:flex;flex-direction:column;gap:4px;font-size:12px;font-family:var(--f-mono)">
       <div style="background:var(--free);padding:4px;border-radius:4px;text-align:center">Khối 0 .. 7 (Swap file)</div>
       <div style="background:${diskActive?'var(--bad-soft)':'var(--surface)'};border:1px solid ${diskActive?'var(--bad)':'var(--line)'};padding:6px;border-radius:6px;text-align:center;font-weight:700">
@@ -2089,18 +2088,18 @@ function applyTheme(theme) {
   const headerBtn = document.getElementById('theme-toggle');
   if (headerBtn) {
     if (theme === 'dark') {
-      headerBtn.innerHTML = '<span class="theme-icon">☀️</span><span class="theme-text">Sáng / Tối</span>';
+      headerBtn.innerHTML = '<span class="theme-text">Sáng / Tối</span>';
       headerBtn.setAttribute('title', 'Chuyển sang nền sáng (Light mode)');
       headerBtn.setAttribute('aria-pressed', 'true');
     } else {
-      headerBtn.innerHTML = '<span class="theme-icon">🌙</span><span class="theme-text">Sáng / Tối</span>';
+      headerBtn.innerHTML = '<span class="theme-text">Sáng / Tối</span>';
       headerBtn.setAttribute('title', 'Chuyển sang nền tối (Dark mode)');
       headerBtn.setAttribute('aria-pressed', 'false');
     }
   }
   
   document.querySelectorAll('.theme-toggle-btn').forEach(btn => {
-    btn.innerHTML = theme === 'dark' ? '☀️ Sáng / Tối' : '🌙 Sáng / Tối';
+    btn.innerHTML = 'Sáng / Tối';
   });
 }
 
