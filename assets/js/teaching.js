@@ -3778,7 +3778,8 @@ window.enhanceMemoryDemo = function (api) {
     engines: { simA: api.simA, simR: api.simR },
     next: (id) => timelines[id].next(),
     previous: (id) => { pause(); timelines[id].go(timelines[id].cursor - 1); },
-    rewind: (id) => { pause(); timelines[id].go(0); },
+    rewind: (id) => { pause(); timelines[id].seen = 0; timelines[id].go(0); },
+    seek: (id, step) => { pause(); timelines[id].go(step); },
     canNext: (id) => timelines[id].canNext(),
     pause,
   };

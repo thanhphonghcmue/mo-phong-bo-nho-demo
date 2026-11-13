@@ -23,6 +23,7 @@ def run():
         page.route('https://fonts.googleapis.com/**', lambda route: route.abort())
         page.goto(BASE, wait_until='networkidle')
         page.wait_for_function('window.MemoryLessons')
+        inspect_explanations = False
 
         def passed(name):
             checks.append(name)
@@ -30,6 +31,8 @@ def run():
 
         def select(id):
             page.locator('#'+TOPICS[id]).click()
+            if inspect_explanations:
+                page.locator(f'#lesson-{id}-explanation').evaluate('el=>el.open=true')
 
         def next_step(id):
             page.locator(f'#lesson-{id}-next').click()
@@ -70,6 +73,9 @@ def run():
             assert not page.locator(f'#lesson-{id} .lesson-settings').evaluate('(el)=>el.open')
             assert not page.locator('.teach-options:visible, .teach-history:visible, .telemetry-stage:visible, .teach-concepts:visible').count()
         passed('Five lessons; only four playback buttons; advanced forms closed and clutter removed')
+        # The public UI intentionally leaves explanations folded; the content
+        # acceptance checks opt in, as a learner would, before reading the prose.
+        inspect_explanations = True
 
         select('b')
         for address,valid in [(99,False),(100,True),(139,True),(140,False)]:

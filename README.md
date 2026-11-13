@@ -14,7 +14,17 @@ Web tĩnh phục vụ bài học Hệ điều hành, Khoa CNTT – Trường Đ�
 | 4. Nạp trang vào RAM | Trang chưa có thì làm gì? | CPU chờ → OS nạp từ đĩa → cập nhật bảng trang → chạy lại lệnh. |
 | 5. Chọn trang ra | RAM đầy, ai nhường chỗ? | Thứ tự và bằng chứng riêng cho FIFO, LRU, OPT, Clock. |
 
-Mỗi demo chỉ có một hình chính, một lời giải ngắn và bốn nút **Lùi / Bước tiếp / Tự chạy / Làm lại**. Chuyển tab tự dừng chạy. Chỉ khi cần mới mở **Tự đổi ví dụ**. Có điều khiển tab bằng trái/phải, Home/End; hỗ trợ màn hình nhỏ và giảm chuyển động.
+Mỗi demo chỉ có một hình chính và bốn nút **Lùi / Bước tiếp / Tự chạy / Làm lại**. Tên bước luôn hiện. Bấm **Mở giải thích** để xem lý do và bước tiếp theo, hoặc **Thu gọn giải thích** để tập trung vào mô hình. Lựa chọn được giữ riêng cho từng demo khi chuyển tab, đổi ví dụ hoặc Làm lại. Trong phần giải thích, **Các bước đã xem** cho phép quay lại một bước đã thực hiện; không hiển thị trước các bước tương lai.
+
+Chuyển tab tự dừng chạy. Chỉ khi cần mới mở **Tự đổi ví dụ**. Các số liệu tự nhập được gắn đúng nhãn **Ví dụ tự nhập**, không còn mang tên mẫu cũ. Có điều khiển tab bằng trái/phải, Home/End và mở lời giải bằng Enter/Space; hỗ trợ màn hình nhỏ, focus bàn phím và giảm chuyển động.
+
+Nhãn mục đích theo đúng bài học:
+
+- Demo 1: **AN TOÀN**, màu đỏ.
+- Demo 2–3: **HIỆU QUẢ**, màu xanh dương.
+- Demo 4–5: **KHÔNG GIỚI HẠN**, màu xanh lá; nghĩa là bộ nhớ ảo/tái sử dụng khung, **RAM thực tế vẫn hữu hạn**.
+
+Giao diện dùng nền sáng ấm, chữ trung tính, nút chính violet và vàng nhạt cho vị trí đang xử lý. Thành công vẫn xanh lá, từ chối/chọn ra vẫn đỏ và luôn có chữ trạng thái. Xem [căn cứ thiết kế từ UI UX Pro Max và Radix](docs/DESIGN_REFERENCES.md).
 
 Mặc định dùng số nhỏ để quan sát. Đây là **ví dụ minh họa**, không phải số liệu đo từ máy thật. Ở Demo 5 vẫn có chuỗi chuẩn giáo trình và Belady để kiểm chứng. Trang/khung, địa chỉ logic/vật lý được phân biệt ngay trong hình.
 
@@ -48,12 +58,13 @@ assets/js/lessons.js                        Màn hình học tinh giản, ví d�
 assets/js/lesson-foundation-allocation.js   Hình Demo 1–2
 assets/js/lesson-paging.js                  Hình Demo 3–4
 assets/js/lesson-replacement.js             Hình và thứ tự chọn trang Demo 5
-assets/css/lessons.css                      Bố cục học, giao diện sáng
+assets/css/lessons.css                      Bố cục học cơ bản
+assets/css/lesson-interface.css             Màu chủ đề và phần giải thích tùy chọn
 assets/css/lesson-*.css                     Chi tiết từng mô hình
 legacy/index.original.html                 Bản gốc để đối chiếu
 ```
 
-Bản tinh giản bỏ khỏi màn hình chính: bảng thống kê máy, biểu đồ so sánh dài, bảng đánh giá lặp, lịch sử, các checkbox hiển thị, chế độ tối và các bài tương tác phụ. Không thêm demo thứ sáu. Mã cũ vẫn được giữ để đối chiếu và chạy hồi quy, không phải các menu mà người học phải đi qua.
+Bản tinh giản bỏ khỏi màn hình chính: bảng thống kê máy, biểu đồ so sánh dài, bảng đánh giá lặp, các checkbox hiển thị, chế độ tối và các bài tương tác phụ. Giải thích và danh sách bước đã xem chỉ mở khi người học chọn. Không thêm demo thứ sáu. Mã cũ vẫn được giữ để đối chiếu và chạy hồi quy, không phải các menu mà người học phải đi qua.
 
 ## Kiến thức và tài liệu
 
@@ -84,9 +95,10 @@ Với máy chủ tĩnh ở cổng 8080, Python Playwright và Chromium:
 
 ```sh
 python3 tests/lessons_browser.py
+python3 tests/interface_browser.py
 ```
 
-Bộ này kiểm tra **giao diện công khai mới**: năm demo, lý do chọn, trước/sau, biên, nhập sai, Lùi, tự chạy, 375/390px và bàn phím. Ảnh/kết quả lưu ở `/tmp/memory-lessons-review/`. Có thể đặt `MEMORY_DEMO_URL` và `CHROMIUM_PATH`.
+Bộ `lessons_browser.py` kiểm tra **giao diện công khai**: năm demo, lý do chọn, trước/sau, biên, nhập sai, Lùi, tự chạy, 375/390px và bàn phím. Ảnh/kết quả lưu ở `/tmp/memory-lessons-review/`. Bộ `interface_browser.py` kiểm tra mở/thu gọn, bàn phím, phục hồi bước đã xem, giữ lựa chọn theo demo, nhãn chủ đề và nhãn ví dụ tự nhập; ảnh ở `/tmp/memory-interface-tests/`. Có thể đặt `MEMORY_DEMO_URL` và `CHROMIUM_PATH`.
 
 Các bộ hồi quy cũ chạy qua `?view=diagnostic`, chỉ dành cho người bảo trì. Cách này giữ nguyên các assertion về nội dung/engine và cho phép kiểm tra lại các fixture cũ mà không đưa bảng điều khiển dài trở lại bài học:
 

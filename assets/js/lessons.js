@@ -27,6 +27,13 @@
       fields:[['refs','Lần lượt cần những trang nào?','text','1 2 3 1 4 2'],['frames','RAM có bao nhiêu khung?','number','3']],
       help:'Trang là thẻ dữ liệu; khung là chỗ đặt thẻ. FIFO xét lúc nạp; LRU xét lần dùng; OPT biết trước tương lai; Clock xét bit R.'},
   };
+  const purposes = {
+    b: {key:'safety',label:'An toàn',note:'Chặn truy cập ngoài vùng đã cấp.'},
+    a: {key:'efficiency',label:'Hiệu quả',note:'Chọn chỗ trống phù hợp trong RAM.'},
+    x: {key:'efficiency',label:'Hiệu quả',note:'Tìm đúng địa chỉ; TLB nhớ các bản dịch vừa dùng.'},
+    v: {key:'virtual',label:'Không giới hạn',note:'Không cần nạp toàn bộ chương trình cùng lúc. RAM thực tế vẫn hữu hạn.'},
+    r: {key:'virtual',label:'Không giới hạn',note:'Dùng lại các khung RAM để chạy tiếp. RAM thực tế vẫn hữu hạn.'},
+  };
   let active = 'b', timer = null, booting = true;
   const roots = {};
   const formValue = (id,key) => $(`lesson-${id}-${key}`).value.trim();
@@ -59,6 +66,7 @@
   }
   function applyExample(id,example){
     pause();
+    $(`lesson-${id}-example`).querySelector('option[value="custom"]')?.remove();
     roots[id].dataset.invalid='false';roots[id].dataset.draft='false';
     if(id==='b'){
       click('b-mode-check');set('b-base',100);set('b-limit',40);set('b-addr',example==='outside'?140:125);click('b-go');
@@ -106,7 +114,10 @@
       }else if(id==='v')virtual(list(formValue(id,'refs'),'Trang cần đọc',12),number(formValue(id,'frames'),'Số khung',1,4),'');
       else replacement(list(formValue(id,'refs'),'Trang cần đọc',48,0,9999),number(formValue(id,'frames'),'Số khung',1,5));
       error.textContent='';error.hidden=true;
-      roots[id].dataset.invalid='false';roots[id].dataset.draft='false';syncForm(id);render(id);
+      roots[id].dataset.invalid='false';roots[id].dataset.draft='false';syncForm(id);
+      const selector=$(`lesson-${id}-example`);
+      if(!selector.querySelector('option[value="custom"]'))selector.add(new Option('Ví dụ tự nhập','custom'));
+      selector.value='custom';render(id);
     }catch(err){
       error.textContent=err.message;error.hidden=false;
       roots[id].dataset.invalid='true';
@@ -138,7 +149,21 @@
     $(`lesson-${id}-play`).disabled=draft||complete;
     if(draft)root.querySelector('.lesson-next').textContent='Đang sửa ví dụ. Bấm “Chạy ví dụ này” hoặc Làm lại để tiếp tục.';
     root.dataset.invalid='false';
+    renderHistory(id,position);
     if(complete&&id===active&&timer!==null)pause();
+  }
+  function renderHistory(id,position){
+    const root=roots[id], list=root.querySelector('.lesson-step-log');
+    if(!root.querySelector('.lesson-history').open)return;
+    const trace=MemoryTeaching.trace(id), signature=`${trace[0]?.scenarioId}:${position.cursor}:${position.seen}:${root.dataset.draft}`;
+    if(list.dataset.signature===signature)return;
+    const focused=list.contains(document.activeElement)?document.activeElement.dataset.step:null;
+    list.dataset.signature=signature;
+    list.innerHTML=trace.slice(0,position.seen+1).map((entry,i)=>{
+      const short=MemoryLessonViews[id](entry,{cursor:i,total:trace.length});
+      return `<li><button type="button" data-step="${i}" ${root.dataset.draft==='true'?'disabled':''} ${i===position.cursor?'aria-current="step"':''}><span>${i+1}</span>${escape(short.title)}</button></li>`;
+    }).join('');
+    if(focused!==null)list.querySelector(`[data-step="${focused}"]`)?.focus({preventScroll:true});
   }
   function auto(id){
     if(timer!==null){pause();return;}
@@ -161,18 +186,38 @@
     $('theme-toggle')?.setAttribute('hidden','');
     document.querySelector('.header-titles h1').textContent='Quản lý bộ nhớ · Nhìn từng bước';
     for(const[id,topic]of Object.entries(topics)){
+      const purpose=purposes[id];
       const tab=$(topic.tab);tab.querySelector('.t').textContent=topic.nav;
       tab.querySelector('.n').textContent=`Demo ${['b','a','x','v','r'].indexOf(id)+1}`;
+      tab.dataset.pillar=purpose.key;
+      const badge=document.createElement('span');badge.className='lesson-pillar';badge.textContent=purpose.label;
+      badge.title=purpose.note;tab.append(badge);
       tab.addEventListener('click',()=>{pause();active=id;render(id);});
       const root=document.createElement('section');root.className='lesson';root.id=`lesson-${id}`;root.setAttribute('aria-label',topic.title);roots[id]=root;
-      root.innerHTML=`<h2>${escape(topic.title)}</h2><p class="lesson-intro">${escape(topic.intro)}</p>
+      root.dataset.pillar=purpose.key;
+      root.innerHTML=`<div class="lesson-heading"><div><p class="lesson-purpose"><span class="lesson-pillar">${escape(purpose.label)}</span><span>${escape(purpose.note)}</span></p><h2>${escape(topic.title)}</h2></div></div><p class="lesson-intro">${escape(topic.intro)}</p>
         <div class="lesson-toolbar"><label>Ví dụ<select id="lesson-${id}-example">${topic.examples.map(([value,label])=>`<option value="${value}">${escape(label)}</option>`).join('')}</select></label>${topic.algorithms?`<label>Quy tắc<select id="lesson-${id}-algorithm">${topic.algorithms.map(([value,label])=>`<option value="${value}">${escape(label)}</option>`).join('')}</select></label>`:''}</div>
         <div class="lesson-canvas" aria-label="Mô hình của bước hiện tại"></div>
-        <div class="lesson-narration" aria-live="polite" aria-atomic="true"><p class="lesson-current"></p><p class="lesson-title"></p><p class="lesson-why"></p></div>
-        <div class="lesson-controls"><button id="lesson-${id}-prev" type="button">Lùi</button><button id="lesson-${id}-next" type="button" class="lesson-primary">Bước tiếp</button><button id="lesson-${id}-play" type="button" aria-pressed="false">Tự chạy</button><button id="lesson-${id}-reset" type="button">Làm lại</button><span class="lesson-count"></span></div><p class="lesson-next"></p><p class="lesson-result" hidden></p>
+        <details class="lesson-narration lesson-explanation" id="lesson-${id}-explanation"><summary><span class="lesson-step-summary" aria-live="polite" aria-atomic="true"><span class="lesson-current"></span><span class="lesson-title"></span></span><span class="lesson-explanation-action">Mở giải thích</span><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m5 7 5 5 5-5"/></svg></summary><div class="lesson-explanation-body"><p class="lesson-why"></p><p class="lesson-next"></p><details class="lesson-history"><summary>Các bước đã xem</summary><ol class="lesson-step-log" aria-label="Chọn một bước đã xem"></ol></details></div></details>
+        <div class="lesson-controls"><button id="lesson-${id}-prev" type="button">Lùi</button><button id="lesson-${id}-next" type="button" class="lesson-primary">Bước tiếp</button><button id="lesson-${id}-play" type="button" aria-pressed="false">Tự chạy</button><button id="lesson-${id}-reset" type="button">Làm lại</button><span class="lesson-count"></span></div><p class="lesson-result" hidden></p>
         <details class="lesson-settings"><summary>Tự đổi ví dụ</summary><p>${escape(topic.help)}</p><form novalidate>${topic.fields.map(([key,label,type,value])=>`<label>${escape(label)}<input id="lesson-${id}-${key}" type="${type}" value="${escape(value)}" ${type==='number'?'min="0" step="1"':''} required></label>`).join('')}<button type="submit">Chạy ví dụ này</button></form><p class="lesson-error" id="lesson-${id}-error" role="alert" hidden></p></details>`;
       $(topic.panel).prepend(root);
-      $(`lesson-${id}-example`).addEventListener('change',ev=>{root.querySelector('.lesson-error').hidden=true;applyExample(id,ev.target.value);});
+      $(`lesson-${id}-example`).addEventListener('change',ev=>{
+        if(ev.target.value==='custom')return;
+        root.querySelector('.lesson-error').hidden=true;applyExample(id,ev.target.value);
+      });
+      root.querySelector('.lesson-explanation').addEventListener('toggle',event=>{
+        root.querySelector('.lesson-explanation-action').textContent=event.currentTarget.open?'Thu gọn giải thích':'Mở giải thích';
+      });
+      root.querySelector('.lesson-step-log').addEventListener('click',event=>{
+        const button=event.target.closest('button[data-step]');
+        if(!button||root.dataset.invalid==='true'||root.dataset.draft==='true')return;
+        pause();MemoryTeaching.seek(id,Number(button.dataset.step));
+        root.querySelector(`.lesson-step-log button[data-step="${button.dataset.step}"]`)?.focus({preventScroll:true});
+      });
+      root.querySelector('.lesson-history').addEventListener('toggle',event=>{
+        if(event.currentTarget.open)renderHistory(id,MemoryTeaching.position(id));
+      });
       $(`lesson-${id}-algorithm`)?.addEventListener('change',ev=>{
         pause();root.dataset.invalid='false';root.dataset.draft='false';root.querySelector('.lesson-error').hidden=true;
         document.querySelector(`#${id==='a'?'a':'r'}-alg button[data-a="${ev.target.value}"]`).click();syncForm(id);render(id);
@@ -188,6 +233,7 @@
       root.querySelector('form').addEventListener('input',()=>{
         pause();root.querySelector('.lesson-error').hidden=true;root.dataset.draft='true';
         ['next','prev','play'].forEach(action=>$(`lesson-${id}-${action}`).disabled=true);
+        root.querySelectorAll('.lesson-step-log button').forEach(button=>button.disabled=true);
         root.querySelector('.lesson-next').textContent='Đang sửa ví dụ. Hình phía trên vẫn là dữ liệu đã áp dụng; bấm “Chạy ví dụ này” để đổi.';
       });
     }

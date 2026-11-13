@@ -1,0 +1,133 @@
+/* Interface tokens informed by UI UX Pro Max and Radix; no runtime dependency. */
+body.lesson-mode {
+  background: #f6f5f1;
+  color: #292d33;
+}
+.lesson-mode .site-header {
+  background: #fff;
+  border: 1px solid #deddd7;
+  border-radius: 12px;
+  padding: 16px 22px;
+  box-shadow: 0 2px 3px #292d3303;
+}
+.lesson-mode .header-titles h1 {color:#292d33;font-size:22px;letter-spacing:-.025em}
+.lesson-mode .header-titles p {color:#656a71;margin-top:3px}
+.lesson-mode .dash-tabs {gap:8px;border:0;padding:0 0 4px}
+.lesson-mode .dash-tab {
+  background:#fff;border:1px solid #deddd7;border-bottom:3px solid #deddd7;
+  border-radius:10px;min-height:91px;min-width:150px;padding:11px 13px;
+  color:#4c515a;white-space:normal;display:flex;flex-direction:column;gap:4px;
+  transition:background-color .12s;
+}
+.lesson-mode .dash-tab .n {font-size:10px;line-height:1.3}
+.lesson-mode .dash-tab .t {font-size:14px;line-height:1.4}
+[data-pillar="safety"] {--topic-accent:#b4232d;--topic-tint:#feebec;--topic-border:#f0b9be}
+[data-pillar="efficiency"] {--topic-accent:#0b5fa5;--topic-tint:#e6f4fe;--topic-border:#a8cdec}
+[data-pillar="virtual"] {--topic-accent:#176a45;--topic-tint:#e6f6eb;--topic-border:#a6d5b8}
+.lesson-mode .dash-tab:hover {background:#f8f7f4;border-color:#b7b5ae}
+.lesson-mode .dash-tab[aria-selected="true"] {
+  color:#292d33;background:var(--topic-tint);border-color:var(--topic-border);
+  border-bottom-color:var(--topic-accent);
+}
+.lesson-pillar {
+  display:inline-flex;align-items:center;align-self:flex-start;max-width:100%;
+  padding:3px 7px;border-radius:5px;font-size:10px;font-weight:750;
+  color:var(--topic-accent);background:var(--topic-tint);letter-spacing:.025em;
+  text-transform:uppercase;line-height:1.4;
+}
+.lesson-mode .dash-tab[aria-selected="true"] .lesson-pillar {background:#fff;box-shadow:0 0 0 1px var(--topic-border)}
+.lesson {
+  --lesson-ink:#292d33;--lesson-muted:#60656e;--lesson-line:#d9dcd9;
+  --lesson-light:#f8f9f7;--lesson-blue:#6552bd;
+  --accent:var(--topic-accent);--accent-soft:var(--topic-tint);
+  --fg:#292d33;--surface:#fff;--line:#d9dcd9;--muted:#60656e;
+  border:1px solid #deddd7;background:#fff;border-radius:12px;
+  box-shadow:0 3px 12px #292d3303;padding:22px 25px;
+}
+.lesson-heading {display:flex;justify-content:space-between;align-items:start;gap:12px}
+.lesson-purpose {display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-bottom:9px!important}
+.lesson-purpose>.lesson-pillar {font-size:10px}
+.lesson-purpose>span:last-child {color:#60656e;font-size:12px;line-height:1.5}
+.lesson h2 {color:#292d33;font-size:24px;letter-spacing:-.025em}
+.lesson-intro {color:#60656e;font-size:14px;line-height:1.6;margin-top:6px!important}
+.lesson select,.lesson input {color:#353a42;border-color:#c7cac5;border-radius:7px;box-shadow:0 1px 2px #292d3304}
+.lesson select:hover,.lesson input:hover {border-color:#90988f}
+.lesson-canvas {background:#fcfcfa;border:1px solid #e6e7e0;border-radius:10px;padding:16px;min-height:180px}
+.lesson-card {background:#fff;border-color:#d6dcd5;box-shadow:0 1px 3px #292d3303}
+.lesson-card h3 {color:#5d635e}
+.lesson .lesson-active {background:#fff5dc!important;border-color:#ac7418!important;box-shadow:0 0 0 2px #f4e7bf}
+.lesson .lesson-good {background:#edf8f0!important;border-color:#469065!important;color:#176140}
+.lesson .lesson-bad {background:#fff0ef!important;border-color:#c4525c!important;color:#a02c38}
+.lesson .lesson-flow-arrow {color:#6d8175}
+.lesson .paging-rail li[aria-current] {color:#856015;border-bottom-color:#bd8b30}
+.lesson .paging-big,.lesson .paging-os-message {color:#333c37}
+.lesson .paging-placeholder {color:#666e68;background:#fff}
+.lesson .paging-key,.lesson .replacement-proof>p {color:#606960}
+.lesson .replacement-proof {background:#f4f6ef;border-color:#d7dfcc}
+.lesson .replacement-order-item {background:#fff;border-color:#cad7bd}
+.lesson .replacement-order-heading,.lesson .replacement-order-item {color:#344a34}
+.lesson .replacement-order-heading>span,.lesson .replacement-order-item small {color:#596b53}
+.lesson .replacement-ref {color:#424943;border-color:#d3dad1;background:#fff}
+.lesson .replacement-ref.replacement-past {color:#666d66;background:#f0f1ec}
+.lesson .foundation-zone {background:#f0f1ed;color:#5c635c}
+.lesson .foundation-zone:nth-last-child(2) {background:#edf5e9}
+.lesson .allocation-free {background:#edf4e6;color:#355d30}
+.lesson .allocation-piece {background:#e9e6f7;color:#4b407c}
+.lesson .allocation-divider {color:#696d67}
+.lesson-controls button,.lesson-settings button {border-color:#c8cbc6;color:#42464d;background:#fff}
+.lesson-controls button:hover:not(:disabled),.lesson-settings button:hover {background:#f5f4f8;border-color:#8b80b8}
+.lesson-controls button.lesson-primary {background:#6e56cf;border-color:#6e56cf;color:#fff;box-shadow:0 2px 4px #6e56cf20}
+.lesson-controls button.lesson-primary:hover:not(:disabled) {background:#5942b4;border-color:#5942b4;color:#fff}
+.lesson-narration.lesson-explanation {
+  padding:0;min-height:0;background:#fff;border:1px solid #dad7e5;
+  border-left:3px solid #8a79c4;border-radius:9px;margin-top:16px;
+}
+.lesson-explanation>summary {
+  display:flex;align-items:center;justify-content:space-between;gap:14px;
+  list-style:none;cursor:pointer;min-height:64px;padding:12px 15px;
+}
+.lesson-explanation>summary::-webkit-details-marker {display:none}
+.lesson-explanation>summary:hover {background:#faf8fe}
+.lesson-step-summary {display:flex;flex-direction:column;gap:4px;min-width:0;flex:1}
+.lesson-current {font-size:11px;color:#72658d;margin:0!important}
+.lesson-title {display:block;font-size:15px;line-height:1.45;color:#3b3548;margin:0!important}
+.lesson-explanation-action {font-size:12px;font-weight:600;color:#6552a7;white-space:nowrap}
+.lesson-explanation>summary>svg {width:18px;height:18px;flex:none;fill:none;stroke:#776992;stroke-width:1.8;transition:transform .15s}
+.lesson-explanation[open]>summary>svg {transform:rotate(180deg)}
+.lesson-explanation[open]>summary {border-bottom:1px solid #ece8f4}
+.lesson-explanation-body {padding:15px 16px 14px;background:#fcfbfe;border-radius:0 0 8px 8px}
+.lesson-why {color:#42434b;font-size:15px;line-height:1.7}
+.lesson-next {color:#716a7d;font-size:12px;line-height:1.6}
+.lesson-history {border:0;border-top:1px solid #e5e0ee;border-radius:0;padding:12px 0 0;margin-top:14px;background:transparent}
+.lesson-history>summary {font-size:12px;font-weight:600;color:#6e627f;cursor:pointer;min-height:26px;list-style-position:inside}
+.lesson-step-log {padding:0;margin:9px 0 0;list-style:none;max-height:220px;overflow-y:auto;scrollbar-width:thin}
+.lesson-step-log li+li {margin-top:5px}
+.lesson-step-log button {
+  display:flex;align-items:center;gap:10px;width:100%;text-align:left;
+  border:1px solid transparent;border-radius:6px;background:transparent;color:#62606b;
+  padding:9px 10px;min-height:42px;font:inherit;font-size:12px;cursor:pointer;
+}
+.lesson-step-log button>span {font-variant-numeric:tabular-nums;min-width:20px;color:#8c8497}
+.lesson-step-log button:hover {background:#f0ecf8}
+.lesson-step-log button[aria-current="step"] {border-color:#d2c8ea;background:#f0eafa;color:#55438a;font-weight:600}
+.lesson-step-log button:disabled {opacity:.5;cursor:default}
+.lesson-settings {border:0;border-top:1px solid #e7e5df;border-radius:0;padding:13px 0 0;margin-top:18px}
+.lesson-settings>summary {color:#6e706c;font-size:12px}
+.lesson-result {background:#eff8ee;color:#28623e;border-color:#b7d5b3}
+.lesson-mode button:focus-visible,.lesson-mode summary:focus-visible,.lesson-mode select:focus-visible,.lesson-mode input:focus-visible {outline:3px solid #a884d2;outline-offset:3px}
+@media(max-width:720px) {
+  .lesson-mode .site-header {padding:13px 15px}
+  .lesson-mode .header-titles h1 {font-size:18px}
+  .lesson-mode .dash-tabs {gap:6px}
+  .lesson-mode .dash-tab {min-width:148px;min-height:91px;padding:10px 12px}
+  .lesson {padding:18px 14px}
+  .lesson h2 {font-size:21px}
+  .lesson-purpose {gap:6px;margin-bottom:8px!important}
+  .lesson-purpose>span:last-child {font-size:11px}
+  .lesson-canvas {padding:10px}
+  .lesson-explanation>summary {padding:11px 12px;gap:8px;align-items:center}
+  .lesson-explanation-action {font-size:11px;max-width:72px;white-space:normal;text-align:right}
+  .lesson-title {font-size:14px}
+  .lesson-explanation-body {padding:13px 12px}
+  .lesson-why {font-size:14px}
+}
