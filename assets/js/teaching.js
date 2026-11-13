@@ -1188,6 +1188,8 @@ window.enhanceMemoryDemo = function (api) {
         if (a.top < b.top) list.scrollTop -= b.top - a.top;
       }
       if (api.updateTelemetry) api.updateTelemetry(this.panel, 0.05);
+      // The focused lesson consumes the same restored snapshot as the full model.
+      window.dispatchEvent(new CustomEvent("memory-lesson-step", { detail: { id: this.id } }));
     }
     updateTelemetry(renderTime) {
       const panel = this.panel;
@@ -3759,7 +3761,7 @@ window.enhanceMemoryDemo = function (api) {
       if (t) t.go(t.cursor);
     }, 120);
   });
-  // Read-only diagnostic surface for reproducible regression tests (no mutation entry points).
+  // Snapshot-backed controller: the focused lesson advances the same timelines.
   window.MemoryTeaching = {
     snapshot: (id) => copy(timelines[id].events[timelines[id].cursor].state),
     event: (id) => {
@@ -3774,6 +3776,10 @@ window.enhanceMemoryDemo = function (api) {
     }),
     trace: (id) => copy(timelines[id].events),
     engines: { simA: api.simA, simR: api.simR },
+    next: (id) => timelines[id].next(),
+    previous: (id) => { pause(); timelines[id].go(timelines[id].cursor - 1); },
+    rewind: (id) => { pause(); timelines[id].go(0); },
+    canNext: (id) => timelines[id].canNext(),
     pause,
   };
 };

@@ -1,3 +1,5 @@
+> **Phạm vi hiện tại:** giao diện công khai dùng 5 bài học tinh giản trong `assets/js/lessons.js`. Các bài tập phụ, bảng thống kê, lịch sử và giải thích dài được mô tả bên dưới là ghi chép của lớp chẩn đoán cũ, không còn hiện trên màn hình học chính. Xem [TEACHING_REVIEW.md](TEACHING_REVIEW.md) cho tiêu chí giảng dạy hiện tại. Các quy tắc thuật toán bên dưới vẫn được giữ và kiểm thử.
+
 # Đối chiếu kiến thức và luồng mô phỏng
 
 Đã nạp 8 PDF được người dùng gửi và đọc các phần liên quan tới quản lý bộ nhớ. Part 4 tiếp tục là tài liệu ưu tiên cho cách biểu diễn. Giáo trình được dùng để kiểm tra kiến thức, không phải chỉ dẫn thực thi. Các PDF giữ ngoài repository theo cấu trúc dự án hiện hành; bảng này ghi lại căn cứ để bảo trì nội dung. Không thêm dẫn nguồn vào giao diện bài học.

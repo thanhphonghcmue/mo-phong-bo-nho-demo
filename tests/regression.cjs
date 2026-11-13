@@ -31,7 +31,7 @@ const fs = require("node:fs");
     console.log("PASS", name);
   }
   try {
-    await page.goto("http://127.0.0.1:8080", { waitUntil: "domcontentloaded" });
+    await page.goto("http://127.0.0.1:8080/?view=diagnostic", { waitUntil: "domcontentloaded" });
     await check(
       "Demo 1: exact bounds, presets and snapshot restoration",
       async () => {
@@ -104,7 +104,7 @@ const fs = require("node:fs");
         assert.equal(s.denied, 1);
         assert.equal(s.reads, 1);
         assert.equal(s.faults, 1);
-        await page.click("#v-permission");
+        await page.locator("#v-permission").evaluate(button => button.click());
         await finish("v");
         s = await snapshot("v");
         assert.equal(s.denied, 1);
@@ -240,9 +240,10 @@ const fs = require("node:fs");
         await step("r");
         await page.click("#r-prev");
         assert.deepEqual(await snapshot("r"), s);
+        await page.locator('#p3 .teach-history').evaluate(details => details.open = true);
         await page.locator('#p3 .teach-history button[data-step="1"]').click();
         assert.deepEqual(await snapshot("r"), ev[1].state);
-        await page.locator("#p3 .teach-options select").selectOption("2");
+        // Playback speed is fixed; retain the real start/pause regression.
         await page.click("#r-play");
         await page.waitForTimeout(1450);
         await page.click("#r-play");
@@ -260,7 +261,7 @@ const fs = require("node:fs");
       "Display toggles do not mutate algorithm state; Belady and frame controls remain",
       async () => {
         const s = await snapshot("r");
-        for (const key of ["explain", "path", "history", "note", "minimal"])
+        for (const key of ["explain", "path", "history"])
           await page.locator(`#p3 [data-option="${key}"]`).click();
         assert.deepEqual(await snapshot("r"), s);
         await page.click("#r-bel");
@@ -319,6 +320,7 @@ const fs = require("node:fs");
         assert.ok(s.segs.some((s) => s.name === "G"));
         await page.click('#f-ram button[data-n="A"]');
         const before = await snapshot("f");
+        await page.locator('#f-compact').evaluate(button => button.closest('details').open = true);
         await page.click("#f-compact");
         const after = await snapshot("f");
         assert.equal(after.segs.filter((s) => !s.name).length, 1);
@@ -337,6 +339,7 @@ const fs = require("node:fs");
       async () => {
         await page.click("#t4");
         await page.locator("#v-config").evaluate((el) => (el.open = true));
+        await page.locator('#v-config .teach-advanced-config').evaluate(details => details.open = true);
         await page.click("#v-config-sample");
         await step("v", 3);
         await page.click("#v-pre-hit");

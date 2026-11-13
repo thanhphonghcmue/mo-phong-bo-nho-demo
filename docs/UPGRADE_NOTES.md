@@ -1,3 +1,5 @@
+> Ghi chép chi tiết của các phiên bản trước. Giao diện công khai hiện dùng 5 bài học tinh giản; chỉ mở “Tự đổi ví dụ” khi cần. Các trình nhập trạng thái sâu trong tài liệu này dành cho đường dẫn chẩn đoán `?view=diagnostic`, không nằm trên màn hình học chính. Xem [README](../README.md) và [đánh giá sư phạm](TEACHING_REVIEW.md) cho luồng hiện tại.
+
 # Nâng cấp mô phỏng phục vụ giảng dạy — 02/11/2026
 
 Nhánh: `feat/teaching-visualizations`. Nâng cấp trực tiếp website tĩnh hiện có; không thêm framework, backend hay dependency chạy ứng dụng.

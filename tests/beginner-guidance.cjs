@@ -18,7 +18,7 @@ const assert = require('node:assert/strict');
   async function close(id) { await page.locator('#' + id + '-config').evaluate(e => e.open = false); }
   async function check(name, run) { await run(); checks.push(name); console.log('PASS', name); }
   try {
-    await page.goto(process.env.MEMORY_DEMO_URL || 'http://127.0.0.1:8080', { waitUntil: 'domcontentloaded' });
+    await page.goto(process.env.MEMORY_DEMO_URL || 'http://127.0.0.1:8080/?view=diagnostic', { waitUntil: 'domcontentloaded' });
     await check('One meaningful pillar per demo; no conclusions before running', async () => {
       assert.deepEqual(await page.locator('.teach-pillar > span').allTextContents(), ['AN TOÀN', 'HIỆU QUẢ', 'HIỆU QUẢ', 'KHÔNG GIỚI HẠN', 'KHÔNG GIỚI HẠN']);
       assert.equal(await page.locator('.teach-pillar svg').count(), 5);
@@ -63,7 +63,7 @@ const assert = require('node:assert/strict');
       await page.click('#v-full-dirty'); await finish('v'); assert.equal(await keyword('v'), 'DIRTY BIT');
       await page.click('#v-pre-hit'); assert.equal(await page.locator('#v-conclusion').evaluate(e => e.hidden), true);
       await finish('v'); assert.equal(await keyword('v'), 'PAGE HIT', 'old dirty I/O must not describe a new hit-only run');
-      await page.click('#v-permission'); await finish('v'); assert.equal(await keyword('v'), 'AN TOÀN');
+      await page.locator('#v-permission').evaluate(button => button.click()); await finish('v'); assert.equal(await keyword('v'), 'AN TOÀN');
       const before = await snap('v'); await open('v'); await page.fill('#v-easy-refs', '2 nope'); await page.click('#v-easy-apply');
       assert.deepEqual(await snap('v'), before); assert.match(await page.locator('#v-config .teach-easy-status').innerText(), /nhập số nguyên/);
       await page.click('#v-easy-example'); await close('v');

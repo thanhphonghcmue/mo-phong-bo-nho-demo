@@ -22,13 +22,17 @@ const fs = require("node:fs");
   async function fill(values) {
     for (const [id, v] of Object.entries(values)) {
       const el = page.locator("#" + id);
-      if (await el.evaluate((e) => e.tagName === "SELECT"))
+      if (id === 'f-size') await el.evaluate(input => input.closest('details').open = true);
+      if (id === "v-op") await el.evaluate((e,value) => { e.value = value; }, String(v));
+      else if (await el.evaluate((e) => e.tagName === "SELECT"))
         await el.selectOption(String(v));
       else await el.fill(String(v));
     }
   }
   async function config(id, values) {
     await page.locator("#" + id + "-config").evaluate((el) => (el.open = true));
+    const advanced = page.locator("#" + id + "-config .teach-advanced-config");
+    if (await advanced.count()) await advanced.evaluate(el => el.open = true);
     await fill(values);
     await page.click("#" + id + "-config-apply");
     const err = await page
@@ -54,7 +58,7 @@ const fs = require("node:fs");
     for (let i = 0; i < n; i++) await page.click("#" + id + "-next");
   }
   try {
-    await page.goto("http://127.0.0.1:8080", { waitUntil: "domcontentloaded" });
+    await page.goto("http://127.0.0.1:8080/?view=diagnostic", { waitUntil: "domcontentloaded" });
     await check(
       "Base/Limit: zero values, custom boundaries, draft and rejected input",
       async () => {
@@ -206,6 +210,7 @@ const fs = require("node:fs");
         assert.equal(s.accesses, 3);
         const ev = await trace("v");
         const j = ev.findIndex((e) => e.kind === "page-out");
+        await page.locator('#p4 .teach-history').evaluate(details => details.open = true);
         await page
           .locator("#p4 .teach-history button")
           .filter({ hasText: ev[j].title })
@@ -324,10 +329,9 @@ const fs = require("node:fs");
           { start: 812, size: 1236, name: null },
         ]);
         assert.match(await page.locator("#f-ruler").innerText(), /2048/);
-        assert.match(
-          await page.locator("#tele-p1 .tele-sim-box").innerText(),
-          /2048/,
-        );
+        // The redundant telemetry panel is gone; capacity conservation is an
+        // engine invariant and remains independently verifiable from segments.
+        assert.equal(s.segs.reduce((total, segment) => total + segment.size, 0), 2048);
         await page.click("#f-reset");
         s = await snap("f");
         assert.equal(s.segs[0].name, "A");

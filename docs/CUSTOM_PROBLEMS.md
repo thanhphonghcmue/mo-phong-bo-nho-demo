@@ -1,3 +1,5 @@
+> Ghi chép chi tiết của các phiên bản trước. Giao diện công khai hiện dùng 5 bài học tinh giản; chỉ mở “Tự đổi ví dụ” khi cần. Các trình nhập trạng thái sâu trong tài liệu này dành cho đường dẫn chẩn đoán `?view=diagnostic`, không nằm trên màn hình học chính. Xem [README](../README.md) và [đánh giá sư phạm](TEACHING_REVIEW.md) cho luồng hiện tại.
+
 # Nhập đề bài và trạng thái ban đầu
 
 Demo 3–5: mở **Đổi đề bài · nhập nhanh hoặc chọn ví dụ**. Có thể bấm **Chạy ví dụ dễ hiểu** rồi bấm **Bước tiếp**, hoặc sửa ít ô ở phần nhập nhanh:

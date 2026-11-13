@@ -65,7 +65,7 @@ const path = require('node:path');
     await run(); checks.push(name); console.log('PASS', name);
   }
   try {
-    await page.goto(process.env.MEMORY_DEMO_URL || 'http://127.0.0.1:8080', { waitUntil: 'domcontentloaded' });
+    await page.goto(process.env.MEMORY_DEMO_URL || 'http://127.0.0.1:8080/?view=diagnostic', { waitUntil: 'domcontentloaded' });
     await check('Base/Limit: physical label, logical relocation, negative input and snapshot', async () => {
       assert.match(await page.locator('#b-flow .formula').first().innerText(), /Địa chỉ vật lý cần kiểm tra/);
       assert.match(await text('b'), /địa chỉ vật lý đầu vào/);
@@ -169,7 +169,9 @@ const path = require('node:path');
       await finish('v'); await page.click('#v-pre-hit'); await seek('v', 'Page Hit');
       assert.match(await text('v'), /Không có trap Page Fault/);
       const hits = await snap('v'); await finish('v'); assert.equal((await snap('v')).reads, hits.reads);
-      await page.click('#v-permission'); await finish('v');
+      // This legacy fixture button was intentionally removed from the public UI.
+      // Trigger its existing scenario in diagnostic mode; keep all state assertions.
+      await page.locator('#v-permission').evaluate(button => button.click()); await finish('v');
       await target('#v-flow', 'v-os'); assert.equal((await snap('v')).reads, 0); assert.equal((await snap('v')).faults, 0);
       assert.match(await text('v'), /không phải thiếu trang hợp lệ/);
       await page.click('#v-reset');

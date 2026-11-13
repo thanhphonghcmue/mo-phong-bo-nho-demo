@@ -11,7 +11,7 @@ const fs = require('node:fs');
     await page.waitForFunction(id=>document.querySelector('#'+id+'-concepts .concept-card'),id);
   };
   try {
-    await page.goto(process.env.MEMORY_DEMO_URL || 'http://127.0.0.1:8080');
+    await page.goto(process.env.MEMORY_DEMO_URL || 'http://127.0.0.1:8080/?view=diagnostic');
     for(const [tab,id] of [['t0','b'],['t1','f'],['t2','x'],['t4','v'],['t3','r']]) {
       await page.click('#'+tab);
       const panel=page.locator('#'+id+'-concepts');
@@ -77,7 +77,7 @@ const fs = require('node:fs');
     await page.click('#x-textbook');
     text=await page.locator('#x-concepts').innerText(); assert.match(text,/2 × 4 \+ 1 = 9/);
     console.log('PASS translation examples follow the applied problem');
-    await page.click('#t4'); await page.click('#v-permission');
+    await page.click('#t4'); await page.locator('#v-permission').evaluate(button => button.click());
     assert.match(await page.locator('#v-concepts .concept-body').innerText(),/Chặn/);
     assert.doesNotMatch(await page.locator('#v-concepts .concept-body .concept-flow').allTextContents().then(x=>x.join(' ')),/OS yêu cầu nạp/);
     await page.click('#t3'); await page.locator('#r-alg [data-a="CLOCK"]').click();

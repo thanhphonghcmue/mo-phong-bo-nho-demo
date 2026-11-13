@@ -1,0 +1,210 @@
+/* A small teaching surface over the existing, tested snapshot engines. */
+(() => {
+  'use strict';
+  const $ = id => document.getElementById(id);
+  const escape = value => String(value).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const topics = {
+    b: {panel:'p0', tab:'t0', nav:'Bảo vệ địa chỉ', title:'Địa chỉ này có được vào RAM?', intro:'RAM là một dãy ô có địa chỉ. Chương trình chỉ được vào vùng đã cấp cho mình.',
+      examples:[['inside','125 · nằm trong vùng'],['outside','140 · vừa ngoài vùng']],
+      fields:[['base','Vùng bắt đầu ở (Base)','number','100'],['limit','Số byte được cấp (Limit)','number','40'],['address','Địa chỉ muốn vào (A)','number','125']],
+      help:'Ví dụ nhỏ để dễ nhìn. Base là địa chỉ bắt đầu; Limit là số byte, không phải địa chỉ cuối.'},
+    a: {panel:'p1', tab:'t1', nav:'Tìm chỗ trống', title:'Chỗ nào đủ để đặt chương trình?', intro:'Chương trình cần một chỗ liền nhau. Xem từng vùng trống, rồi chọn theo đúng quy tắc.',
+      examples:[['small','3 vùng trống · 2 yêu cầu'],['fragmented','Đủ tổng chỗ, nhưng bị chia nhỏ']],
+      algorithms:[['first','First-fit · đủ đầu tiên'],['best','Best-fit · đủ và nhỏ nhất'],['worst','Worst-fit · lớn nhất']],
+      fields:[['holes','Các vùng trống, từ trái sang phải (KB)','text','3 6 4'],['requests','Lần lượt cần bao nhiêu KB?','text','4 2']],
+      help:'Mỗi số là kích thước một vùng hoặc một yêu cầu. Các vùng trống cách nhau bởi bộ nhớ đang dùng.'},
+    x: {panel:'p2', tab:'t2', nav:'Tìm địa chỉ thật', title:'Byte cần tìm đang ở đâu trong RAM?', intro:'Trang là một phần của chương trình. Khung là chỗ chứa một trang trong RAM. Tìm đúng khung rồi giữ nguyên vị trí trong trang.',
+      examples:[['miss','Chưa có chỉ đường trong TLB'],['hit','TLB đã nhớ đường']],
+      fields:[['address','Địa chỉ cần tìm','number','13'],['size','Mỗi trang có bao nhiêu byte?','number','4']],
+      help:'Ví dụ có 4 trang. Bảng chỉ đường mẫu: trang 0→khung 5, 1→6, 2→1, 3→2. Cỡ trang dùng 4, 8 hoặc 16 byte.'},
+    v: {panel:'p4', tab:'t4', nav:'Nạp trang vào RAM', title:'Trang chưa có trong RAM thì làm gì?', intro:'CPU chỉ dùng được trang trong RAM. Nếu trang chưa có, hệ điều hành phải lấy từ ổ đĩa, nạp xong rồi chạy lại lệnh.',
+      examples:[['load','Còn một khung trống'],['hit','Trang đã có sẵn trong RAM'],['full','RAM đầy · phải nhường một chỗ']],
+      fields:[['refs','Lần lượt cần những trang nào?','text','3 1 3'],['frames','RAM có bao nhiêu khung?','number','2']],
+      help:'Khi tự đổi ví dụ: RAM bắt đầu trống, dùng FIFO nếu hết chỗ. Mỗi số là một trang, không phải số khung.'},
+    r: {panel:'p3', tab:'t3', nav:'Chọn trang ra', title:'RAM đầy: trang nào phải nhường chỗ?', intro:'Mỗi khung chỉ chứa một trang. Quy tắc chọn trang ra khác nhau sẽ cho kết quả khác nhau.',
+      examples:[['short','Chuỗi ngắn · thấy rõ vì sao trang ra'],['textbook','Chuỗi kiểm chứng trong giáo trình'],['belady','Ví dụ nghịch lý Belady']],
+      algorithms:[['FIFO','FIFO · vào trước, ra trước'],['LRU','LRU · lâu chưa dùng nhất'],['OPT','OPT · lâu mới cần lại nhất'],['CLOCK','Clock · cho cơ hội thứ hai']],
+      fields:[['refs','Lần lượt cần những trang nào?','text','1 2 3 1 4 2'],['frames','RAM có bao nhiêu khung?','number','3']],
+      help:'Trang là thẻ dữ liệu; khung là chỗ đặt thẻ. FIFO xét lúc nạp; LRU xét lần dùng; OPT biết trước tương lai; Clock xét bit R.'},
+  };
+  let active = 'b', timer = null, booting = true;
+  const roots = {};
+  const formValue = (id,key) => $(`lesson-${id}-${key}`).value.trim();
+  const set = (id,value) => {const el=$(id); if(el)el.value=String(value);};
+  const click = id => {const el=$(id);if(!el)throw Error(`Không tìm thấy điều khiển ${id}.`);el.click();};
+  function pause(){
+    clearTimeout(timer);timer=null;window.MemoryTeaching.pause();
+    Object.keys(topics).forEach(id=>{const b=$(`lesson-${id}-play`);if(b){b.textContent='Tự chạy';b.setAttribute('aria-pressed','false');}});
+  }
+  function configure(id,values){
+    pause();
+    Object.entries(values).forEach(([key,value])=>set(key,value));
+    click(id+'-config-apply');
+    const status=$(id+'-config')?.querySelector('.teach-config-status');
+    if(status?.classList.contains('teach-error'))throw Error(status.textContent);
+  }
+  function allocation(holes,requests){
+    document.querySelector('#a-mode [data-m="ex"]').click();
+    set('a-holes',holes);set('a-reqs',requests);set('a-c-gap',1);click('a-apply');
+    const error=$('a-error');if(error?.textContent)throw Error(error.textContent);
+  }
+  function paging(address,size,cache=''){
+    configure('x',{'x-addr':address,'x-c-size':size,'x-c-pages':4,'x-c-frames':8,'x-c-tlb':4,'x-c-pt':'5 6 1 2','x-c-other':'','x-c-cache':cache});
+  }
+  function virtual(refs='3',frames=2,ram='0 -'){
+    configure('v',{'v-c-pages':32,'v-c-frames':frames,'v-c-ram':ram,'v-c-refs':refs,'v-c-policy':'FIFO','v-c-dirty':'','v-c-denied':'','v-c-unmapped':'','v-c-order':'','v-c-recent':'','v-c-bits':'','v-c-hand':0,'v-op':'read'});
+  }
+  function replacement(refs='1 2 3 1 4 2',frames=3){
+    configure('r',{'r-c-n':frames,'r-c-refs':refs,'r-c-ram':'','r-c-order':'','r-c-recent':'','r-c-bits':'','r-c-hand':0});
+  }
+  function applyExample(id,example){
+    pause();
+    roots[id].dataset.invalid='false';roots[id].dataset.draft='false';
+    if(id==='b'){
+      click('b-mode-check');set('b-base',100);set('b-limit',40);set('b-addr',example==='outside'?140:125);click('b-go');
+    }else if(id==='a')allocation(example==='fragmented'?'3 3 3':'3 6 4',example==='fragmented'?'5':'4 2');
+    else if(id==='x')paging(13,4,example==='hit'?'3:2':'');
+    else if(id==='v')virtual('3',2,example==='full'?'0 1':example==='hit'?'3 1':'0 -');
+    else if(id==='r'){
+      if(example==='textbook')click('r-book');
+      else if(example==='belady')click('r-bel');
+      else replacement();
+    }
+    syncForm(id);render(id);
+  }
+  function syncForm(id){
+    const s=MemoryTeaching.snapshot(id);
+    const values=id==='b'?{base:s.base,limit:s.limit,address:s.addr}
+      :id==='a'?{holes:s.holes.join(' '),requests:s.reqs.join(' ')}
+      :id==='x'?{address:s.plan.addr,size:s.pageSize}
+      :id==='v'?{refs:(s.sequence||[s.page]).join(' '),frames:s.ram.length}
+      :{refs:s.refs.join(' '),frames:s.n};
+    Object.entries(values).forEach(([key,value])=>set(`lesson-${id}-${key}`,value));
+    if(topics[id].algorithms)set(`lesson-${id}-algorithm`,s.alg);
+  }
+  function number(value,label,min,max){
+    if(!/^\d+$/.test(value)||!Number.isSafeInteger(Number(value))||Number(value)<min||Number(value)>max)throw Error(`${label}: nhập số nguyên từ ${min} đến ${max}.`);
+    return Number(value);
+  }
+  function list(value,label,maxLength=16,min=0,max=31){
+    const parts=value.split(/[\s,;]+/).filter(Boolean);
+    if(!parts.length||parts.length>maxLength)throw Error(`${label}: cần từ 1 đến ${maxLength} số.`);
+    return parts.map(p=>number(p,label,min,max)).join(' ');
+  }
+  function submit(id){
+    pause();
+    const error=$(`lesson-${id}-error`);
+    try{
+      if(id==='b'){
+        const base=number(formValue(id,'base'),'Base',0,1000000000),limit=number(formValue(id,'limit'),'Limit',1,1000000000),address=number(formValue(id,'address'),'Địa chỉ',0,2000000000);
+        click('b-mode-check');set('b-base',base);set('b-limit',limit);set('b-addr',address);click('b-go');
+      }else if(id==='a')allocation(list(formValue(id,'holes'),'Vùng trống',6,1,100000),list(formValue(id,'requests'),'Yêu cầu',6,1,100000));
+      else if(id==='x'){
+        const size=number(formValue(id,'size'),'Cỡ trang',4,16);
+        if(![4,8,16].includes(size))throw Error('Chọn cỡ trang 4, 8 hoặc 16 byte để dễ nhìn.');
+        paging(number(formValue(id,'address'),'Địa chỉ',0,4*size-1),size);
+      }else if(id==='v')virtual(list(formValue(id,'refs'),'Trang cần đọc',12),number(formValue(id,'frames'),'Số khung',1,4),'');
+      else replacement(list(formValue(id,'refs'),'Trang cần đọc',48,0,9999),number(formValue(id,'frames'),'Số khung',1,5));
+      error.textContent='';error.hidden=true;
+      roots[id].dataset.invalid='false';roots[id].dataset.draft='false';syncForm(id);render(id);
+    }catch(err){
+      error.textContent=err.message;error.hidden=false;
+      roots[id].dataset.invalid='true';
+      roots[id].querySelector('.lesson-canvas').innerHTML='<p class="lesson-muted">Chưa chạy ví dụ mới. Sửa dữ liệu ở dưới rồi bấm “Chạy ví dụ này”.</p>';
+      roots[id].querySelector('.lesson-title').textContent='Dữ liệu chưa hợp lệ';
+      roots[id].querySelector('.lesson-why').textContent=err.message;
+      roots[id].querySelector('.lesson-result').hidden=true;
+      ['next','prev','play'].forEach(action=>$(`lesson-${id}-${action}`).disabled=true);
+    }
+  }
+  function render(id){
+    const root=roots[id],view=window.MemoryLessonViews?.[id];
+    if(!root||!view)return;
+    if(root.dataset.invalid==='true')return;
+    const e=MemoryTeaching.event(id);e.state=MemoryTeaching.snapshot(id);
+    const position=MemoryTeaching.position(id),model=view(e,position),complete=!MemoryTeaching.canNext(id);
+    root.querySelector('h2').textContent=topics[id].title;
+    root.querySelector('.lesson-canvas').innerHTML=model.html;
+    root.querySelector('.lesson-current').textContent=`Bước ${position.cursor+1} / ${position.total}`;
+    root.querySelector('.lesson-title').textContent=model.title;
+    root.querySelector('.lesson-why').textContent=model.why;
+    root.querySelector('.lesson-next').textContent=complete?'Đã xong. Bấm Làm lại để quan sát từ đầu.':`Tiếp theo: ${model.next}`;
+    root.querySelector('.lesson-count').textContent=complete?'Đã hoàn tất':'Mỗi lần bấm = một thay đổi';
+    const result=root.querySelector('.lesson-result');
+    result.hidden=!complete;result.textContent=complete?(model.result||model.why):'';
+    const draft=root.dataset.draft==='true';
+    $(`lesson-${id}-prev`).disabled=draft||position.cursor===0;
+    $(`lesson-${id}-next`).disabled=draft||complete;
+    $(`lesson-${id}-play`).disabled=draft||complete;
+    if(draft)root.querySelector('.lesson-next').textContent='Đang sửa ví dụ. Bấm “Chạy ví dụ này” hoặc Làm lại để tiếp tục.';
+    root.dataset.invalid='false';
+    if(complete&&id===active&&timer!==null)pause();
+  }
+  function auto(id){
+    if(timer!==null){pause();return;}
+    const tick=()=>{
+      if(!MemoryTeaching.canNext(id)){pause();return;}
+      MemoryTeaching.next(id);
+      if(!MemoryTeaching.canNext(id)){pause();return;}
+      timer=setTimeout(tick,1600);
+    };
+    $(`lesson-${id}-play`).textContent='Tạm dừng';$(`lesson-${id}-play`).setAttribute('aria-pressed','true');
+    timer=setTimeout(tick,1600);
+  }
+  function init(){
+    if(!window.MemoryTeaching)return;
+    // Maintainer-only surface for existing deep regression checks.
+    if(new URLSearchParams(location.search).get('view')==='diagnostic'){
+      document.body.classList.remove('lesson-mode');return;
+    }
+    document.documentElement.dataset.theme='light';
+    $('theme-toggle')?.setAttribute('hidden','');
+    document.querySelector('.header-titles h1').textContent='Quản lý bộ nhớ · Nhìn từng bước';
+    for(const[id,topic]of Object.entries(topics)){
+      const tab=$(topic.tab);tab.querySelector('.t').textContent=topic.nav;
+      tab.querySelector('.n').textContent=`Demo ${['b','a','x','v','r'].indexOf(id)+1}`;
+      tab.addEventListener('click',()=>{pause();active=id;render(id);});
+      const root=document.createElement('section');root.className='lesson';root.id=`lesson-${id}`;root.setAttribute('aria-label',topic.title);roots[id]=root;
+      root.innerHTML=`<h2>${escape(topic.title)}</h2><p class="lesson-intro">${escape(topic.intro)}</p>
+        <div class="lesson-toolbar"><label>Ví dụ<select id="lesson-${id}-example">${topic.examples.map(([value,label])=>`<option value="${value}">${escape(label)}</option>`).join('')}</select></label>${topic.algorithms?`<label>Quy tắc<select id="lesson-${id}-algorithm">${topic.algorithms.map(([value,label])=>`<option value="${value}">${escape(label)}</option>`).join('')}</select></label>`:''}</div>
+        <div class="lesson-canvas" aria-label="Mô hình của bước hiện tại"></div>
+        <div class="lesson-narration" aria-live="polite" aria-atomic="true"><p class="lesson-current"></p><p class="lesson-title"></p><p class="lesson-why"></p></div>
+        <div class="lesson-controls"><button id="lesson-${id}-prev" type="button">Lùi</button><button id="lesson-${id}-next" type="button" class="lesson-primary">Bước tiếp</button><button id="lesson-${id}-play" type="button" aria-pressed="false">Tự chạy</button><button id="lesson-${id}-reset" type="button">Làm lại</button><span class="lesson-count"></span></div><p class="lesson-next"></p><p class="lesson-result" hidden></p>
+        <details class="lesson-settings"><summary>Tự đổi ví dụ</summary><p>${escape(topic.help)}</p><form novalidate>${topic.fields.map(([key,label,type,value])=>`<label>${escape(label)}<input id="lesson-${id}-${key}" type="${type}" value="${escape(value)}" ${type==='number'?'min="0" step="1"':''} required></label>`).join('')}<button type="submit">Chạy ví dụ này</button></form><p class="lesson-error" id="lesson-${id}-error" role="alert" hidden></p></details>`;
+      $(topic.panel).prepend(root);
+      $(`lesson-${id}-example`).addEventListener('change',ev=>{root.querySelector('.lesson-error').hidden=true;applyExample(id,ev.target.value);});
+      $(`lesson-${id}-algorithm`)?.addEventListener('change',ev=>{
+        pause();root.dataset.invalid='false';root.dataset.draft='false';root.querySelector('.lesson-error').hidden=true;
+        document.querySelector(`#${id==='a'?'a':'r'}-alg button[data-a="${ev.target.value}"]`).click();syncForm(id);render(id);
+      });
+      $(`lesson-${id}-next`).onclick=()=>{pause();MemoryTeaching.next(id);};
+      $(`lesson-${id}-prev`).onclick=()=>{pause();MemoryTeaching.previous(id);};
+      $(`lesson-${id}-play`).onclick=()=>auto(id);
+      $(`lesson-${id}-reset`).onclick=()=>{
+        pause();root.dataset.invalid='false';root.dataset.draft='false';root.querySelector('.lesson-error').hidden=true;
+        MemoryTeaching.rewind(id);syncForm(id);render(id);
+      };
+      root.querySelector('form').addEventListener('submit',ev=>{ev.preventDefault();submit(id);});
+      root.querySelector('form').addEventListener('input',()=>{
+        pause();root.querySelector('.lesson-error').hidden=true;root.dataset.draft='true';
+        ['next','prev','play'].forEach(action=>$(`lesson-${id}-${action}`).disabled=true);
+        root.querySelector('.lesson-next').textContent='Đang sửa ví dụ. Hình phía trên vẫn là dữ liệu đã áp dụng; bấm “Chạy ví dụ này” để đổi.';
+      });
+    }
+    for(const id of Object.keys(topics))applyExample(id,topics[id].examples[0][0]);
+    click('t0');booting=false;
+    document.querySelectorAll('.dash-tab').forEach((tab,i,tabs)=>{
+      tab.tabIndex=i===0?0:-1;
+      tab.addEventListener('keydown',ev=>{
+        const n=ev.key==='ArrowRight'?(i+1)%tabs.length:ev.key==='ArrowLeft'?(i+tabs.length-1)%tabs.length:ev.key==='Home'?0:ev.key==='End'?tabs.length-1:-1;
+        if(n>=0){ev.preventDefault();tabs[n].click();tabs[n].focus();tabs[n].scrollIntoView({block:'nearest',inline:'nearest'});}
+      });
+      tab.addEventListener('click',()=>tabs.forEach(t=>t.tabIndex=t===tab?0:-1));
+    });
+    document.addEventListener('visibilitychange',()=>{if(document.hidden)pause();});
+    // Expose only lesson pause for tests; state is provided by MemoryTeaching.
+    window.MemoryLessons={pause,active:()=>active};
+  }
+  window.addEventListener('memory-lesson-step',ev=>{if(!booting)render(ev.detail.id);});
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
+})();
