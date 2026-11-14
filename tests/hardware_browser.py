@@ -102,7 +102,8 @@ def run():
                 assert canvas.locator('.hw-' + part).count() == 1, (topic, part)
                 photo = canvas.locator('.hw-photo--' + part)
                 assert photo.is_visible(), (topic, part)
-                assert photo.evaluate('el => getComputedStyle(el).opacity') == '1'
+                opacity = photo.evaluate('el => getComputedStyle(el).opacity')
+                assert opacity == '1', (topic, part, page.viewport_size, opacity, page.evaluate('document.documentElement.dataset.hwPhotos'))
                 assert canvas.locator('.hw-visual--' + part).get_attribute('aria-hidden') == 'true'
             assert 'chip' in canvas.inner_text().lower(), topic
             assert canvas.locator('.hw-photo--gpu').count() == 0, topic
