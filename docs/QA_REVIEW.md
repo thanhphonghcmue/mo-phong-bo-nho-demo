@@ -42,3 +42,18 @@ Các chiều rộng 375, 390, 768 và 1366px: cả năm demo không gây tràn n
 Tính từ màu kết xuất thực tế: nhãn An toàn 5,69:1, Hiệu quả 5,87:1, Không giới hạn 5,89:1 (trên nền nhãn nhạt; nền nhãn trắng khi chọn còn cao hơn). Nút chính trắng/violet đạt 5,39:1. Các con số này áp dụng cho những thành phần đã kiểm tra, không phải tuyên bố mọi thành phần đạt đầy đủ WCAG.
 
 Bộ nội dung công khai `tests/lessons_browser.py` cũng đạt **11 nhóm**, bộ view giữ nguyên trạng thái đạt 24 chuyển trạng thái, và bộ đối chiếu độc lập đạt 320 trace / 6.400 trạng thái / 240 lần tiếp tục từ snapshot.
+
+## Kiểm tra sau khi thêm hình linh kiện
+
+Đã chạy lại hai bộ browser trên giao diện có CPU/RAM/SSD, bằng Chromium qua HTTP cục bộ cổng 8080:
+
+| Bộ kiểm tra | Kết quả quan sát |
+|---|---|
+| `tests/lessons_browser.py` | **11/11 nhóm đạt**, 0 JavaScript page error: nội dung và trạng thái cả năm demo, bốn thuật toán thay trang, dữ liệu sai, Lùi/Tiếp, tự chạy, bàn phím và không tràn trang ở desktop/mobile/landscape. |
+| `tests/interface_browser.py` | **8/8 nhóm đạt**, 0 JavaScript page error: lời giải tùy chọn, lịch sử đúng snapshot, nhãn chủ đề/ví dụ, tương phản nhãn và nút chính, mở/đóng ở 375/390/768/1366px. |
+
+Kết quả JSON và ảnh của lần chạy lưu tại `/tmp/memory-lessons-review/` và `/tmp/memory-interface-tests/`. `tests/hardware_browser.py` là bộ bổ sung dành riêng cho lớp hình linh kiện; kết quả của hai bộ trên không được dùng thay cho kết quả bộ này.
+
+`tests/hardware_browser.py` đã đạt **9/9 nhóm**, 0 JavaScript page error: ảnh tải thành công, linh kiện và dữ liệu ở cả năm demo, đường SSD/RAM đúng theo hit/miss, thư viện GPU không đổi timeline, thanh điều khiển không bị che ở 1440/390/375px và fallback khi chặn ảnh trong phiên trình duyệt mới. Chú thích linh kiện được kiểm tra từ màu kết xuất thực tế, tương phản nhỏ nhất **4,60:1** trong các mẫu đã đo. Ảnh và kết quả ở `/tmp/memory-hardware-review/`.
+
+Phạm vi thay đổi là view và tài nguyên hình; engine và quy tắc thuật toán không đổi. Bộ ảnh linh kiện được tạo bằng AI, không phải ảnh hay số liệu từ máy người dùng. Chú thích giữ rõ vùng logic trên RAM không tương ứng từng chip vật lý; GPU chỉ có trong mục nhận diện tùy chọn và không tham gia thuật toán. Những kết quả trên kiểm chứng hành vi trong các kịch bản nêu trên, chưa phải đánh giá mức dễ hiểu với người học thực tế.

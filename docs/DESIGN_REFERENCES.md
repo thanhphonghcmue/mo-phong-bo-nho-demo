@@ -78,3 +78,11 @@ Kiểm tra cả năm demo ở desktop và 375/390px: nhãn không bị cắt; m�
 Phần giải thích sử dụng `details/summary` native, mặc định đóng. Chỉ dòng tên bước cập nhật trong vùng live; mở/thu gọn không phát lệnh sang engine. Danh sách bước được tạo khi người xem mở, chỉ gồm các bước đã thấy và lựa chọn quay lại dừng tự chạy.
 
 Truy vấn kiểm tra bổ sung `expand option` không trả kết quả; đã dùng truy vấn hẹp `truncation` và xác nhận quy tắc Content / Truncation. Căn cứ disclosure chính vẫn là Radix Collapsible và ngữ nghĩa HTML native, không nhận rằng UI UX Pro Max đã trả về một accordion dành riêng cho dự án.
+
+## Linh kiện gần với hình dáng ngoài đời
+
+Lần cập nhật phần cứng dùng bộ hình CPU, thanh RAM, SSD và GPU được tạo bằng AI tại `assets/images/hardware/parts.png`. Đây là hình minh họa linh kiện, không phải ảnh chụp hay thông tin lấy từ máy người dùng, và không lấy hình từ các kho skill kể trên. CPU/RAM/SSD nằm ngay trong mô hình học; mục nhận diện linh kiện mặc định đóng. GPU chỉ giúp nhận biết linh kiện, có chú thích không tham gia các thuật toán này.
+
+Nhãn địa chỉ, lỗ trống, trang và khung được đặt trên lớp mô phỏng của thanh RAM. Chú thích phân biệt lớp logic với phần cứng thật: một chip RAM không tương ứng một khung trang. TLB/bảng trang vẫn là bản dịch, không được trình bày thành nơi chứa dữ liệu trang. Màu trang được giữ nhất quán giữa dãy yêu cầu, RAM và hàng thứ tự; số trang và chữ trạng thái luôn đi kèm màu. Hàng FIFO/LRU tách khỏi vị trí chip để tránh hiểu thứ tự khung là thứ tự thay thế.
+
+`hardware-scenes.js` chỉ tạo phần hiển thị; các engine, snapshot và luật chọn trang không đổi. Khi bộ ảnh không tải được, hình linh kiện bằng CSS và các nhãn dữ liệu vẫn hiện. Mục tiêu là thấy CPU đang cần gì, RAM đang chứa gì và lúc nào SSD thực sự nạp dữ liệu, trong cùng năm demo và bốn nút điều khiển.

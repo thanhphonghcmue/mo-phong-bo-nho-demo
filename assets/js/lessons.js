@@ -140,7 +140,7 @@
     root.querySelector('.lesson-title').textContent=model.title;
     root.querySelector('.lesson-why').textContent=model.why;
     root.querySelector('.lesson-next').textContent=complete?'Đã xong. Bấm Làm lại để quan sát từ đầu.':`Tiếp theo: ${model.next}`;
-    root.querySelector('.lesson-count').textContent=complete?'Đã hoàn tất':'Mỗi lần bấm = một thay đổi';
+    root.querySelector('.lesson-count').textContent=`Bước ${position.cursor+1}/${position.total} · ${model.title}`;
     const result=root.querySelector('.lesson-result');
     result.hidden=!complete;result.textContent=complete?(model.result||model.why):'';
     const draft=root.dataset.draft==='true';
@@ -184,7 +184,17 @@
     }
     document.documentElement.dataset.theme='light';
     $('theme-toggle')?.setAttribute('hidden','');
-    document.querySelector('.header-titles h1').textContent='Quản lý bộ nhớ · Nhìn từng bước';
+    document.querySelector('.header-titles h1').textContent='Khám phá bên trong bộ nhớ';
+    if(window.MemoryHardware){
+      const guide=document.createElement('details');guide.className='hardware-guide';guide.id='hardware-guide';
+      guide.innerHTML=`<summary><span>Nhìn gần linh kiện</span><small>CPU · thanh RAM · SSD · GPU</small></summary><div class="hardware-guide-grid">${[
+        ['cpu','CPU · bộ xử lý','Chạy lệnh; yêu cầu đọc hoặc ghi dữ liệu.'],
+        ['ram','RAM · bộ nhớ làm việc','Giữ dữ liệu chương trình đang dùng.'],
+        ['ssd','SSD · nơi lưu dữ liệu','Giữ bản lưu; nạp trang vào RAM khi cần.'],
+        ['gpu','GPU · bộ xử lý đồ họa','Xử lý đồ họa; không tham gia các thuật toán RAM trong 5 demo này.'],
+      ].map(([kind,name,description])=>`<figure>${MemoryHardware.visual(kind)}<figcaption><strong>${name}</strong><p>${description}</p></figcaption></figure>`).join('')}</div><p class="hardware-guide-note">Hình linh kiện được dựng để minh họa. Các vùng dữ liệu là mô hình giảng dạy, không phải phép đo phần cứng của máy bạn.</p>`;
+      document.querySelector('.dash-tabs').after(guide);
+    }
     for(const[id,topic]of Object.entries(topics)){
       const purpose=purposes[id];
       const tab=$(topic.tab);tab.querySelector('.t').textContent=topic.nav;

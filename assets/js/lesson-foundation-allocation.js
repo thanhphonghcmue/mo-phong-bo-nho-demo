@@ -4,6 +4,7 @@
   const views = window.MemoryLessonViews = window.MemoryLessonViews || {};
   const esc = value => String(value ?? "").replace(/[&<>"']/g, char => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[char]);
   const number = value => Number(value).toLocaleString("vi-VN");
+  const programClass = index => window.MemoryHardware?.pageClass(index+1) || `hw-page-${(index+1)%6}`;
 
   views.b = function (e) {
     const s = e.state, stage = s.st || 0, translate = s.mode === "translate";
@@ -43,11 +44,7 @@
     return {
       title, why, next,
       result: complete ? outcome : "",
-      html: `<div class="foundation-request lesson-row"><div class="lesson-card ${stage === 0 ? "lesson-active" : ""}"><span class="lesson-label">CPU hỏi địa chỉ ${translate ? "logic L" : "vật lý A"}</span><strong>${number(input)}</strong></div><span class="lesson-flow-arrow" aria-hidden="true">→</span><p>Vùng được cấp: <strong>${number(s.base)}…${number(last)}</strong><br><span class="lesson-muted">Base = đầu vùng · Limit = ${number(s.limit)} byte, không phải địa chỉ cuối.</span></p></div>
-        <div class="foundation-checks">${checks}</div>
-        <div class="foundation-ram-label"><strong>RAM · địa chỉ vật lý</strong><span>địa chỉ nhỏ → lớn</span></div>
-        <div class="foundation-ram">${s.base > 0 ? zone("before", "Vùng của OS / chương trình khác", `0…${number(s.base - 1)}`) : ""}${zone("inside", "Vùng của chương trình", `${number(s.base)}…${number(last)}`)}${zone("after", "Ngoài vùng được cấp", `từ ${number(upper)}`)}</div>
-        <p class="foundation-outcome ${complete ? allowed ? "lesson-good" : "lesson-bad" : "lesson-muted"}">${esc(outcome)}</p>`,
+      html: `<div class="hw-lesson-scene foundation-hardware"><div class="hw-bench-main foundation-bench"><div class="foundation-processor">${window.MemoryHardware ? MemoryHardware.cpu({label:'CPU · yêu cầu truy cập',value:`${translate ? 'L' : 'A'} = ${number(input)}`,active:stage===0,detail:'Địa chỉ phải qua bộ kiểm tra bên trong CPU.'}) : `<strong>CPU · ${number(input)}</strong>`}<div class="foundation-registers"><span><b>Base</b>${number(s.base)}</span><span><b>Limit</b>${number(s.limit)} byte</span></div><div class="foundation-checks">${checks}</div></div><div class="hw-bus ${complete && !allowed ? 'hw-bus-blocked' : complete ? 'hw-bus-ready' : ''}" aria-hidden="true"><span>${complete && !allowed ? '×' : '→'}</span></div><div class="foundation-memory">${window.MemoryHardware ? MemoryHardware.ram({label:'RAM · vùng địa chỉ được phóng to',active:complete&&allowed,detail:`Địa chỉ nhỏ → lớn · vùng được cấp ${number(s.base)}…${number(last)}`,note:false,html:`<div class="foundation-ram">${s.base > 0 ? zone("before", "OS / vùng khác", `0…${number(s.base-1)}`) : ''}${zone("inside", "Vùng chương trình", `${number(s.base)}…${number(last)}`)}${zone("after", "Ngoài giới hạn", `từ ${number(upper)}`)}</div>`}) : `<div class="foundation-ram">${zone('inside','Vùng chương trình',`${number(s.base)}…${number(last)}`)}</div>`}<p class="hw-model-caption">Lớp màu phóng to các vùng địa chỉ; không phải từng chip vật lý.</p></div></div><p class="foundation-outcome ${complete ? allowed ? "lesson-good" : "lesson-bad" : "lesson-muted"}">${esc(outcome)}</p></div>`,
     };
   };
 
@@ -63,7 +60,7 @@
     const current = scanning ? rt.scan : -1;
     const beforeFree = updating && previous ? previous.free : rt.free;
     const requestLabel = position?.cursor === 0 ? "Hàng chờ" : `P${k+1} cần ${req} KB`;
-    const queue = s.reqs.map((r,i)=>`<span class="allocation-request-chip ${i === k ? "lesson-active" : ""}">P${i+1} · ${r} KB</span>`).join("");
+    const queue = s.reqs.map((r,i)=>`<span class="allocation-request-chip ${programClass(i)} ${i === k ? "lesson-active" : ""}">P${i+1} · ${r} KB</span>`).join("");
     const holes = s.holes.map((original,i)=>{
       const pieces = rt.pieces[i] || [], used = pieces.reduce((total,p)=>total+p.r,0), free = rt.free[i];
       const enough = free >= req, inspected = scanning && i < current && free > 0;
@@ -71,7 +68,7 @@
       const stateClass = i === current ? "lesson-active" : i === selected ? "lesson-good" : "";
       let address = Number(s.gap || 0);
       for(let j=0;j<i;j++) address += s.holes[j] + Number(s.gap || 0);
-      return `${i ? '<div class="allocation-divider" aria-label="Vùng RAM đã dùng">đã<br>dùng</div>' : ''}<div class="allocation-hole ${stateClass}" data-hole="${i+1}"><div class="allocation-hole-title"><strong>Lỗ ${i+1}</strong><span>${stateLabel || " "}</span></div><div class="allocation-pieces">${pieces.map(p=>`<div class="allocation-piece ${updating && p.k===k ? "allocation-new" : ""}" style="flex-grow:${p.r}"><b>P${p.k+1}</b><span>${p.r} KB</span></div>`).join("")}${free > 0 ? `<div class="allocation-free" style="flex-grow:${free}"><strong>${free} KB</strong><span>còn trống</span></div>` : ""}</div><span class="allocation-address">Vùng ban đầu ${original} KB · từ ${address} KB</span>${i === current ? `<p class="allocation-test">${free} ${enough ? "≥" : "<"} ${req} → ${enough ? "đủ chỗ" : "không đủ"}</p>` : i === selected && updating ? `<p class="allocation-test">${beforeFree[i]} − ${req} = ${free} KB trống</p>` : ""}</div>`;
+      return `${i ? '<div class="allocation-divider" aria-label="Vùng RAM đã dùng">đã<br>dùng</div>' : ''}<div class="allocation-hole ${stateClass}" data-hole="${i+1}"><div class="allocation-hole-title"><strong>Lỗ ${i+1}</strong><span>${stateLabel || " "}</span></div><div class="allocation-pieces">${pieces.map(p=>`<div class="allocation-piece ${programClass(p.k)} ${updating && p.k===k ? "allocation-new" : ""}" style="flex-grow:${p.r}"><b>P${p.k+1}</b><span>${p.r} KB</span></div>`).join("")}${free > 0 ? `<div class="allocation-free" style="flex-grow:${free}"><strong>${free} KB</strong><span>còn trống</span></div>` : ""}</div><span class="allocation-address">Vùng ban đầu ${original} KB · từ ${address} KB</span>${i === current ? `<p class="allocation-test">${free} ${enough ? "≥" : "<"} ${req} → ${enough ? "đủ chỗ" : "không đủ"}</p>` : i === selected && updating ? `<p class="allocation-test">${beforeFree[i]} − ${req} = ${free} KB trống</p>` : ""}</div>`;
     }).join("");
     let title = "Các chương trình đang chờ chỗ trong RAM", why = `Mỗi chương trình cần một vùng trống liền nhau. ${rule}`, next = "Đưa yêu cầu P1 tới bộ cấp phát.";
     if(scanning){
@@ -99,6 +96,6 @@
     }
     return {title,why,next,
       result:updating && k === s.reqs.length-1 ? `Đã xử lý ${s.reqs.length} yêu cầu; còn ${rt.free.reduce((n,v)=>n+v,0)} KB trống.` : "",
-      html:`<div class="allocation-intro"><div><span class="lesson-label">Yêu cầu theo thứ tự</span><div class="allocation-request-queue">${queue}</div></div><div class="allocation-rule"><b>${esc(name)}</b><span>${esc(rule)}</span></div></div><div class="allocation-current lesson-card ${scanning || choosing ? "lesson-active" : ""}"><strong>${esc(requestLabel)}</strong><span>${scanning ? `Bộ cấp phát đang nhìn Lỗ ${current+1}` : choosing ? `Đã chọn Lỗ ${selected+1}; bước sau mới đặt vào` : updating ? "RAM vừa cập nhật" : "RAM chưa đổi"}</span></div><div class="allocation-ram-label"><strong>RAM · các lỗ theo vị trí</strong><span>địa chỉ nhỏ → lớn</span></div><div class="allocation-holes">${holes}</div><p class="allocation-scale-note">Ô biểu diễn vùng ban đầu; số KB cho biết chỗ trống thật. Vùng “đã dùng” ngăn các lỗ nối với nhau.</p>`};
+      html:`<div class="allocation-intro"><div><span class="lesson-label">Yêu cầu theo thứ tự</span><div class="allocation-request-queue">${queue}</div></div><div class="allocation-rule"><b>${esc(name)}</b><span>${esc(rule)}</span></div></div><div class="hw-lesson-scene allocation-hardware"><div class="hw-bench-main allocation-bench"><div class="allocation-processor">${window.MemoryHardware ? MemoryHardware.cpu({label:'CPU · chương trình đang chờ RAM',value:position?.cursor===0?'Chờ yêu cầu':`P${k+1} · ${req} KB`,active:!scanning&&!choosing&&!updating,detail:scanning ? `Bộ cấp phát đang xét Lỗ ${current+1}` : choosing ? `Đã chọn Lỗ ${selected+1}; chưa đặt dữ liệu` : updating ? 'RAM vừa cập nhật' : 'Hệ điều hành cần tìm một vùng liền nhau.'}) : esc(requestLabel)}</div><div class="hw-bus" aria-hidden="true"><span>→</span></div><div class="allocation-memory">${window.MemoryHardware ? MemoryHardware.ram({label:'RAM · các lỗ trống được phóng to',slots:s.holes.length,note:false,detail:'Các khoảng cách là vùng đang dùng; không ghép lỗ rời nhau.',html:`<div class="allocation-holes">${holes}</div>`}) : `<div class="allocation-holes">${holes}</div>`}<p class="hw-model-caption">Vùng màu là địa chỉ mô phỏng; không đồng nhất một lỗ với một chip RAM.</p></div></div></div>`};
   };
 })();
