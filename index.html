@@ -924,7 +924,7 @@ footer{font-size:12px;color:var(--muted)}
             <div class="scroll"><div class="lane">
               <span class="lane-label">Tiến trình đang xin</span>
               <div class="req-row" id="a-req"></div>
-              <span class="lane-label" style="margin-top:14px">RAM · 5 lỗ [100, 500, 200, 300, 600 KB]</span>
+              <span class="lane-label" style="margin-top:14px">RAM (CÁC Ô SỌC XÁM LÀ VÙNG ĐÃ CÓ CHƯƠNG TRÌNH KHÁC)</span>
               <div class="ram" id="a-ram"></div>
               <div class="queue" id="a-queue"></div>
               <div class="ruler" id="a-ruler"></div>
@@ -1662,7 +1662,7 @@ function renderA(){
     if (picking && cur){ cls = cur.fits.includes(i) ? 'fit' : 'nofit'; if (cur.idx === i) cls += ' chosen'; }
     const segs = state.pieces[i].map(p => `<div class="pc ${lastPlaced && !picking && p.k===lastPlaced.k ? 'enter' : ''}" style="flex:${p.r} 1 0;background:${pc(p.k)}">P${p.k+1}<small>${p.r}</small></div>`).join('');
     const fr = state.free[i] > 0 ? `<div class="fr" style="flex:${state.free[i]} 1 0">${state.free[i]}</div>` : '';
-    html += `<div class="hole ${cls}" style="width:${pct(size)}">${segs}${fr}<span class="lbl">Lỗ ${i+1}</span></div><div class="used" style="width:${pct(USED)}"></div>`;
+    html += `<div class="hole ${cls}" style="width:${pct(size)}">${segs}${fr}<span class="lbl">Vùng ${i+1}</span></div><div class="used" style="width:${pct(USED)}"></div>`;
   });
   $('#a-ram').innerHTML = html;
   $('#a-queue').innerHTML = '<span class="lane-label">Hàng đợi</span>' + A.reqs.map((r, i) => {

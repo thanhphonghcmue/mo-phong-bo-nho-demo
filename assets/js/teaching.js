@@ -1875,6 +1875,7 @@ window.enhanceMemoryDemo = function (api) {
   $("#v-reset").onclick = resetV;
   const vp = document.createElement("div");
   vp.className = "bar";
+  vp.style.display = "none";
   vp.innerHTML =
     '<span class="muted">MÔ HÌNH GIẢ ĐỊNH:</span><button class="btn" id="v-full-clean">RAM đầy · victim sạch</button><button class="btn" id="v-full-dirty">RAM đầy · victim dirty</button><button class="btn" id="v-permission" style="display:none">Trang 7 · không có quyền</button>';
   $("#v-flow").before(vp);
@@ -2086,20 +2087,90 @@ window.enhanceMemoryDemo = function (api) {
     const knownFrame = ready || (P.hit && X.st >= 2) || (!P.hit && X.st >= 3 && X.pt[P.p] !== null);
     const bypass = P.hit && X.st >= 2;
     const expanded = $("#x-memory-details")?.open;
-    const processor = `<div id="x-cpu" class="teach-endpoint"><span>CPU · địa chỉ chương trình muốn tìm</span><b>LA = ${P.addr}</b></div>
-      <div id="x-mmu" class="teach-endpoint"><span>MMU · chia địa chỉ thành trang</span><b>${split ? `p = ${P.p} · d = ${P.d}` : "Chờ tách p, d"}</b><small>${split ? `${P.addr} ÷ ${X.pageSize} = ${P.p}, dư ${P.d}<br>` : ""}p: số trang · d: vị trí trong trang</small></div>
-      <div id="x-pa" class="teach-endpoint"><span>MMU · địa chỉ thật trong RAM</span><b>${ready ? `PA = ${P.phys}` : "Chưa tạo PA"}</b>${ready ? `<small>Ngăn ${P.f} × ${X.pageSize} + vị trí ${P.d}</small>` : ""}</div>`;
-    const focusedFrame = knownFrame
-      ? `<div id="x-frame-${P.f}" data-frame="${P.f}" class="teach-frame teach-focus-frame"><span>Ngăn ${P.f} (Frame)</span><b>Trang ${X.pt.indexOf(P.f)}</b><small>${P.fault ? "OS vừa cấp ngăn" : P.hit ? "Tìm được từ TLB" : "Tìm được từ bảng trang"}</small><small>${isRead ? `Đọc ở vị trí +${P.d}` : "Chờ đọc dữ liệu"}</small></div>`
-      : '<div class="teach-frame teach-focus-frame"><span>Ngăn chứa dữ liệu</span><b>Chờ tìm được địa chỉ</b></div>';
+    const colLogic = `<div id="x-cpu" class="teach-endpoint">
+      <div class="la-big">${P.addr}</div>
+    </div>
+    <div id="x-mmu" class="teach-endpoint">
+      <div class="split-boxes">
+        <div class="split-box p-box">
+          <span class="val">${split ? P.p : "?"}</span>
+          <span class="lbl">Số trang p</span>
+        </div>
+        <div class="split-box d-box">
+          <span class="val">${split ? P.d : "?"}</span>
+          <span class="lbl">Độ lệch d</span>
+        </div>
+      </div>
+      <div class="split-math">${split ? `${P.addr} ÷ ${X.pageSize} = ${P.p} dư ${P.d}` : `Chờ tách ${P.addr} ÷ ${X.pageSize}`}</div>
+    </div>`;
+
+    const colTlb = `<p class="col-sub">Bộ đệm phần cứng nằm trong MMU — tra rất nhanh.</p>
+    <div class="tlb-badge-row">
+      <b class="teach-lookup-status ${P.hit ? "teach-hit" : current >= 2 ? "teach-miss" : ""}">${tlbStatus}</b>
+    </div>
+    <div class="teach-table-scroll">
+      <table class="teach-table">
+        <thead><tr><th>Trang</th><th>Khung</th><th>Dùng lúc</th></tr></thead>
+        <tbody>
+          ${X.tlb.length
+            ? X.tlb.map((t, idx) => {
+                const isCur = current === 2 && t.page === P.p;
+                return `<tr class="${isCur ? "teach-selected" : ""}"><td>${t.page}</td><td>${t.frame}</td><td>${t.page === P.p ? "Vừa tra" : "#" + (idx+1)}</td></tr>`;
+              }).join("")
+            : '<tr><td colspan="3" class="muted" style="text-align:center;padding:12px 0">TLB rỗng</td></tr>'}
+        </tbody>
+      </table>
+    </div>`;
+
+    const colPt = `<p class="col-sub">Nằm trong RAM (vùng của hệ điều hành); PTBR trỏ tới đầu bảng.</p>
+    ${bypass ? '<div class="tlb-bypass-badge">TLB Hit · Bỏ qua tra bảng trang</div>' : ""}
+    <div class="teach-table-scroll" style="max-height:185px">
+      <table class="teach-table pt-full-table">
+        <thead><tr><th>Trang</th><th>Khung</th><th>Bit</th></tr></thead>
+        <tbody>
+          ${X.pt.map((f, p) => {
+            const isCur = split && p === P.p;
+            const hlClass = isCur ? "teach-selected" : "";
+            const bit = f !== null ? '<span class="bit-v">v</span>' : '<span class="bit-i">i</span>';
+            const dispF = f !== null ? f : '<span class="muted">đĩa</span>';
+            return `<tr class="${hlClass}" data-page="${p}"><td><b>${p}</b></td><td>${dispF}</td><td>${bit}</td></tr>`;
+          }).join("")}
+        </tbody>
+      </table>
+    </div>`;
+
+    const colRam = `<div class="ram-16-grid">
+      ${Array.from({ length: X.frameCount }, (_, f) => {
+        const isTarget = knownFrame && f === P.f;
+        const pg = X.pt.indexOf(f);
+        const isOther = X.other.includes(f);
+        const content = pg >= 0 ? `trang ${pg}` : isOther ? "khác" : "trống";
+        const cls = isTarget ? "teach-frame teach-frame-active" : "teach-frame";
+        const idAttr = isTarget ? `id="x-frame-${P.f}" data-frame="${P.f}"` : `data-overview-frame="${f}"`;
+        return `<div ${idAttr} class="${cls}"><span class="f-num">${f}</span><span class="f-content">${content}</span></div>`;
+      }).join("")}
+    </div>
+    ${knownFrame ? `<small class="ram-active-note">${P.fault ? "OS vừa cấp khung" : P.hit ? "Tìm thấy từ TLB" : "Tìm thấy từ Bảng trang"}${isRead ? ` · Đọc tại vị trí +${P.d}` : ""}</small>` : '<small class="ram-active-note muted">Chờ xác định số khung...</small>'}`;
+
+    const colPa = `<div id="x-pa" class="teach-endpoint">
+      <div class="pa-big">${ready ? P.phys : "?"}</div>
+      <div class="pa-formula">
+        ${ready
+          ? `f × ${X.pageSize} + d<br>= ${P.f} × ${X.pageSize} + ${P.d}<br>= <b>${P.phys}</b>`
+          : `f × ${X.pageSize} + d = ?<br><small class="muted">Chờ tìm số khung f</small>`}
+      </div>
+      <p class="pa-note">${ready ? `Dữ liệu nằm tại byte <b>${P.phys}</b> trên thanh RAM vật lý.` : "Đang thực hiện quy trình dịch địa chỉ..."}</p>
+    </div>`;
+
     $("#x-flow").innerHTML = `<div class="teach-layout-x">
-      ${unit("x-processor", "Bộ xử lý / Bộ dịch địa chỉ", processor)}
-      ${unit("x-tlb", "TLB · sổ nhớ nhanh", `<p>Ở gần CPU / MMU</p><b class="teach-lookup-status">${tlbStatus}</b>${table(["Trang p", "Ngăn f"], [`<tr><td>${split ? P.p : "?"}</td><td>${split ? cached?.frame ?? "—" : "—"}</td></tr>`])}`)}
-      ${unit("x-pt-focus", "Bảng trang · trong RAM", `${bypass ? '<p>TLB Hit · bỏ qua bước tra này</p>' : ""}${table(["Trang p", "Trong RAM?", "Ngăn f"], split ? [ptRow(X.pt[P.p], P.p)] : ['<tr><td colspan="3">Chờ số trang p</td></tr>'])}`, bypass ? "teach-bypassed" : "")}
-      ${unit("x-data", "RAM · bộ nhớ làm việc", focusedFrame)}
-      </div>` +
-      (P.fault ? unit("x-os", "OS / Backing Store", `<p>${P.blocked ? "Không có khung trống · cần thay trang" : e.kind === "page-in" ? `Đã nạp Trang ${P.p} vào Frame ${P.newF}` : "Nạp trang hợp lệ khi có Page Fault · xem chi tiết ở Demo 4"}</p>`) : "") +
-      `<details id="x-memory-details" class="teach-full-table teach-all-state" ${expanded ? "open" : ""}><summary>Xem toàn bộ TLB, bảng trang và RAM</summary><div class="teach-detail-grid"><div><b>TLB</b><div class="teach-table-scroll">${tlb}</div></div><div><b>Bảng trang</b><div class="teach-table-scroll">${table(["Page", "Present", "Frame"], X.pt.map(ptRow))}</div></div></div><b>RAM · ${X.frameCount} khung · ${X.pageSize} byte/khung</b><div class="teach-compact-frames">${Array.from({ length: X.frameCount }, (_, f) => `<div data-overview-frame="${f}" class="teach-frame"><span>Frame ${f}</span><b>${X.pt.includes(f) ? "Trang " + X.pt.indexOf(f) : X.other.includes(f) ? "khác" : "trống"}</b></div>`).join("")}</div></details>` + route(e);
+      ${unit("x-processor", "① ĐỊA CHỈ LOGIC", colLogic)}
+      ${unit("x-tlb", "② TLB", colTlb)}
+      ${unit("x-pt-focus", "③ BẢNG TRANG", colPt, bypass ? "teach-bypassed" : "")}
+      ${unit("x-data", "④ RAM · 16 KHUNG", colRam)}
+      ${unit("x-pa-unit", "⑤ ĐỊA CHỈ VẬT LÝ", colPa)}
+    </div>` +
+    (P.fault ? unit("x-os", "OS / Backing Store", `<p>${P.blocked ? "Không có khung trống · cần thay trang" : e.kind === "page-in" ? `Đã nạp Trang ${P.p} vào Frame ${P.newF}` : "Nạp trang hợp lệ khi có Page Fault · xem chi tiết ở Demo 4"}</p>`) : "") +
+    `<details id="x-memory-details" class="teach-full-table teach-all-state" style="display:none" ${expanded ? "open" : ""}><summary>Xem toàn bộ TLB, bảng trang và RAM</summary><div class="teach-detail-grid"><div><b>TLB</b><div class="teach-table-scroll">${tlb}</div></div><div><b>Bảng trang</b><div class="teach-table-scroll">${table(["Page", "Present", "Frame"], X.pt.map(ptRow))}</div></div></div><b>RAM · ${X.frameCount} khung · ${X.pageSize} byte/khung</b><div class="teach-compact-frames">${Array.from({ length: X.frameCount }, (_, f) => `<div data-overview-frame="${f}" class="teach-frame"><span>Frame ${f}</span><b>${X.pt.includes(f) ? "Trang " + X.pt.indexOf(f) : X.other.includes(f) ? "khác" : "trống"}</b></div>`).join("")}</div></details>` + route(e);
     $("#x-stats").textContent =
       `TLB Hit ${X.hit} / Miss ${X.miss} · Page Fault ${X.faults}`;
   }
