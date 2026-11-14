@@ -2087,21 +2087,31 @@ window.enhanceMemoryDemo = function (api) {
     const knownFrame = ready || (P.hit && X.st >= 2) || (!P.hit && X.st >= 3 && X.pt[P.p] !== null);
     const bypass = P.hit && X.st >= 2;
     const expanded = $("#x-memory-details")?.open;
+    const act1 = current <= 1 ? "teach-col-active" : "";
+    const act2 = current === 2 ? "teach-col-active" : "";
+    const act3 = current === 3 ? "teach-col-active" : "";
+    const act4 = (current === 4 || current === 5) && !ready ? "teach-col-active" : "";
+    const act5 = ready ? "teach-col-active" : "";
+
     const colLogic = `<div id="x-cpu" class="teach-endpoint">
       <div class="la-big">${P.addr}</div>
     </div>
     <div id="x-mmu" class="teach-endpoint">
-      <div class="split-boxes">
-        <div class="split-box p-box">
-          <span class="val">${split ? P.p : "?"}</span>
-          <span class="lbl">Số trang p</span>
+      <div class="split-cards-row">
+        <div class="split-card-p">
+          <div class="p-num">${split ? P.p : "?"}</div>
+          <div class="p-text-1">số</div>
+          <div class="p-text-2">trang p</div>
         </div>
-        <div class="split-box d-box">
-          <span class="val">${split ? P.d : "?"}</span>
-          <span class="lbl">Độ lệch d</span>
+        <div class="split-card-d">
+          <div class="d-num">${split ? P.d : "?"}</div>
+          <div class="d-text">độ lệch d</div>
         </div>
       </div>
-      <div class="split-math">${split ? `${P.addr} ÷ ${X.pageSize} = ${P.p} dư ${P.d}` : `Chờ tách ${P.addr} ÷ ${X.pageSize}`}</div>
+      <div class="split-math-lines">
+        <div>${split ? `${P.addr} ÷ ${X.pageSize} = ${P.p}` : `${P.addr} ÷ ${X.pageSize} = ?`}</div>
+        <div>${split ? `dư ${P.d}` : "chờ tính dư"}</div>
+      </div>
     </div>`;
 
     const colTlb = `<p class="col-sub">Bộ đệm phần cứng nằm trong MMU — tra rất nhanh.</p>
@@ -2109,24 +2119,27 @@ window.enhanceMemoryDemo = function (api) {
       <b class="teach-lookup-status ${P.hit ? "teach-hit" : current >= 2 ? "teach-miss" : ""}">${tlbStatus}</b>
     </div>
     <div class="teach-table-scroll">
-      <table class="teach-table">
-        <thead><tr><th>Trang</th><th>Khung</th><th>Dùng lúc</th></tr></thead>
+      <table class="teach-table tlb-fixed-table">
+        <thead><tr><th>trang</th><th>khung</th><th>dùng lúc</th></tr></thead>
         <tbody>
-          ${X.tlb.length
-            ? X.tlb.map((t, idx) => {
-                const isCur = current === 2 && t.page === P.p;
-                return `<tr class="${isCur ? "teach-selected" : ""}"><td>${t.page}</td><td>${t.frame}</td><td>${t.page === P.p ? "Vừa tra" : "#" + (idx+1)}</td></tr>`;
-              }).join("")
-            : '<tr><td colspan="3" class="muted" style="text-align:center;padding:12px 0">TLB rỗng</td></tr>'}
+          ${Array.from({ length: 4 }, (_, i) => {
+            const t = X.tlb[i];
+            if (t) {
+              const isCur = current === 2 && t.page === P.p;
+              return `<tr class="${isCur ? "teach-selected" : ""}"><td>${t.page}</td><td>${t.frame}</td><td>${t.page === P.p ? "vừa tra" : "#" + (i+1)}</td></tr>`;
+            } else {
+              return `<tr><td class="muted">-</td><td class="muted">-</td><td class="muted">-</td></tr>`;
+            }
+          }).join("")}
         </tbody>
       </table>
     </div>`;
 
     const colPt = `<p class="col-sub">Nằm trong RAM (vùng của hệ điều hành); PTBR trỏ tới đầu bảng.</p>
     ${bypass ? '<div class="tlb-bypass-badge">TLB Hit · Bỏ qua tra bảng trang</div>' : ""}
-    <div class="teach-table-scroll" style="max-height:185px">
+    <div class="teach-table-scroll" style="max-height:190px">
       <table class="teach-table pt-full-table">
-        <thead><tr><th>Trang</th><th>Khung</th><th>Bit</th></tr></thead>
+        <thead><tr><th>trang</th><th>khung</th><th>bit</th></tr></thead>
         <tbody>
           ${X.pt.map((f, p) => {
             const isCur = split && p === P.p;
@@ -2145,7 +2158,8 @@ window.enhanceMemoryDemo = function (api) {
         const pg = X.pt.indexOf(f);
         const isOther = X.other.includes(f);
         const content = pg >= 0 ? `trang ${pg}` : isOther ? "khác" : "trống";
-        const cls = isTarget ? "teach-frame teach-frame-active" : "teach-frame";
+        const otherCls = isOther ? " frame-other" : "";
+        const cls = isTarget ? "teach-frame teach-frame-active" : ("teach-frame" + otherCls);
         const idAttr = isTarget ? `id="x-frame-${P.f}" data-frame="${P.f}"` : `data-overview-frame="${f}"`;
         return `<div ${idAttr} class="${cls}"><span class="f-num">${f}</span><span class="f-content">${content}</span></div>`;
       }).join("")}
@@ -2163,11 +2177,15 @@ window.enhanceMemoryDemo = function (api) {
     </div>`;
 
     $("#x-flow").innerHTML = `<div class="teach-layout-x">
-      ${unit("x-processor", "① ĐỊA CHỈ LOGIC", colLogic)}
-      ${unit("x-tlb", "② TLB", colTlb)}
-      ${unit("x-pt-focus", "③ BẢNG TRANG", colPt, bypass ? "teach-bypassed" : "")}
-      ${unit("x-data", "④ RAM · 16 KHUNG", colRam)}
-      ${unit("x-pa-unit", "⑤ ĐỊA CHỈ VẬT LÝ", colPa)}
+      ${unit("x-processor", "① ĐỊA CHỈ LOGIC", colLogic, act1)}
+      <div class="teach-pipeline-arrow" aria-hidden="true">→</div>
+      ${unit("x-tlb", "② TLB", colTlb, act2)}
+      <div class="teach-pipeline-arrow" aria-hidden="true">→</div>
+      ${unit("x-pt-focus", "③ BẢNG TRANG", colPt, (bypass ? "teach-bypassed " : "") + act3)}
+      <div class="teach-pipeline-arrow" aria-hidden="true">→</div>
+      ${unit("x-data", "④ RAM · 16 KHUNG", colRam, act4)}
+      <div class="teach-pipeline-arrow" aria-hidden="true">→</div>
+      ${unit("x-pa-unit", "⑤ ĐỊA CHỈ VẬT LÝ", colPa, act5)}
     </div>` +
     (P.fault ? unit("x-os", "OS / Backing Store", `<p>${P.blocked ? "Không có khung trống · cần thay trang" : e.kind === "page-in" ? `Đã nạp Trang ${P.p} vào Frame ${P.newF}` : "Nạp trang hợp lệ khi có Page Fault · xem chi tiết ở Demo 4"}</p>`) : "") +
     `<details id="x-memory-details" class="teach-full-table teach-all-state" style="display:none" ${expanded ? "open" : ""}><summary>Xem toàn bộ TLB, bảng trang và RAM</summary><div class="teach-detail-grid"><div><b>TLB</b><div class="teach-table-scroll">${tlb}</div></div><div><b>Bảng trang</b><div class="teach-table-scroll">${table(["Page", "Present", "Frame"], X.pt.map(ptRow))}</div></div></div><b>RAM · ${X.frameCount} khung · ${X.pageSize} byte/khung</b><div class="teach-compact-frames">${Array.from({ length: X.frameCount }, (_, f) => `<div data-overview-frame="${f}" class="teach-frame"><span>Frame ${f}</span><b>${X.pt.includes(f) ? "Trang " + X.pt.indexOf(f) : X.other.includes(f) ? "khác" : "trống"}</b></div>`).join("")}</div></details>` + route(e);
@@ -2898,6 +2916,7 @@ window.enhanceMemoryDemo = function (api) {
   // DEMO 2 textbook exercise: add scan events, keep simA selection/tie breaks unchanged.
   const allocatorA = document.createElement("div");
   allocatorA.className = "teach-allocator";
+  allocatorA.style.display = "none";
   if ($("#a-req")) $("#a-req").after(allocatorA);
   function buildA() {
     const sim = api.simA(A.holes, A.reqs, A.alg),
