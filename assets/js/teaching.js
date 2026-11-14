@@ -232,50 +232,7 @@ window.enhanceMemoryDemo = function (api) {
     return `<div class="teach-deep-content">${esc(mech)}</div>`;
   }
   function renderTerms(id, e, open) {
-    if (!["x", "v", "r"].includes(id)) return "";
-    const words = {
-      CPU: "Bộ xử lý: chạy các lệnh của chương trình.",
-      MMU: "Bộ dịch địa chỉ: đổi địa chỉ chương trình thành địa chỉ trong RAM.",
-      RAM: "Bộ nhớ làm việc, chứa dữ liệu đang được chương trình dùng.",
-      Byte: "Đơn vị đo dữ liệu. Mỗi địa chỉ trong mô phỏng chỉ đến một byte.",
-      LA: "Địa chỉ logic: vị trí chương trình muốn tìm, trước khi đổi sang địa chỉ RAM.",
-      PA: "Địa chỉ vật lý: vị trí thật của byte trong RAM.",
-      "Trang (Page)": "Một phần của chương trình có kích thước cố định. Các trang được đánh số từ 0.",
-      "Khung (Frame)": "Một ngăn trong RAM để chứa một trang. Khung và trang có cùng kích thước.",
-      p: "Số thứ tự trang: lấy phần nguyên khi chia địa chỉ logic cho cỡ trang.",
-      d: "Vị trí trong trang: phần dư của phép chia. Khi đổi trang sang khung, d giữ nguyên.",
-      TLB: "Sổ nhớ nhanh vài bản dịch trang → khung, nằm gần CPU/MMU; không chứa dữ liệu trang.",
-      "Bảng trang (Page Table)": "Sổ địa chỉ trong RAM, do OS lập khi bố trí bộ nhớ: cho biết mỗi trang nằm ở khung nào.",
-      Present: "1: trang đã có trong RAM. 0: trang chưa ở RAM. Quyền truy cập được kiểm tra riêng.",
-      OS: "Hệ điều hành: quản lý RAM, chọn khung và yêu cầu đọc/ghi trang.",
-      Trap: "Thông báo do lệnh đang chạy gây ra, chuyển việc xử lý về hệ điều hành.",
-      "Page Fault": "Lỗi trang: trang hợp lệ cần dùng chưa nằm trong RAM; OS phải nạp trang rồi thử lại lệnh.",
-      "Bộ nhớ phụ (Backing Store)": "Nơi giữ bản lưu trang, thường là ổ đĩa. CPU không đọc dữ liệu của lệnh trực tiếp ở đây.",
-      "I/O": "Đọc/ghi với thiết bị. Trong bước nạp trang: đưa dữ liệu giữa bộ nhớ phụ và RAM.",
-      Dirty: "Bit đánh dấu trang đã bị ghi sửa. Khi thay trang này, cần lưu nội dung mới về bộ nhớ phụ.",
-      Victim: "Trang được chọn để nhường ngăn RAM cho trang cần dùng.",
-      "Bit R": "1: đã được tham chiếu từ lần xóa bit gần nhất; 0: chưa. Clock xóa R=1 để cho cơ hội thứ hai.",
-      "Không giới hạn": "Tên trụ cột của bộ nhớ ảo: không cần nạp toàn bộ tiến trình vào RAM. RAM và ổ đĩa thực tế vẫn hữu hạn.",
-    };
-    let keys;
-    const title = e.title.toLocaleLowerCase("vi");
-    if (id === "x") {
-      keys = title.startsWith("cpu") ? ["CPU", "MMU", "LA", "Byte"]
-        : title.startsWith("tách") ? ["Trang (Page)", "p", "d"]
-          : title.includes("tlb") ? ["TLB", "Trang (Page)", "Khung (Frame)"]
-            : title.includes("bảng trang") ? ["Bảng trang (Page Table)", "Present", "Khung (Frame)"]
-              : e.kind === "page-in" || e.kind === "trap" ? ["Page Fault", "OS", "Bộ nhớ phụ (Backing Store)"]
-                : ["PA", "Khung (Frame)", "d"];
-    } else if (id === "v") {
-      keys = title.startsWith("cpu") ? ["CPU", "Trang (Page)", "RAM", "Không giới hạn"]
-        : title.startsWith("cập nhật") || title.startsWith("page hit") ? ["Bảng trang (Page Table)", "Present", "Khung (Frame)"]
-          : e.kind === "trap" ? (e.state.plan.oob ? ["OS", "Trap"] : ["OS", "Trap", "Page Fault"])
-            : e.kind === "page-out" ? ["Dirty", "I/O", "Victim"]
-              : e.kind === "page-in" || title.startsWith("định vị") ? ["Bộ nhớ phụ (Backing Store)", "I/O", "Khung (Frame)"]
-                : title.includes("victim") ? ["Victim", "Dirty", "Khung (Frame)"]
-                  : ["CPU", "RAM", "Dirty"];
-    } else keys = e.state.alg === "CLOCK" ? ["Khung (Frame)", "Victim", "Bit R"] : ["Trang (Page)", "Khung (Frame)", "Page Fault", "Victim"];
-    return `<details class="teach-terms" ${open ? "open" : ""}><summary>Giải nghĩa các chữ trong bước này</summary><dl>${keys.map(key => `<dt>${esc(key)}</dt><dd>${esc(words[key])}</dd>`).join("")}</dl></details>`;
+    return "";
   }
 
   function route(e) {
@@ -1144,15 +1101,12 @@ window.enhanceMemoryDemo = function (api) {
         if (this.id === "r") {
           cap.innerHTML = `<div class="teach-step-title">Bước ${i + 1} · ${esc(e.title)}</div>
             <div class="teach-step-context"><b>${esc(e.actor)}:</b> ${esc(e.condition)}</div>
-            <div class="teach-step-change">${esc(e.change)}</div>${deepExp}${renderTerms(this.id, e, termsOpen)}`;
+            <div class="teach-step-change">${esc(e.change)}</div>${deepExp}`;
         } else {
           cap.innerHTML = `<div class="teach-step-title">Bước ${i + 1} · ${esc(e.title)}</div>
             <div class="teach-step-context"><b>${esc(e.actor)}:</b> ${esc(e.condition)}</div>
             <div class="teach-step-change">${esc(e.change)}</div>
-            <details class="teach-next" open>
-              <summary>Giải thích nguyên lý hoạt động</summary>
-              ${deepExp}
-            </details>${renderTerms(this.id, e, termsOpen)}`;
+            <div class="teach-deep-exp">${deepExp}</div>`;
         }
       }
       this.noteEl.textContent = e.note || this.note;

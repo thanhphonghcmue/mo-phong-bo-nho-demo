@@ -781,7 +781,7 @@ footer{font-size:12px;color:var(--muted)}
       </div>
 
       <!-- Sân khấu 2 cột: Trái mô phỏng (~2/3), Phải giải thích (~1/3) -->
-      <div class="demo-stage-grid" id="grid-p0">
+      <div class="demo-stage-grid explain-hidden" id="grid-p0">
         <div class="demo-canvas-col">
           <!-- Sơ đồ mạch luồng MMU -->
           <div class="flow" id="b-flow"></div>
@@ -821,7 +821,7 @@ footer{font-size:12px;color:var(--muted)}
         <button class="btn" id="b-play">⏵ Tự chạy</button>
         <button class="btn" id="b-reset">↺ Làm lại</button>
         <button class="btn hist-toggle-btn" id="b-hist-toggle">Lịch sử</button>
-        <button class="btn toggle-explain-btn" data-target="grid-p0">Ẩn giải thích</button>
+        <button class="btn toggle-explain-btn" data-target="grid-p0">Hiện giải thích</button>
         <button class="btn theme-toggle-btn">Sáng / Tối</button>
         <span class="spacer"></span>
         <span class="muted" id="b-stats" style="font-size:13px;font-weight:700"></span>
@@ -848,7 +848,7 @@ footer{font-size:12px;color:var(--muted)}
       <div class="stage">
         <h2>Mở và tắt chương trình: lỗ trống tự xuất hiện</h2>
         
-        <div class="demo-stage-grid" id="grid-p1">
+        <div class="demo-stage-grid explain-hidden" id="grid-p1">
           <div class="demo-canvas-col">
             <div>
               <span class="lane-label">Kịch bản tiến trình</span>
@@ -881,7 +881,7 @@ footer{font-size:12px;color:var(--muted)}
           <button class="btn" id="f-play">⏵ Tự chạy</button>
           <button class="btn" id="f-reset">↺ RAM trống lại</button>
           <button class="btn hist-toggle-btn" id="f-hist-toggle">Lịch sử</button>
-          <button class="btn toggle-explain-btn" data-target="grid-p1">Ẩn giải thích</button>
+          <button class="btn toggle-explain-btn" data-target="grid-p1">Hiện giải thích</button>
           <button class="btn theme-toggle-btn">Sáng / Tối</button>
         </div>
       </div>
@@ -903,7 +903,7 @@ footer{font-size:12px;color:var(--muted)}
     <div id="e-wrap" class="panel" hidden>
       <div class="stage">
         <h2>Bài tập mẫu: RAM đã có sẵn 5 lỗ trống</h2>
-        <div class="demo-stage-grid" id="grid-p1-ex">
+        <div class="demo-stage-grid explain-hidden" id="grid-p1-ex">
           <div class="demo-canvas-col">
             <div class="scroll"><div class="lane">
               <span class="lane-label">Tiến trình đang xin</span>
@@ -934,7 +934,7 @@ footer{font-size:12px;color:var(--muted)}
           <button class="btn" id="a-play">⏵ Tự chạy</button>
           <button class="btn" id="a-reset">↺ Đặt lại bài tập</button>
           <button class="btn hist-toggle-btn" id="a-hist-toggle">Lịch sử</button>
-          <button class="btn toggle-explain-btn" data-target="grid-p1-ex">Ẩn giải thích</button>
+          <button class="btn toggle-explain-btn" data-target="grid-p1-ex">Hiện giải thích</button>
           <button class="btn theme-toggle-btn">Sáng / Tối</button>
         </div>
       </div>
@@ -964,7 +964,7 @@ footer{font-size:12px;color:var(--muted)}
         <span class="muted" style="font-size:12.5px">Trang 4 KB · 8 trang · RAM 16 khung</span>
       </div>
 
-      <div class="demo-stage-grid" id="grid-p2">
+      <div class="demo-stage-grid explain-hidden" id="grid-p2">
         <div class="demo-canvas-col">
           <div class="flow" id="x-flow"></div>
         </div>
@@ -987,7 +987,7 @@ footer{font-size:12px;color:var(--muted)}
         <button class="btn" id="x-play">⏵ Tự chạy</button>
         <button class="btn" id="x-reset">↺ Làm lại</button>
         <button class="btn hist-toggle-btn" id="x-hist-toggle">Lịch sử</button>
-        <button class="btn toggle-explain-btn" data-target="grid-p2">Ẩn giải thích</button>
+        <button class="btn toggle-explain-btn" data-target="grid-p2">Hiện giải thích</button>
         <button class="btn theme-toggle-btn">Sáng / Tối</button>
         <span class="spacer"></span>
         <span class="muted" id="x-stats" style="font-size:13px;font-weight:700"></span>
@@ -1018,7 +1018,7 @@ footer{font-size:12px;color:var(--muted)}
         <button class="btn" id="v-pre-invalid" style="padding:4px 8px;font-size:12.5px">Trang 99 (Lỗi ngoài miền)</button>
       </div>
 
-      <div class="demo-stage-grid" id="grid-p4">
+      <div class="demo-stage-grid explain-hidden" id="grid-p4">
         <div class="demo-canvas-col">
           <!-- Sơ đồ 5 khối tương tác của Demand Paging -->
           <div class="flow" id="v-flow"></div>
@@ -1054,7 +1054,7 @@ footer{font-size:12px;color:var(--muted)}
         <button class="btn" id="v-play">⏵ Tự chạy</button>
         <button class="btn" id="v-reset">↺ Làm lại</button>
         <button class="btn hist-toggle-btn" id="v-hist-toggle">Lịch sử</button>
-        <button class="btn toggle-explain-btn" data-target="grid-p4">Ẩn giải thích</button>
+        <button class="btn toggle-explain-btn" data-target="grid-p4">Hiện giải thích</button>
         <button class="btn theme-toggle-btn">Sáng / Tối</button>
         <span class="spacer"></span>
         <span class="muted" id="v-stats" style="font-size:13px;font-weight:700"></span>
@@ -1074,7 +1074,7 @@ footer{font-size:12px;color:var(--muted)}
         </div>
       </div>
 
-      <div class="demo-stage-grid" id="grid-p3">
+      <div class="demo-stage-grid explain-hidden" id="grid-p3">
         <div class="demo-canvas-col">
           <div>
             <span class="lane-label">Chuỗi trang tham chiếu</span>
@@ -1104,7 +1104,7 @@ footer{font-size:12px;color:var(--muted)}
         <button class="btn" id="r-play">⏵ Tự chạy</button>
         <button class="btn" id="r-reset">↺ Làm lại</button>
         <button class="btn hist-toggle-btn" id="r-hist-toggle">Lịch sử</button>
-        <button class="btn toggle-explain-btn" data-target="grid-p3">Ẩn giải thích</button>
+        <button class="btn toggle-explain-btn" data-target="grid-p3">Hiện giải thích</button>
         <button class="btn theme-toggle-btn">Sáng / Tối</button>
         <span class="spacer"></span>
         <div class="counts" id="r-counts"></div>

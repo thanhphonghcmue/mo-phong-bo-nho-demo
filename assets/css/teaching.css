@@ -1603,7 +1603,9 @@ tr.teach-spotlight {
 .teach-history,
 .teach-concepts,
 .concept-supplement,
-.hist-toggle-btn {
+.hist-toggle-btn,
+.teach-terms,
+.teach-next > summary {
   display: none !important;
 }
 
