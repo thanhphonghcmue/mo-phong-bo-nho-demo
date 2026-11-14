@@ -6,7 +6,7 @@ The blocked-atlas check uses a fresh context so the image cache cannot hide it.
 from pathlib import Path
 import json
 import os
-from playwright.sync_api import sync_playwright
+from playwright.sync_api import expect, sync_playwright
 
 
 BASE = os.getenv('MEMORY_DEMO_URL', 'http://127.0.0.1:8080').rstrip('/')
@@ -101,9 +101,10 @@ def run():
             for part in ['cpu', 'ram']:
                 assert canvas.locator('.hw-' + part).count() == 1, (topic, part)
                 photo = canvas.locator('.hw-photo--' + part)
-                assert photo.is_visible(), (topic, part)
-                opacity = photo.evaluate('el => getComputedStyle(el).opacity')
-                assert opacity == '1', (topic, part, page.viewport_size, opacity, page.evaluate('document.documentElement.dataset.hwPhotos'))
+                expect(photo).to_be_visible()
+                # A viewport/tab change can replace the canvas between reads.
+                # Retry against the live locator rather than a detached node.
+                expect(photo).to_have_css('opacity', '1')
                 assert canvas.locator('.hw-visual--' + part).get_attribute('aria-hidden') == 'true'
             assert 'chip' in canvas.inner_text().lower(), topic
             assert canvas.locator('.hw-photo--gpu').count() == 0, topic
@@ -234,9 +235,9 @@ def run():
             fallback.locator('#' + tab).click()
             for part in ['cpu', 'ram']:
                 illustration = fallback.locator(f'#lesson-{topic} .hw-fallback--{part}')
-                assert illustration.is_visible(), (topic, part)
-                assert illustration.evaluate('el => getComputedStyle(el).visibility') == 'visible'
-                assert fallback.locator(f'#lesson-{topic} .hw-photo--{part}').evaluate('el => getComputedStyle(el).opacity') == '0'
+                expect(illustration).to_be_visible()
+                expect(illustration).to_have_css('visibility', 'visible')
+                expect(fallback.locator(f'#lesson-{topic} .hw-photo--{part}')).to_have_css('opacity', '0')
             assert fallback.locator(f'#lesson-{topic} .hw-ram-slots').inner_text().strip()
             assert fallback.evaluate('document.documentElement.scrollWidth <= innerWidth'), topic
         fallback.locator('#t4').click()
