@@ -51,3 +51,41 @@
  .paging-address-result>b{font-size:14px}.paging-address-result{font-size:11px}.paging-key{font-size:9px}.paging-bypass-note{font-size:11px}.paging-fifo-proof{font-size:11px}.paging-reference-strip{gap:5px}
 }
 @media(prefers-reduced-motion:reduce){.paging-hardware-scene *{animation:none!important;transition:none!important}}
+
+/* OS and storage sit beside RAM, so each live arrow has real endpoints. */
+.lesson-mode .demand-hardware-layout{display:grid;grid-template-columns:minmax(190px,.75fr) 62px minmax(0,1.5fr);grid-template-areas:'cpu . ram' 'os . ram' 'storage . ram';gap:26px 16px;align-items:start}
+.demand-hardware-layout>.paging-hardware-bench{display:contents}
+.demand-hardware-layout .paging-processor-area{grid-area:cpu}
+.demand-hardware-layout .paging-ram-area{grid-area:ram;align-self:center}
+.demand-hardware-layout .paging-hardware-bus{display:none}
+.demand-hardware-layout>.paging-os-ribbon{grid-area:os;margin:0;flex-direction:column;align-items:flex-start;padding:13px 14px}
+.demand-hardware-layout>.demand-storage{grid-area:storage;min-width:0}
+.demand-storage .hw-ssd-content{flex-direction:column;align-items:flex-start;gap:10px}
+.demand-storage .hw-ssd-readout{padding:0 4px}
+.demand-storage .hw-visual--ssd{width:210px;max-width:100%;height:74px}
+.demand-hardware-layout.is-direct{grid-template-areas:'cpu . ram' 'note note note'}
+.demand-hardware-layout>.paging-bypass-note{grid-area:note;margin-top:0!important}
+.lesson-mode .paging-table-label,.lesson-mode .paging-cache-tag{padding:12px 14px;gap:6px}
+.lesson-mode .paging-cache-tag>span,.lesson-mode .paging-table-label>span{font-size:13px;color:#546a89}
+.lesson-mode .paging-cache-tag>b,.lesson-mode .paging-table-label>b{font-size:15px;color:#344f77}
+.lesson-mode .paging-table-label>small{font-size:12px;color:#63634e}
+.lesson-mode .paging-chip-index{font-size:14px}.lesson-mode .paging-memory-chip>small{font-size:12px}
+.lesson-mode .paging-page-tag{font-size:23px}.lesson-mode .paging-os-ribbon>span{font-size:12px;color:#725290}
+.lesson-mode .paging-os-ribbon>b{font-size:15px;line-height:1.65;color:#634477}
+.lesson-mode .paging-key{font-size:12px}.lesson-mode .paging-address-result>span{font-size:13px}
+.lesson-mode .paging-address-result>b{font-size:18px}.lesson-mode .paging-formula{font-size:14px!important}
+.lesson-mode .paging-bypass-note,.lesson-mode .paging-fifo-proof,.lesson-mode .paging-transfer{font-size:14px}
+.lesson-mode .paging-byte{font-size:13px;width:29px;height:31px}
+@media(max-width:760px){
+ .lesson-mode .demand-hardware-layout{grid-template-columns:minmax(0,1fr);grid-template-areas:'cpu' 'os' 'storage' 'ram';gap:30px}
+ .demand-hardware-layout.is-direct{grid-template-areas:'cpu' 'ram' 'note'}
+ .demand-hardware-layout .paging-processor-area .hw-cpu{max-width:none}
+ .demand-storage .hw-ssd-content{flex-direction:column;align-items:flex-start}
+ .demand-storage .hw-visual--ssd{width:200px;height:68px}
+ .lesson-mode .paging-cache-tag>span,.lesson-mode .paging-table-label>span{font-size:12px}
+ .lesson-mode .paging-cache-tag>b,.lesson-mode .paging-table-label>b{font-size:13px}
+ .lesson-mode .paging-chip-index{font-size:12px}.lesson-mode .paging-memory-chip>small{font-size:11px}
+ .lesson-mode .paging-page-tag{font-size:19px;padding:6px 8px;white-space:normal;overflow-wrap:anywhere}
+ .lesson-mode .paging-key{font-size:11px}.lesson-mode .paging-os-ribbon>b{font-size:14px}
+ .lesson-mode .paging-bypass-note,.lesson-mode .paging-fifo-proof,.lesson-mode .paging-transfer{font-size:12px}
+}

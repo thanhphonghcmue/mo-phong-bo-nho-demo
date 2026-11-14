@@ -30,6 +30,8 @@ Mặc định dùng số nhỏ để quan sát. Đây là **ví dụ minh họa*
 
 Mô hình dùng hình minh họa CPU, thanh RAM và SSD theo hình dáng linh kiện ngoài đời, kèm lớp dữ liệu màu để theo dõi từng bước. Bộ ảnh `assets/images/hardware/parts.png` được tạo bằng AI, không phải ảnh chụp hoặc dữ liệu phần cứng từ máy người dùng. Vùng/trang/khung là lớp mô phỏng logic; **một chip thật trên thanh RAM không tương ứng một khung**. GPU chỉ nằm trong mục nhận diện linh kiện tùy chọn và không tham gia năm thuật toán. Lần cập nhật này thay phần trình bày, giữ nguyên engine.
 
+Bước hiện tại có thanh hành động lớn và một điểm sáng bám đúng nơi xử lý: phép kiểm tra, lỗ trống, TLB, bản ghi bảng trang, bit R hoặc khung RAM. Vàng là đang kiểm tra, tím là thao tác bản ghi, xanh là nạp/dùng dữ liệu, đỏ là chặn/chọn ra. Mũi tên có đầu nối theo kích thước thật của phần tử và được vẽ lại khi đổi bố cục; đường nét đứt diễn tả tra cứu/báo hiệu, các hạt sáng ngắn chỉ xuất hiện ở bước chuyển dữ liệu. Bấm Lùi/Tiếp đưa điểm đang xử lý vào tầm nhìn; giảm chuyển động giữ viền và mũi tên tĩnh. Khung giải thích dùng chữ lớn hơn và nền tím nhạt, vẫn mở/thu gọn tùy ý.
+
 ## Vì sao trang đó ra trước?
 
 Với `1 2 3 1 4 2`, ba khung:
@@ -102,9 +104,12 @@ Với máy chủ tĩnh ở cổng 8080, Python Playwright và Chromium:
 python3 tests/lessons_browser.py
 python3 tests/interface_browser.py
 python3 tests/hardware_browser.py
+python3 tests/flow_browser.py
 ```
 
 Bộ `lessons_browser.py` kiểm tra **giao diện công khai**: năm demo, lý do chọn, trước/sau, biên, nhập sai, Lùi, tự chạy, 375/390px và bàn phím. Ảnh/kết quả lưu ở `/tmp/memory-lessons-review/`. Bộ `interface_browser.py` kiểm tra mở/thu gọn, bàn phím, phục hồi bước đã xem, giữ lựa chọn theo demo, nhãn chủ đề và nhãn ví dụ tự nhập; ảnh ở `/tmp/memory-interface-tests/`. Bộ `hardware_browser.py` dành cho lớp hình linh kiện. Có thể đặt `MEMORY_DEMO_URL` và `CHROMIUM_PATH`.
+
+`flow_browser.py` kiểm tra vị trí điểm sáng, hướng luồng thật, các góc vuông/đầu nối của mũi tên và việc tránh chữ/linh kiện khác trên desktop và 375/390px; ảnh/kết quả ở `/tmp/memory-flow-review/`.
 
 Các bộ hồi quy cũ chạy qua `?view=diagnostic`, chỉ dành cho người bảo trì. Cách này giữ nguyên các assertion về nội dung/engine và cho phép kiểm tra lại các fixture cũ mà không đưa bảng điều khiển dài trở lại bài học:
 

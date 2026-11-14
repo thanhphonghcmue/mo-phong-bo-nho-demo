@@ -1,5 +1,7 @@
 # Căn cứ thiết kế cho năm demo
 
+Bản hiệu ứng theo bước bổ sung một điểm sáng chính, chữ mô hình lớn hơn và đường SVG bám vào phần tử đang hiển thị. Màu nhấn có chữ mô tả hành động; hiệu ứng đến bước chạy hai lượt ngắn rồi giữ trạng thái tĩnh, tôn trọng reduced motion. OS/SSD được đặt cạnh RAM ở desktop để đường nạp và đường cập nhật bản ghi có đích rõ ràng. Đây là triển khai riêng cho mô hình, không thêm thư viện giao diện hoặc tuyên bố sao chép một mẫu của các skill tham khảo.
+
 Mục tiêu của lần chỉnh giao diện này: mô hình là trọng tâm, người xem tự mở/thu gọn lời giải, và ba ý nghĩa học phần **An toàn / Hiệu quả / Không giới hạn** được nhận biết rõ. Giữ web HTML/CSS/JavaScript tĩnh; không chuyển sang React chỉ để dùng component.
 
 ## Nguồn GitHub đã đọc

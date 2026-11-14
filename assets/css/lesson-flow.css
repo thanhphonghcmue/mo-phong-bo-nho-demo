@@ -1,0 +1,152 @@
+/* One bright current action, with arrows anchored to the live layout. */
+body.lesson-mode{background:radial-gradient(ellipse at 8% 0%,#eeeaff 0,transparent 42%),radial-gradient(ellipse at 95% 25%,#e9f8f3 0,transparent 36%),#f7f6f2}
+.lesson-mode .site-header{background:linear-gradient(110deg,#fff 35%,#f2edff 78%,#e8f7f4);border-color:#ded6f2;box-shadow:0 5px 22px #6c4b9b0b}
+.lesson-mode .header-titles h1{font-size:26px;font-weight:800;color:#34274c}
+.lesson-mode .header-titles p{font-size:13px;color:#626071}
+#t0{--tab-accent:#c2374c;--tab-tint:#fff0f1;--tab-border:#efb4bf}
+#t1{--tab-accent:#a75f13;--tab-tint:#fff3df;--tab-border:#e8c796}
+#t2{--tab-accent:#266cc0;--tab-tint:#eaf3ff;--tab-border:#adcbed}
+#t4{--tab-accent:#14815d;--tab-tint:#e7f7ef;--tab-border:#a5d5bf}
+#t3{--tab-accent:#8051c4;--tab-tint:#f2eaff;--tab-border:#cdb5ed}
+.lesson-mode .dash-tab{position:relative;overflow:hidden;min-height:108px;padding:14px 15px;border:1px solid var(--tab-border);border-bottom:4px solid var(--tab-border);background:linear-gradient(145deg,#fff 42%,var(--tab-tint));transition:background-color .16s,box-shadow .16s,border-color .16s}
+.lesson-mode .dash-tab::before{content:'';position:absolute;right:-15px;top:-24px;width:80px;height:80px;border-radius:50%;background:var(--tab-tint);pointer-events:none}
+.lesson-mode .dash-tab .n{font-size:12px;font-weight:700;letter-spacing:.04em;position:relative}
+.lesson-mode .dash-tab .t{font-size:16px;font-weight:750;position:relative}
+.lesson-mode .dash-tab .lesson-pillar{font-size:11px;position:relative}
+.lesson-mode .dash-tab[aria-selected=true]{border-color:var(--tab-accent);border-bottom-color:var(--tab-accent);background:var(--tab-tint);box-shadow:0 4px 15px color-mix(in srgb,var(--tab-accent) 18%,transparent)!important}
+.lesson-mode .dash-tab:hover{border-color:var(--tab-accent);background:var(--tab-tint)}
+.lesson-mode .lesson h2{font-size:28px;font-weight:800;color:#2c2838}
+.lesson-mode .lesson-intro{font-size:16px;line-height:1.7}
+.lesson-mode .lesson-purpose>span:last-child{font-size:13px}
+.lesson-mode .lesson-purpose>.lesson-pillar{font-size:11px}
+.lesson-mode .lesson-toolbar label{font-size:14px}
+.lesson-mode .lesson select,.lesson-mode .lesson input{font-size:15px;min-height:46px}
+.lesson-mode .lesson-canvas{position:relative;isolation:isolate;overflow:visible;padding:26px 30px;background:linear-gradient(130deg,#fff 0%,#f8faf6 60%,#f0f6ef);border:1px solid #d6dfd1;border-radius:16px}
+.lesson-canvas [data-flow-tone=amber]{--flow-color:#b56a0b;--flow-tint:#fff3d9;--flow-glow:#e8a52c48;--flow-ink:#80500d}
+.lesson-canvas [data-flow-tone=blue]{--flow-color:#2468d5;--flow-tint:#eaf2ff;--flow-glow:#4385ee40;--flow-ink:#2057a8}
+.lesson-canvas [data-flow-tone=violet]{--flow-color:#8252d3;--flow-tint:#f1eaff;--flow-glow:#9b73e447;--flow-ink:#6c3eb2}
+.lesson-canvas [data-flow-tone=green]{--flow-color:#148653;--flow-tint:#e7f8ef;--flow-glow:#25a66e40;--flow-ink:#106a42}
+.lesson-canvas [data-flow-tone=red]{--flow-color:#d34259;--flow-tint:#ffedf0;--flow-glow:#e65b7040;--flow-ink:#ae2d42}
+.lesson-live-step{display:flex;align-items:center;gap:14px;position:relative;z-index:3;margin:0 0 27px;padding:14px 16px;border:1px solid color-mix(in srgb,var(--flow-color) 40%,white);border-left:5px solid var(--flow-color);border-radius:11px;background:linear-gradient(105deg,var(--flow-tint),#fff);box-shadow:0 4px 16px var(--flow-glow)}
+.lesson-live-number{flex:none;font-size:12px;letter-spacing:.04em;font-weight:800;color:var(--flow-ink);background:#fff;border:1px solid color-mix(in srgb,var(--flow-color) 35%,white);border-radius:7px;padding:9px 10px}
+.lesson-live-step>div{min-width:0;display:flex;flex-direction:column;gap:3px}
+.lesson-live-caption{font-size:10px;letter-spacing:.06em;font-weight:750;color:var(--flow-ink)}
+.lesson-live-step strong{font-size:19px;line-height:1.4;color:var(--flow-ink)}
+.lesson-live-route{font-size:13px;line-height:1.5;color:var(--flow-ink)}
+.lesson-flow-enabled .lesson-active{box-shadow:none}
+.lesson-flow-enabled .hw-ram.is-active .hw-dimm-board{outline:none}
+.lesson-flow-enabled .hw-bus,.lesson-flow-enabled .paging-hardware-bus,.lesson-flow-enabled .replacement-cpu-link,.lesson-flow-enabled .replacement-storage-caption>span{visibility:hidden}
+.lesson-flow-enabled .lesson-focus{position:relative;z-index:2;outline:3px solid var(--flow-color)!important;outline-offset:4px;border-radius:7px;box-shadow:0 0 0 8px var(--flow-glow),0 0 28px var(--flow-glow)!important;animation:lesson-focus-arrive 1.6s ease-out 2}
+.lesson-flow-enabled .hw-cpu.lesson-focus{padding:8px;background:linear-gradient(150deg,#fff,var(--flow-tint))}
+.lesson-flow-enabled .lesson-focus::after{content:'';position:absolute;left:auto;bottom:auto;right:-9px;top:-9px;width:12px;height:12px;background:var(--flow-color);border:3px solid #fff;border-radius:50%;box-shadow:0 0 14px var(--flow-glow);pointer-events:none}
+.lesson-flow-overlay{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:4;max-width:100%;height:100%}
+.lesson-flow-path,.lesson-flow-halo,.lesson-flow-travel{fill:none;stroke-linejoin:round;stroke-linecap:round;vector-effect:non-scaling-stroke}
+.lesson-flow-halo{stroke-width:12;opacity:.16}
+.lesson-flow-path{stroke-width:3.5;filter:drop-shadow(0 1px 2px #ffffff)}
+.lesson-flow-path[data-kind=lookup],.lesson-flow-path[data-kind=signal]{stroke-dasharray:7 5}
+.lesson-flow-travel{stroke-width:5;stroke-dasharray:2 22;animation:lesson-route-travel 1.6s linear 2}
+.lesson-flow-origin{stroke:#fff;stroke-width:2}
+@keyframes lesson-route-travel{to{stroke-dashoffset:-48}}
+@keyframes lesson-focus-arrive{0%,100%{outline-offset:4px}45%{outline-offset:7px}}
+/* Hardware labels need to remain legible when projected in a classroom. */
+.lesson-mode .hw-component-heading{font-size:14px;line-height:1.55;gap:8px}
+.lesson-mode .hw-component-name{font-size:16px;font-weight:800}
+.lesson-mode .hw-part-counter{font-size:12px}
+.lesson-mode .hw-part-detail,.lesson-mode .hw-cpu-readout>p,.lesson-mode .hw-ssd-readout>p{font-size:13px;line-height:1.6}
+.lesson-mode .hw-simulation-note,.lesson-mode .hw-model-caption{font-size:11px;line-height:1.6}
+.lesson-mode .hw-data-tag{font-size:17px}
+.lesson-mode .hw-cpu-readout>strong{font-size:24px}
+.lesson-mode .hardware-guide>summary{font-size:14px;min-height:46px}
+.lesson-mode .hardware-guide>summary>small{font-size:12px}
+.lesson-mode .hardware-guide-grid figcaption strong{font-size:14px}
+.lesson-mode .hardware-guide-grid figcaption p{font-size:12px}
+.lesson-mode .hardware-guide-note{font-size:11px}
+/* A richer disclosure without adding another compulsory panel. */
+.lesson-mode .lesson-narration.lesson-explanation{border:1px solid #cab9ec;border-left:5px solid #8954d4;border-radius:13px;background:#f4eeff;box-shadow:0 4px 18px #7e4ec611;overflow:hidden}
+.lesson-mode .lesson-explanation>summary{min-height:83px;padding:16px 18px;background:linear-gradient(115deg,#f2eaff,#fff 85%)}
+.lesson-mode .lesson-explanation>summary:hover{background:#eee3ff}
+.lesson-mode .lesson-current{font-size:13px;color:#6d449d;font-weight:700}
+.lesson-mode .lesson-title{font-size:19px;line-height:1.5;color:#442767}
+.lesson-mode .lesson-explanation-action{font-size:13px;color:#643497;padding:8px 10px;border:1px solid #d6c1ef;background:#fff;border-radius:7px}
+.lesson-mode .lesson-explanation-body{padding:19px 20px;background:linear-gradient(140deg,#fcf9ff,#f6f0ff)}
+.lesson-mode .lesson-why{font-size:17px;line-height:1.8;color:#433150}
+.lesson-mode .lesson-next{font-size:14px;line-height:1.7;color:#665371;margin-top:12px!important}
+.lesson-mode .lesson-history>summary{font-size:13px;color:#694387}
+.lesson-mode .lesson-step-log button{font-size:14px}
+.lesson-mode .lesson-result{font-size:16px;font-weight:600;line-height:1.65;border-left:4px solid #3d9562}
+.lesson-mode .lesson-controls{border-color:#d9caec;background:#fffffff5;box-shadow:0 4px 22px #71429c18}
+.lesson-mode .lesson-count{font-size:12px;color:#5e426f;font-weight:600}
+@media(max-width:760px){
+ .lesson-mode .header-titles h1{font-size:20px}.lesson-mode .header-logo{width:38px;height:38px}
+ .lesson-mode .dash-tab{min-width:166px;min-height:105px;padding:12px}
+ .lesson-mode .dash-tab .n{font-size:11px}.lesson-mode .dash-tab .t{font-size:15px}
+ .lesson-mode .lesson h2{font-size:24px}.lesson-mode .lesson-intro{font-size:15px;line-height:1.65}
+ .lesson-mode .lesson-purpose>span:last-child{font-size:12px}
+ .lesson-mode .lesson-canvas{padding:18px 23px;border-radius:13px}
+ .lesson-live-step{margin-bottom:25px;padding:12px 10px;gap:10px;align-items:flex-start}
+ .lesson-live-number{font-size:10px;padding:8px 6px;white-space:nowrap}
+ .lesson-live-caption{font-size:9px;letter-spacing:.02em}.lesson-live-step strong{font-size:16px}
+ .lesson-mode .hw-component-heading{font-size:12px}.lesson-mode .hw-component-name{font-size:14px}
+ .lesson-mode .hw-part-detail,.lesson-mode .hw-cpu-readout>p,.lesson-mode .hw-ssd-readout>p{font-size:12px}
+ .lesson-mode .hw-simulation-note,.lesson-mode .hw-model-caption{font-size:10px}
+ .lesson-mode .hw-cpu-readout>strong{font-size:21px}.lesson-mode .hw-data-tag{font-size:15px}
+ .lesson-mode .hardware-guide>summary>small{font-size:10px}.lesson-mode .hardware-guide>summary{font-size:13px;gap:6px}
+ .lesson-mode .lesson-explanation>summary{padding:13px 12px;gap:8px}.lesson-mode .lesson-title{font-size:17px}
+ .lesson-mode .lesson-explanation-action{font-size:12px;max-width:80px;padding:6px 7px}
+ .lesson-mode .lesson-current{font-size:12px}.lesson-mode .lesson-explanation-body{padding:15px 13px}
+ .lesson-mode .lesson-why{font-size:16px}.lesson-mode .lesson-next{font-size:13px}
+ .lesson-mode .lesson-count{font-size:11px}.lesson-mode .lesson-result{font-size:15px}
+ .lesson-flow-enabled .lesson-focus{outline-width:2px!important;outline-offset:3px;box-shadow:0 0 0 6px var(--flow-glow),0 0 20px var(--flow-glow)!important}
+}
+@media(prefers-reduced-motion:reduce){.lesson-mode .lesson-focus,.lesson-mode .lesson-flow-overlay *{animation:none!important;transition:none!important}}
+/* Keep the real chip surface dark; the data sticker carries page identity. */
+.lesson-mode .paging-hardware-scene .paging-memory-chip[class*="hw-page-"]{background:linear-gradient(135deg,#284437,#192d24)}
+.lesson-mode .foundation-hardware .foundation-check>.lesson-label{font-size:12px}
+.lesson-mode .foundation-hardware .foundation-check>strong{font-size:18px}
+.lesson-mode .foundation-hardware .foundation-check>span:last-child{font-size:12px}
+.lesson-mode .foundation-registers span{font-size:13px}.lesson-mode .foundation-registers b{font-size:12px}
+.lesson-mode .foundation-hardware .foundation-zone>.lesson-label{font-size:12px}
+.lesson-mode .foundation-hardware .foundation-zone>strong{font-size:18px}
+.lesson-mode .foundation-hardware .foundation-address{font-size:12px}
+.lesson-mode .foundation-hardware .foundation-checks{gap:15px}
+.lesson-mode .foundation-hardware .foundation-outcome{font-size:15px}
+.lesson-mode .allocation-hardware .allocation-hole-title{font-size:14px}
+.lesson-mode .allocation-hardware .allocation-hole-title>span{font-size:10px}
+.lesson-mode .allocation-hardware .allocation-address{font-size:11px}
+.lesson-mode .allocation-hardware .allocation-test{font-size:13px}
+.lesson-mode .allocation-hardware .allocation-piece b{font-size:18px}
+.lesson-mode .allocation-request-chip{font-size:14px}
+.lesson-mode .replacement-hardware-ram .replacement-frame>.lesson-label{font-size:13px}
+.lesson-mode .replacement-hardware-ram .replacement-tile-status{font-size:12px}
+.lesson-mode .replacement-hardware-ram .replacement-bit{font-size:13px;display:inline-block;padding:4px 7px}
+.lesson-mode .replacement-order-heading{font-size:15px}.lesson-mode .replacement-order-heading>span{font-size:13px}
+.lesson-mode .replacement-order-item small{font-size:13px}.lesson-mode .replacement-chosen{font-size:12px}
+.lesson-mode .replacement-proof>p,.lesson-mode .replacement-counts{font-size:13px}
+.lesson-mode .replacement-storage-route .hw-ssd-readout>p{font-size:13px}
+.lesson-mode .replacement-storage-caption>strong{font-size:14px}.lesson-mode .replacement-storage-caption>small{font-size:12px}
+.lesson-mode .replacement-hit-note{font-size:14px}
+@media(max-width:760px){
+ .lesson-mode .foundation-bench .foundation-processor{grid-template-columns:1fr;gap:13px}
+ .lesson-mode .foundation-bench .hw-cpu{grid-row:1;grid-column:1;max-width:240px;margin:0 auto;width:100%}
+ .lesson-mode .foundation-bench .foundation-registers{grid-row:2;grid-column:1;margin:0;align-self:auto}
+ .lesson-mode .foundation-bench .foundation-checks{grid-row:3;grid-column:1;margin:0;align-self:auto;gap:15px}
+ .lesson-mode .foundation-hardware .foundation-check{padding:10px 8px}
+ .lesson-mode .foundation-hardware .foundation-check>strong{font-size:17px}
+ .lesson-mode .foundation-hardware .foundation-check>.lesson-label{font-size:12px}
+ .lesson-mode .foundation-hardware .foundation-check>span:last-child{font-size:12px}
+ .lesson-mode .foundation-hardware .foundation-zone>.lesson-label{font-size:11px}
+ .lesson-mode .foundation-hardware .foundation-zone>strong{font-size:15px}
+ .lesson-mode .foundation-hardware .foundation-address{font-size:11px}
+ .lesson-mode .allocation-hardware .allocation-hole-title{font-size:13px}
+ .lesson-mode .allocation-hardware .allocation-address{font-size:10px}
+ .lesson-mode .allocation-hardware .allocation-test{font-size:12px}
+ .lesson-mode .replacement-hardware-ram .replacement-frame>.lesson-label{font-size:11px}
+ .lesson-mode .replacement-hardware-ram .replacement-tile-status{font-size:11px}
+ .lesson-mode .replacement-hardware-ram .replacement-bit{font-size:12px}
+ .lesson-mode .replacement-order-item small{font-size:12px}
+ .lesson-mode .replacement-order-heading>span{font-size:12px}
+ .lesson-mode .replacement-proof>p,.lesson-mode .replacement-counts{font-size:12px}
+ .lesson-mode .replacement-storage-caption>strong{font-size:12px}.lesson-mode .replacement-storage-caption>small{font-size:11px}
+ .lesson-mode .replacement-hit-note{font-size:13px}
+}
+.lesson-flow-enabled .paging-chip-read,.lesson-flow-enabled .paging-cache-tag.is-active,.lesson-flow-enabled .paging-table-label.is-active{outline:none}

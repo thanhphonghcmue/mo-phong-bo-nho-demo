@@ -14,11 +14,11 @@
     ssd: ({label,page,detail,html}) => `<div class="paging-hardware-fallback"><span>${esc(label)}</span><strong>${page == null ? "SSD" : `Trang ${esc(page)}`}</strong><small>${esc(detail)}</small>${html || ""}</div>`,
   };
   function bus(text, direction = "right", active = false) {
-    return `<div class="paging-hardware-bus ${active ? "is-active" : ""}" data-direction="${direction}"><span>${esc(text)}</span><i aria-hidden="true">${direction === "left" ? "←" : direction === "pause" ? "· · ·" : "→"}</i></div>`;
+    return `<div class="paging-hardware-bus" aria-hidden="true"></div>`;
   }
   function bytes(size, offset, read) {
     if (!Number.isInteger(size) || size < 1) return "";
-    if (size <= 12) return `<div class="paging-byte-row" aria-label="Các vị trí byte trong khung">${Array.from({length:size}, (_, i) => `<span class="paging-byte ${read && i === offset ? "paging-byte-selected" : ""}" ${read && i === offset ? 'aria-current="true"' : ""}>${i}</span>`).join("")}</div>`;
+    if (size <= 12) return `<div class="paging-byte-row" aria-label="Các vị trí byte trong khung">${Array.from({length:size}, (_, i) => `<span data-flow-node="byte-${i}" class="paging-byte ${read && i === offset ? "paging-byte-selected" : ""}" ${read && i === offset ? 'aria-current="true"' : ""}>${i}</span>`).join("")}</div>`;
     return `<p class="lesson-muted">Các vị trí: 0 … ${esc(size - 1)}${read ? ` · đọc tại +${esc(offset)}` : ""}</p>`;
   }
 
@@ -80,16 +80,32 @@
     const cpuDetail=split ? `Trang ${p.p} · vị trí +${p.d}` : "Địa chỉ logic · chưa phải vị trí trong RAM";
     const requestBody=split ? `<div class="paging-address-parts"><span>Trang <b>${esc(p.p)}</b></span><span>Vị trí <b>+${esc(p.d)}</b></span></div><p class="paging-formula">${esc(p.addr)} = ${esc(p.p)} × ${esc(size)} + ${esc(p.d)}</p>` : '<p class="paging-placeholder">Chờ tách trang và vị trí</p>';
     const cacheText=p.err ? "Địa chỉ bị từ chối" : !hasLooked ? "Chưa tra" : p.hit ? `Có: trang ${p.p} → khung ${p.f}` : cache || ready ? `Đã nhớ: ${p.p} → ${p.f}` : "Chưa nhớ · cần xem bảng trang";
-    const lookupBody=`<div class="paging-cache-tag ${tlbLookup || cache ? "is-active" : ""}"><span>TLB · sổ nhớ nhanh trong CPU</span><b>${esc(cacheText)}</b></div>`;
-    const ramChip=p.err ? '<div class="paging-memory-chip paging-no-access"><span>Truy cập bị chặn</span><strong>Không đọc RAM</strong></div>' : knownFrame ? `<div class="paging-memory-chip ${pageClass(p.p)} ${read ? "paging-chip-read" : ""}"><span class="paging-chip-index">Khung ${esc(p.f)} · Frame</span><strong class="paging-page-tag">Trang ${esc(p.p)}</strong>${bytes(size,p.d,read)}<small>${read ? "CPU đang đọc đúng byte" : load ? "Vừa nạp trang" : "Đã tìm được khung; chưa đọc byte"}</small></div>` : '<div class="paging-memory-chip paging-chip-pending"><span>Chưa biết khung nào</span><strong>?</strong><small>Chưa có địa chỉ vật lý.</small></div>';
-    const ramBody=hw.ram({label:"RAM · bộ nhớ làm việc", detail:`Mô phỏng trang/khung ${size} byte`, active:read || load, html:`<div class="paging-frames paging-one-frame">${ramChip}</div>`});
-    const table=`<div class="paging-table-label ${tableLookup ? "is-active" : ""} ${p.hit && hasLooked ? "paging-bypassed" : ""}"><span>Bảng trang · sổ chỉ đường trong RAM</span><b>${p.err ? "Không dùng địa chỉ bị từ chối" : esc(tableText)}</b></div>`;
-    const addressResult=ready ? `<p class="paging-address-result"><span>Địa chỉ thật</span><b>${esc(p.f)} × ${esc(size)} + ${esc(p.d)} = ${esc(p.phys)}</b></p>` : '<p class="paging-address-result paging-address-wait">Chưa tạo địa chỉ vật lý</p>';
-    const pageIn=load ? `<div class="paging-physical-io">${hw.ssd({label:"SSD · bản lưu trang",page:p.p,detail:"OS lấy trang hợp lệ từ bộ nhớ phụ",active:true})}${bus(`Nạp Trang ${p.p} → Khung ${p.newF}`,"right",true)}</div>` : "";
+    const lookupBody=`<div data-flow-node="tlb" class="paging-cache-tag ${tlbLookup || cache ? "is-active" : ""}"><span>TLB · sổ nhớ nhanh trong CPU</span><b>${esc(cacheText)}</b></div>`;
+    const ramChip=p.err ? '<div class="paging-memory-chip paging-no-access"><span>Truy cập bị chặn</span><strong>Không đọc RAM</strong></div>' : knownFrame ? `<div data-flow-node="frame" class="paging-memory-chip ${pageClass(p.p)} ${read ? "paging-chip-read" : ""}"><span class="paging-chip-index">Khung ${esc(p.f)} · Frame</span><strong class="paging-page-tag">Trang ${esc(p.p)}</strong>${bytes(size,p.d,read)}<small>${read ? "CPU đang đọc đúng byte" : load ? "Vừa nạp trang" : "Đã tìm được khung; chưa đọc byte"}</small></div>` : '<div data-flow-node="frame" class="paging-memory-chip paging-chip-pending"><span>Chưa biết khung nào</span><strong>?</strong><small>Chưa có địa chỉ vật lý.</small></div>';
+    const ramBody=hw.ram({label:"RAM · bộ nhớ làm việc", detail:`Mô phỏng trang/khung ${size} byte`, active:false, html:`<div class="paging-frames paging-one-frame">${ramChip}</div>`});
+    const table=`<div data-flow-node="pte" class="paging-table-label ${tableLookup ? "is-active" : ""} ${p.hit && hasLooked ? "paging-bypassed" : ""}"><span>Bảng trang · sổ chỉ đường trong RAM</span><b>${p.err ? "Không dùng địa chỉ bị từ chối" : esc(tableText)}</b></div>`;
+    const addressResult=ready ? `<p data-flow-node="address" class="paging-address-result"><span>Địa chỉ thật</span><b>${esc(p.f)} × ${esc(size)} + ${esc(p.d)} = ${esc(p.phys)}</b></p>` : '<p class="paging-address-result paging-address-wait">Chưa tạo địa chỉ vật lý</p>';
+    const pageIn=load ? `<div class="paging-physical-io"><div data-flow-node="storage">${hw.ssd({label:"SSD · bản lưu trang",page:p.p,detail:"OS lấy trang hợp lệ từ bộ nhớ phụ",active:true})}</div>${bus(`Nạp Trang ${p.p} → Khung ${p.newF}`,"right",true)}</div>` : "";
 
+    const cpuNode='.paging-processor-area .hw-cpu';
+    const focus=trap ? {selector:cpuNode,label:'Chặn địa chỉ không hợp lệ',tone:'red'}
+      : load ? {selector:'[data-flow-node="frame"]',label:`Nạp Trang ${p.p} vào Khung ${p.newF}`,tone:'green'}
+      : read ? {selector:size<=12?`[data-flow-node="byte-${p.d}"]`:'[data-flow-node="frame"]',label:`Đọc byte +${p.d} trong Khung ${p.f}`,tone:'green'}
+      : address ? {selector:'[data-flow-node="address"]',label:`Tính địa chỉ vật lý ${p.phys}`,tone:'blue'}
+      : tableLookup ? {selector:'[data-flow-node="pte"]',label:`Tra bảng trang để tìm Trang ${p.p}`,tone:'violet'}
+      : tlbLookup || cache ? {selector:'[data-flow-node="tlb"]',label:cache?'Lưu bản dịch vào TLB':p.hit?'TLB đã nhớ đúng khung':'Tra bản dịch trong TLB',tone:'blue'}
+      : {selector:cpuNode,label:request?`CPU yêu cầu byte ${p.addr}`:`Tách trang ${p.p} và vị trí +${p.d}`,tone:'amber'};
+    const side={mobileFromPort:'left',mobileToPort:'left'};
+    const flows=trap||request||lower.startsWith('tách')?[]
+      : load ? [{from:'[data-flow-node="storage"] .hw-ssd .hw-visual--ssd',to:'[data-flow-node="frame"]',label:'Nạp dữ liệu SSD → RAM',tone:'green',kind:'data',...side}]
+      : read ? [{from:'[data-flow-node="frame"]',to:cpuNode+' .hw-visual--cpu',label:'RAM trả dữ liệu cho CPU',tone:'green',kind:'data',...side}]
+      : address ? [{from:'[data-flow-node="tlb"]',to:'[data-flow-node="address"]',label:'Khung × cỡ trang + vị trí',tone:'blue',kind:'lookup',...side}]
+      : tableLookup ? [{from:'[data-flow-node="tlb"]',to:'[data-flow-node="pte"]',label:'TLB miss → tra bảng trang',tone:'violet',kind:'lookup',...side}]
+      : cache ? [{from:'[data-flow-node="pte"]',to:'[data-flow-node="tlb"]',label:'Ghi nhớ bản dịch',tone:'blue',kind:'lookup',...side}]
+      : tlbLookup ? [{from:cpuNode+' .hw-visual--cpu',to:'[data-flow-node="tlb"]',label:'Tra cứu số khung',tone:'blue',kind:'lookup'}] : [];
     return {
-      title: heading, why, next,
-      html: `<div class="paging-scene paging-hardware-scene ${trap ? "paging-trap" : ""}"><div class="paging-hardware-bench"><div class="paging-processor-area">${hw.cpu({label:"CPU / MMU",value:`Byte ${p.addr}`,detail:cpuDetail,active:step===0 || tlbLookup || address,html:requestBody})}${lookupBody}</div>${bus(trap ? "Truy cập bị chặn" : read ? "Dữ liệu từ RAM" : "Địa chỉ cần tìm",read ? "left" : trap ? "pause" : "right",read || address)}<div class="paging-ram-area">${ramBody}${table}${addressResult}</div></div>${pageIn}<p class="paging-key">Trang = phần của chương trình; khung = vùng chứa một trang trong RAM. Ô màu là vùng nhớ được phóng to, không phải từng chip RAM.</p></div>`,
+      title: heading, why, next,focus,flows,
+      html: `<div class="paging-scene paging-hardware-scene ${trap ? "paging-trap" : ""}"><div class="paging-hardware-bench"><div class="paging-processor-area">${hw.cpu({label:"CPU / MMU",value:`Byte ${p.addr}`,detail:cpuDetail,active:false,html:requestBody})}${lookupBody}</div>${bus(trap ? "Truy cập bị chặn" : read ? "Dữ liệu từ RAM" : "Địa chỉ cần tìm",read ? "left" : trap ? "pause" : "right",read || address)}<div class="paging-ram-area">${ramBody}${table}${addressResult}</div></div>${pageIn}<p class="paging-key">Trang = phần của chương trình; khung = vùng chứa một trang trong RAM. Ô màu là vùng nhớ được phóng to, không phải từng chip RAM.</p></div>`,
       result: read ? `LA ${p.addr} → trang ${p.p}, vị trí ${p.d} → khung ${p.f} → PA ${p.phys}` : undefined,
     };
   };
@@ -152,17 +168,17 @@
       heading=title;why=e.change;next=e.next;
     }
     const hw=hardware();
-    const frames=(s.ram || []).map((contents,f) => `<div class="paging-memory-chip ${pageClass(contents)} ${selected && frame===f ? choose ? "paging-chip-victim" : "paging-chip-read" : ""}" data-paging-frame="${f}"><span class="paging-chip-index">Khung ${f}</span><strong class="${contents === null ? "paging-empty-page" : "paging-page-tag"}">${contents === null ? "Trống" : `Trang ${esc(contents)}`}</strong>${selected && frame===f ? `<small>${choose ? "Sẽ nhường chỗ" : load ? "Vừa nạp vào" : read || retry ? "CPU đang dùng" : "Đã chọn"}</small>` : '<small>Vùng dữ liệu mô phỏng</small>'}</div>`).join("");
+    const frames=(s.ram || []).map((contents,f) => `<div class="paging-memory-chip ${pageClass(contents)} ${selected && frame===f ? choose ? "paging-chip-victim" : load || read || retry || hit ? "paging-chip-read" : "" : ""}" data-paging-frame="${f}" data-flow-node="frame-${f}"><span class="paging-chip-index">Khung ${f}</span><strong class="${contents === null ? "paging-empty-page" : "paging-page-tag"}">${contents === null ? "Trống" : `Trang ${esc(contents)}`}</strong>${selected && frame===f ? `<small>${choose ? "Sẽ nhường chỗ" : load ? "Vừa nạp vào" : read || retry ? "CPU đang dùng" : update ? "Đã nạp · đang ghi bảng trang" : "Đã chọn"}</small>` : '<small>Vùng dữ liệu mô phỏng</small>'}</div>`).join("");
     const visibleTable=!request && !denied;
-    const table=visibleTable ? `<div class="paging-table-label paging-pte"><span>Bảng trang · sổ chỉ đường</span><b>Trang ${esc(page)} ${inRam ? `→ khung ${esc(s.pt[page].frame)}` : load ? "→ chưa ghi số khung" : "→ chưa có trong RAM"}</b>${load && !inRam ? '<small>Dữ liệu đã vào RAM; OS chưa cập nhật bản ghi này.</small>' : ""}</div>` : `<div class="paging-table-label paging-pte"><span>Bảng trang · sổ chỉ đường</span><b>${denied ? "Không có quyền dùng trang" : "Chờ MMU kiểm tra"}</b></div>`;
+    const table=visibleTable ? `<div data-flow-node="pte" class="paging-table-label paging-pte"><span>Bảng trang · sổ chỉ đường</span><b>Trang ${esc(page)} ${inRam ? `→ khung ${esc(s.pt[page].frame)}` : load ? "→ chưa ghi số khung" : "→ chưa có trong RAM"}</b>${load && !inRam ? '<small>Dữ liệu đã vào RAM; OS chưa cập nhật bản ghi này.</small>' : ""}</div>` : `<div data-flow-node="pte" class="paging-table-label paging-pte"><span>Bảng trang · sổ chỉ đường</span><b>${denied ? "Không có quyền dùng trang" : "Chờ MMU kiểm tra"}</b></div>`;
     const sequence=s.sequence || [page], seqIndex=s.seqIndex || 0;
     const sequenceHtml=sequence.length>1 ? `<div class="paging-reference-strip" aria-label="Thứ tự yêu cầu">${sequence.map((p,i)=>`<span class="${pageClass(p)}" ${i===seqIndex ? 'aria-current="step"' : ""}>Trang ${esc(p)}</span>`).join('<i aria-hidden="true">→</i>')}</div>` : "";
     const transfer=load ? `<div class="paging-transfer"><span>${oldPage == null ? "Khung trống" : `Trang ${esc(oldPage)}`}</span><b aria-hidden="true">→</b><strong>Trang ${esc(page)}</strong><span>tại khung ${esc(frame)}</span></div>` : "";
     const cpuState=denied ? "Truy cập bị chặn" : read || retry ? "Tiếp tục thực hiện lệnh" : hit ? "Đã tìm thấy trong RAM" : request ? "Muốn đọc dữ liệu" : "CPU đang chờ OS";
-    const cpu=hw.cpu({label:"CPU / MMU",value:`Trang ${page}`,detail:cpuState,active:stage===0 || stage===3});
+    const cpu=hw.cpu({label:"CPU / MMU",value:`Trang ${page}`,detail:cpuState,active:false});
     const fifoProof=choose && s.policy === "FIFO" ? `<p class="paging-fifo-proof"><b>Nạp trước → nạp sau:</b> ${(s.fifo || []).map(p=>`Trang ${esc(p)}`).join(" → ")}</p>` : "";
     const direct=hit || retry || read;
-    const ram=hw.ram({label:"Thanh RAM · bộ nhớ làm việc",detail:`Mô hình ${s.ram?.length || 0} khung trang`,active:stage===3 || load || choose || update || hit,html:`<div class="paging-frames">${frames}</div>`});
+    const ram=hw.ram({label:"Thanh RAM · bộ nhớ làm việc",detail:`Mô hình ${s.ram?.length || 0} khung trang`,active:false,html:`<div class="paging-frames">${frames}</div>`});
     const ramArea=`<div class="paging-ram-area">${ram}${table}${fifoProof}</div>`;
     const ordinaryDirection=s.operation === "write" ? "right" : "left";
     const busText=direct ? s.operation === "write" ? "CPU ghi vào RAM" : "CPU dùng dữ liệu RAM" : denied ? "Truy cập bị chặn" : "CPU đang chờ";
@@ -170,11 +186,30 @@
     const osText=denied ? "OS từ chối yêu cầu sai; không nạp trang" : request ? "MMU kiểm tra trước khi nhờ OS" : fault ? "OS nhận báo thiếu trang" : locate ? "OS tìm bản lưu trên SSD" : choose ? "OS chọn trang nhường chỗ" : writeBack ? "OS ghi lại trang đã sửa" : load ? "OS nạp trang vào RAM" : update ? "OS cập nhật bảng trang" : "OS cho CPU thử lại";
     const source=denied ? undefined : writeBack ? victim : locate || load || update ? page : undefined;
     const sourceDetail=denied ? "Không đọc SSD cho yêu cầu bị từ chối" : request ? "Chưa cần đọc SSD" : writeBack ? `Nhận bản sửa của Trang ${victim}` : load ? `Chuyển Trang ${page} vào Khung ${frame}` : update ? "Dữ liệu đã nạp xong; cập nhật bản ghi" : locate ? "Đã tìm được bản lưu; chưa nạp vào RAM" : choose ? "Đợi khung được nhường" : "Chờ hệ điều hành yêu cầu nạp";
-    const io=!direct ? `<div class="paging-os-ribbon ${stage===1 || stage===2 ? "is-active" : ""}"><span>Hệ điều hành</span><b>${esc(osText)}</b></div><div class="paging-physical-io">${hw.ssd({label:"SSD · bản lưu ở bộ nhớ phụ",page:source,detail:sourceDetail,active:locate || writeBack || load})}<div class="paging-storage-transfer">${bus(writeBack ? `Trang ${victim} đã sửa → SSD` : load ? `SSD → Trang ${page} → Khung ${frame}` : "OS điều khiển việc nạp",writeBack ? "left" : "right",load || writeBack)}${transfer}</div></div>` : `<p class="paging-bypass-note">${hit ? "Có sẵn trong RAM → bỏ qua OS và đĩa." : "OS đã xử lý xong. CPU chạy lại lệnh và dùng dữ liệu trong RAM."}</p>`;
+    const io=!direct ? `<div data-flow-node="os" class="paging-os-ribbon"><span>Hệ điều hành</span><b>${esc(osText)}</b></div>${denied?'':`<div data-flow-node="storage" class="demand-storage">${hw.ssd({label:"SSD · bản lưu ở bộ nhớ phụ",page:source,detail:sourceDetail,active:false})}${transfer}</div>`}` : `<p class="paging-bypass-note">${hit ? "Có sẵn trong RAM → bỏ qua OS và đĩa." : "OS đã xử lý xong. CPU chạy lại lệnh và dùng dữ liệu trong RAM."}</p>`;
+    const cpuNode='.paging-processor-area .hw-cpu',frameNode=`[data-flow-node="frame-${frame}"]`,ssdNode='[data-flow-node="storage"] .hw-ssd',osNode='[data-flow-node="os"]',pteNode='[data-flow-node="pte"]';
+    const side={mobileFromPort:'left',mobileToPort:'left'};
+    const focus=denied?{selector:cpuNode,label:'Yêu cầu bị chặn · không đọc SSD',tone:'red'}
+      : request?{selector:cpuNode,label:`CPU yêu cầu Trang ${page}`,tone:'amber'}
+      : fault?{selector:osNode,label:'OS nhận lỗi trang · CPU đang chờ',tone:'red'}
+      : locate?{selector:ssdNode,label:`Tìm bản lưu Trang ${page} trên SSD`,tone:'violet'}
+      : choose?{selector:frameNode,label:`Chọn Trang ${victim} nhường Khung ${frame}`,tone:'red'}
+      : writeBack?{selector:ssdNode,label:`Ghi lại Trang ${victim} đã sửa`,tone:'amber'}
+      : load?{selector:frameNode,label:`Nạp Trang ${page} vào Khung ${frame}`,tone:'green'}
+      : update?{selector:pteNode,label:`OS ghi Trang ${page} → Khung ${frame}`,tone:'violet'}
+      : {selector:frameNode,label:`CPU dùng Trang ${page} trong RAM`,tone:'green'};
+    const flows=denied||request?[]
+      : fault?[{from:cpuNode+' .hw-visual--cpu',to:osNode,label:'Báo lỗi trang cho OS',tone:'red',kind:'signal'}]
+      : locate?[{from:osNode,to:ssdNode+' .hw-visual--ssd',label:'OS tìm bản lưu',tone:'violet',kind:'lookup'}]
+      : choose?[{from:osNode,to:frameNode,label:'Chọn khung cần nhường',tone:'red',kind:'signal',...side}]
+      : writeBack?[{from:frameNode,to:ssdNode+' .hw-visual--ssd',label:'Ghi dữ liệu đã sửa về SSD',tone:'amber',kind:'data',...side}]
+      : load?[{from:ssdNode+' .hw-visual--ssd',to:frameNode,label:'SSD nạp trang vào RAM',tone:'green',kind:'data',...side}]
+      : update?[{from:osNode,to:pteNode,label:'Cập nhật bản ghi bảng trang',tone:'violet',kind:'lookup',...side}]
+      : direct?[{from:s.operation==='write'?cpuNode+' .hw-visual--cpu':frameNode,to:s.operation==='write'?frameNode:cpuNode+' .hw-visual--cpu',label:s.operation==='write'?'CPU ghi vào RAM':'RAM trả dữ liệu cho CPU',tone:'green',kind:'data',...side}]:[];
 
     return {
-      title:heading,why,next,
-      html:`<div class="paging-scene demand-scene paging-hardware-scene ${denied ? "paging-trap" : ""}">${sequenceHtml}${routeHtml}${io}<p class="paging-key">CPU chỉ dùng dữ liệu sau khi trang ở RAM và bảng trang đã được cập nhật. Ô màu là vùng nhớ phóng to, không phải từng chip RAM.</p></div>`,
+      title:heading,why,next,focus,flows,
+      html:`<div class="paging-scene demand-scene paging-hardware-scene ${denied ? "paging-trap" : ""}">${sequenceHtml}<div class="demand-hardware-layout ${direct?'is-direct':''}">${routeHtml}${io}</div><p class="paging-key">CPU chỉ dùng dữ liệu sau khi trang ở RAM và bảng trang đã được cập nhật. Ô màu là vùng nhớ phóng to, không phải từng chip RAM.</p></div>`,
       result:read || retry ? `Trang ${page} ở khung ${frame} · ${s.hits || 0} lượt có sẵn · ${s.faults || 0} lượt thiếu trang · ${s.reads || 0} lần nạp từ đĩa` : undefined,
     };
   };

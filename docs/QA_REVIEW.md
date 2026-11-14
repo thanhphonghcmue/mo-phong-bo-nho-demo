@@ -57,3 +57,9 @@ Kết quả JSON và ảnh của lần chạy lưu tại `/tmp/memory-lessons-re
 `tests/hardware_browser.py` đã đạt **9/9 nhóm**, 0 JavaScript page error: ảnh tải thành công, linh kiện và dữ liệu ở cả năm demo, đường SSD/RAM đúng theo hit/miss, thư viện GPU không đổi timeline, thanh điều khiển không bị che ở 1440/390/375px và fallback khi chặn ảnh trong phiên trình duyệt mới. Chú thích linh kiện được kiểm tra từ màu kết xuất thực tế, tương phản nhỏ nhất **4,60:1** trong các mẫu đã đo. Ảnh và kết quả ở `/tmp/memory-hardware-review/`.
 
 Phạm vi thay đổi là view và tài nguyên hình; engine và quy tắc thuật toán không đổi. Bộ ảnh linh kiện được tạo bằng AI, không phải ảnh hay số liệu từ máy người dùng. Chú thích giữ rõ vùng logic trên RAM không tương ứng từng chip vật lý; GPU chỉ có trong mục nhận diện tùy chọn và không tham gia thuật toán. Những kết quả trên kiểm chứng hành vi trong các kịch bản nêu trên, chưa phải đánh giá mức dễ hiểu với người học thực tế.
+
+## Điểm sáng và đường luồng của bước hiện tại
+
+`tests/flow_browser.py` đạt **7/7 nhóm, 236 trạng thái kết xuất**, 0 JavaScript page error. Đã xác minh phép kiểm tra bị chặn không có luồng vào RAM; cấp phát chỉ chuyển dữ liệu ở bước cập nhật; TLB, bảng trang và byte cần đọc là các đích khác nhau; nạp SSD vào đúng khung trước khi OS cập nhật PTE. Bốn thuật toán thay trang có đúng khung/bit đang xử lý, chỉ bước nạp hoặc hit có chuyển dữ liệu, và không đánh dấu nạn nhân sớm.
+
+Đường nối được đo bằng tọa độ SVG trên màn hình: đầu/cuối bám biên nguồn/đích, các đoạn vuông góc và tránh các nhãn/linh kiện khác. Toàn bộ năm demo chạy lại ở 375/390px; giảm chuyển động giữ dấu hiệu tĩnh. Ảnh và kết quả lưu ở `/tmp/memory-flow-review/`. Các bộ giao diện, linh kiện và nội dung được chạy lại cùng lần cập nhật; engine vẫn đối chiếu đạt 320 trace / 6.400 trạng thái / 240 lần tiếp tục.

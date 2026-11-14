@@ -28,11 +28,11 @@
       const changed = isApply && i === selected;
       const pointer = clock && i === currentPointer;
       const justCleared = clock && phase === 'clear' && i === before.ptr;
-      const badge = victim ? 'Chọn ra' : changed ? isHit ? 'Dùng ngay' : `${before.fr?.[i] ?? 'trống'} → ${page}` : pointer ? (['inspect', 'clear', 'victim'].includes(phase) ? 'Kim đang xét' : 'Kim trỏ tới') : justCleared ? 'Vừa hạ R' : '';
-      return `<div class="lesson-tile replacement-frame ${pageClass(page)} ${victim ? 'lesson-bad' : changed ? 'lesson-good' : pointer && ['inspect','clear'].includes(phase) ? 'lesson-active' : ''}" data-lesson-frame="${i}" ${victim ? 'data-chosen="true"' : ''}><span class="lesson-label">Khung ${i}</span><strong class="replacement-page-label">${pageLabel(page)}</strong>${clock ? `<span class="replacement-bit">${page === null ? 'Chưa có trang' : `R = ${runtime.bit?.[i] ?? 0}`}</span>` : ''}<span class="replacement-tile-status">${badge || '&nbsp;'}</span></div>`;
+      const badge = victim ? 'Chọn ra' : changed ? isHit ? 'Dùng ngay' : `${before.fr?.[i] ?? 'trống'} → ${page}` : pointer ? (phase === 'clear' ? 'Kim vừa chuyển tới' : ['inspect', 'victim'].includes(phase) ? 'Kim đang xét' : 'Kim trỏ tới') : justCleared ? 'Vừa hạ R' : '';
+      return `<div class="lesson-tile replacement-frame ${pageClass(page)} ${victim ? 'lesson-bad' : changed ? 'lesson-good' : pointer && phase==='inspect' ? 'lesson-active' : ''}" data-flow-node="frame-${i}" data-lesson-frame="${i}" ${victim ? 'data-chosen="true"' : ''}><span class="lesson-label">Khung ${i}</span><strong class="replacement-page-label">${pageLabel(page)}</strong>${clock ? `<span data-flow-node="bit-${i}" class="replacement-bit">${page === null ? 'Chưa có trang' : `R = ${runtime.bit?.[i] ?? 0}`}</span>` : ''}<span class="replacement-tile-status">${badge || '&nbsp;'}</span></div>`;
     }).join('')}</div>`;
     const frameHtml = hardware
-      ? `<div class="replacement-ram replacement-hardware-ram">${hardware.ram({html: slots, label: `RAM · ${frames.length} khung mô phỏng`, active: isApply || isVictim || ['inspect','clear'].includes(phase), detail: 'Mỗi khung mô phỏng chứa tối đa một trang.'})}</div>`
+      ? `<div class="replacement-ram replacement-hardware-ram">${hardware.ram({html: slots, label: `RAM · ${frames.length} khung mô phỏng`, active:false, detail: 'Mỗi khung mô phỏng chứa tối đa một trang.'})}</div>`
       : `<div class="lesson-card replacement-ram"><div class="replacement-zone-heading"><strong>RAM · ${frames.length} khung</strong><span class="lesson-muted">Một khung chỉ chứa một trang</span></div>${slots}</div>`;
 
     let proof = '', title = '', why = '', next = '', result = '';
@@ -40,14 +40,14 @@
     if (alg === 'FIFO' || alg === 'LRU') {
       const fifo = alg === 'FIFO';
       const ordered = resident.slice().sort((a,b) => (fifo ? a.loaded-b.loaded : a.last-b.last) || a.frame-b.frame);
-      proof = `<div class="replacement-proof"><div class="replacement-order-heading"><strong>${fifo ? 'Thứ tự vào RAM' : 'Thứ tự lần dùng gần nhất'}</strong><span>${fifo ? 'Vào sớm nhất → Mới vào' : 'Lâu chưa dùng → Vừa dùng'}</span></div><div class="lesson-queue replacement-queue" aria-label="${fifo ? 'Thứ tự nạp trang, đầu hàng ra trước khi cần thay' : 'Thứ tự sử dụng, đầu hàng lâu chưa dùng nhất'}">${ordered.length ? ordered.map((p, rank) => `<div class="lesson-queue-item replacement-order-item ${pageClass(p.page)} ${isVictim && p.frame === selected ? 'lesson-bad' : ''}" data-page="${esc(p.page)}"><strong>${pageLabel(p.page)}</strong><small>${fifo ? 'Nạp' : 'Dùng'} ${stamp(fifo ? p.loaded : p.last)}${isVictim && p.frame === selected ? ' · <b class="replacement-chosen">chọn ra</b>' : ''}</small></div>${rank < ordered.length-1 ? '<span class="lesson-flow-arrow" aria-hidden="true">→</span>' : ''}`).join('') : '<p class="lesson-muted">Chưa có trang nào trong RAM.</p>'}</div></div>`;
+      proof = `<div data-flow-node="proof" class="replacement-proof"><div class="replacement-order-heading"><strong>${fifo ? 'Thứ tự vào RAM' : 'Thứ tự lần dùng gần nhất'}</strong><span>${fifo ? 'Vào sớm nhất → Mới vào' : 'Lâu chưa dùng → Vừa dùng'}</span></div><div class="lesson-queue replacement-queue" aria-label="${fifo ? 'Thứ tự nạp trang, đầu hàng ra trước khi cần thay' : 'Thứ tự sử dụng, đầu hàng lâu chưa dùng nhất'}">${ordered.length ? ordered.map((p, rank) => `<div class="lesson-queue-item replacement-order-item ${pageClass(p.page)} ${isVictim && p.frame === selected ? 'lesson-bad' : ''}" data-page="${esc(p.page)}"><strong>${pageLabel(p.page)}</strong><small>${fifo ? 'Nạp' : 'Dùng'} ${stamp(fifo ? p.loaded : p.last)}${isVictim && p.frame === selected ? ' · <b class="replacement-chosen">chọn ra</b>' : ''}</small></div>${rank < ordered.length-1 ? '<span class="lesson-flow-arrow" aria-hidden="true">→</span>' : ''}`).join('') : '<p class="lesson-muted">Chưa có trang nào trong RAM.</p>'}</div></div>`;
     } else if (alg === 'OPT') {
-      proof = `<div class="replacement-proof"><strong>Nhìn các lượt sau lượt này</strong><div class="replacement-future">${refs.slice(t + 1).length ? refs.slice(t + 1).map(p=>`<span class="${pageClass(p)}">${esc(p)}</span>`).join('<span class="replacement-small-arrow" aria-hidden="true">→</span>') : '<span class="lesson-muted">Không còn lượt nào phía sau.</span>'}</div><div class="replacement-next-use">${resident.map(p => {
+      proof = `<div data-flow-node="proof" class="replacement-proof"><strong>Nhìn các lượt sau lượt này</strong><div class="replacement-future">${refs.slice(t + 1).length ? refs.slice(t + 1).map(p=>`<span class="${pageClass(p)}">${esc(p)}</span>`).join('<span class="replacement-small-arrow" aria-hidden="true">→</span>') : '<span class="lesson-muted">Không còn lượt nào phía sau.</span>'}</div><div class="replacement-next-use">${resident.map(p => {
         const future = refs.indexOf(p.page, t+1);
         return `<div class="replacement-future-page ${pageClass(p.page)} ${isVictim && p.frame === selected ? 'lesson-bad' : ''}"><strong>${pageLabel(p.page)}</strong><span>${future < 0 ? 'Không dùng lại' : `Dùng lại ở lượt ${future+1}`}</span>${isVictim && p.frame === selected ? '<b>Chọn ra</b>' : ''}</div>`;
       }).join('')}</div><p class="lesson-muted">OPT phải biết trước dãy yêu cầu; đây là chuẩn so sánh lý thuyết.</p></div>`;
     } else {
-      proof = `<div class="replacement-proof"><div class="replacement-order-heading"><strong>Kim → Khung ${currentPointer}</strong><span>Xét khung theo vòng, không xếp lại trang</span></div><div class="replacement-clock-rule"><span><b>R = 1</b> · hạ về 0, đi tiếp</span><span><b>R = 0</b> · chọn trang ở khung này</span></div><p class="lesson-muted">R được đặt thành 1 khi nạp hoặc dùng trang. Dùng lại trang không làm kim quay.</p></div>`;
+      proof = `<div data-flow-node="proof" class="replacement-proof"><div class="replacement-order-heading"><strong>Kim → Khung ${currentPointer}</strong><span>Xét khung theo vòng, không xếp lại trang</span></div><div class="replacement-clock-rule"><span><b>R = 1</b> · hạ về 0, đi tiếp</span><span><b>R = 0</b> · chọn trang ở khung này</span></div><p class="lesson-muted">R được đặt thành 1 khi nạp hoặc dùng trang. Dùng lại trang không làm kim quay.</p></div>`;
     }
 
     if (phase === 'start') {
@@ -87,15 +87,25 @@
 
     const requestValue = incoming === null ? 'Chưa yêu cầu' : `Trang ${incoming}`;
     const requestCard = hardware
-      ? `<div class="replacement-hardware-cpu">${hardware.cpu({label:'CPU · bộ xử lý', value:requestValue, active:phase==='request'||isHit, detail:t>=0?`Đang cần Trang ${incoming} · lượt ${t+1}/${refs.length}`:'Bấm Bước tiếp để CPU yêu cầu trang đầu tiên'})}</div>`
+      ? `<div class="replacement-hardware-cpu">${hardware.cpu({label:'CPU · bộ xử lý', value:requestValue, active:false, detail:t>=0?`Đang cần Trang ${incoming} · lượt ${t+1}/${refs.length}`:'Bấm Bước tiếp để CPU yêu cầu trang đầu tiên'})}</div>`
       : `<div class="replacement-request ${phase==='request' ? 'lesson-active' : ''}"><span class="lesson-label">CPU cần</span><strong>${incoming === null ? 'Chưa yêu cầu' : pageLabel(incoming)}</strong><small>${t >= 0 ? `Lượt ${t+1}/${refs.length}` : 'Bấm Bước tiếp'}</small></div>`;
     const missing = incoming !== null && ((!found && !isHit) || isApply && !isHit);
     const source = hardware && missing
-      ? `<div class="replacement-storage-route ${isApply ? 'is-loading' : ''}">${hardware.ssd({page:incoming, label:'SSD · bản lưu của trang', active:isApply, detail:isApply?`Nạp Trang ${incoming} vào Khung ${selected}`:`Trang ${incoming} đang chờ được nạp vào RAM`})}<div class="replacement-storage-caption"><span aria-hidden="true">${isApply?'↗':'…'}</span><strong>${isApply?'SSD → RAM':'Chưa chuyển dữ liệu'}</strong><small>${isApply?`Chỉ khung ${selected} nhận trang mới`:'Chọn khung trước, rồi mới nạp trang'}</small></div></div>`
+      ? `<div data-flow-node="storage" class="replacement-storage-route ${isApply ? 'is-loading' : ''}">${hardware.ssd({page:incoming, label:'SSD · bản lưu của trang', active:false, detail:isApply?`Nạp Trang ${incoming} vào Khung ${selected}`:`Trang ${incoming} đang chờ được nạp vào RAM`})}<div class="replacement-storage-caption"><span aria-hidden="true">${isApply?'↗':'…'}</span><strong>${isApply?'SSD → RAM':'Chưa chuyển dữ liệu'}</strong><small>${isApply?`Chỉ khung ${selected} nhận trang mới`:'Chọn khung trước, rồi mới nạp trang'}</small></div></div>`
       : hardware && isHit ? '<p class="replacement-hit-note">Trang có sẵn trong RAM → CPU dùng ngay, không đọc SSD.</p>' : '';
+    const cpuNode='.replacement-hardware-cpu .hw-cpu',frameNode=`[data-flow-node="frame-${selected}"]`;
+    const focus=phase==='inspect'?{selector:`[data-flow-node="frame-${currentPointer}"]`,label:`Kim xét Khung ${currentPointer} · R=${runtime.bit?.[currentPointer]??0}`,tone:'amber'}
+      : phase==='clear'?{selector:`[data-flow-node="bit-${before.ptr}"]`,label:`Vừa hạ bit R ở Khung ${before.ptr} xuống 0`,tone:'violet'}
+      : isVictim?{selector:frameNode,label:`Chọn Trang ${runtime.victim} ra · Khung ${selected}`,tone:'red'}
+      : isApply?{selector:frameNode,label:isHit?`Dùng ngay Trang ${incoming} · không nạp SSD`:`Nạp Trang ${incoming} vào Khung ${selected}`,tone:'green'}
+      : {selector:cpuNode,label:incoming===null?'CPU chưa yêu cầu trang':`CPU đang cần Trang ${incoming}`,tone:'amber'};
+    const side={mobileFromPort:'left',mobileToPort:'left'};
+    const flows=isApply?[isHit
+      ? {from:frameNode,to:cpuNode+' .hw-visual--cpu',label:'RAM trả dữ liệu cho CPU',tone:'green',kind:'data',...side}
+      : {from:'[data-flow-node="storage"] .hw-ssd .hw-visual--ssd',to:frameNode,label:`SSD nạp Trang ${incoming} vào Khung ${selected}`,tone:'green',kind:'data',...side}]:[];
     return {
-      html: `${referenceStrip}<div class="replacement-model ${hardware?'replacement-physical-model':''}">${requestCard}<span class="lesson-flow-arrow replacement-cpu-link" aria-hidden="true">${isHit?'←':'→'}</span>${frameHtml}</div>${source}${proof}<p class="replacement-counts">Có sẵn: <b>${runtime.hits || 0}</b> · Chưa có, cần nạp: <b>${runtime.faults || 0}</b></p>`,
-      title, why, next, result,
+      html: `${referenceStrip}<div class="replacement-model ${hardware?'replacement-physical-model':''}">${requestCard}<span class="lesson-flow-arrow replacement-cpu-link" aria-hidden="true"></span>${frameHtml}</div>${source}${proof}<p class="replacement-counts">Có sẵn: <b>${runtime.hits || 0}</b> · Chưa có, cần nạp: <b>${runtime.faults || 0}</b></p>`,
+      title, why, next, result, focus, flows,
     };
   };
 })();
