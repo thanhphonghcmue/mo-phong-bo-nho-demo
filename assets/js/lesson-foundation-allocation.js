@@ -44,10 +44,10 @@
     const failedCheck = translate ? 'check-limit' : !lowerOK ? 'check-lower' : 'check-upper';
     const currentCheck = translate ? stage === 1 ? 'check-limit' : allowed ? 'translate-address' : failedCheck : stage === 1 || !lowerOK ? 'check-lower' : 'check-upper';
     const focus = stage === 0
-      ? {selector:'.foundation-processor .hw-cpu',label:'CPU gửi địa chỉ cần kiểm tra',tone:'amber'}
+      ? {selector:'.foundation-processor .hw-cpu',label:translate?'CPU gửi địa chỉ logic L':'CPU gửi địa chỉ cần kiểm tra',tone:'amber'}
       : complete && allowed
         ? {selector:'[data-flow-node="region-inside"]',label:`RAM nhận địa chỉ ${number(address)}`,tone:'green'}
-        : {selector:`[data-flow-node="${complete ? failedCheck : currentCheck}"]`,label:complete || stage >= 1 && (translate ? !allowed : !lowerOK || stage >= 2 && !upperOK) ? 'Chặn địa chỉ ngoài vùng' : translate && stage === 2 ? 'Tính địa chỉ thật: Base + L' : stage === 1 ? 'Đang kiểm tra cận dưới' : 'Đang kiểm tra cận trên',tone:complete || stage >= 1 && (translate ? !allowed : !lowerOK || stage >= 2 && !upperOK) ? 'red' : 'amber'};
+        : {selector:`[data-flow-node="${complete ? failedCheck : currentCheck}"]`,label:complete || stage >= 1 && (translate ? !allowed : !lowerOK || stage >= 2 && !upperOK) ? 'Chặn địa chỉ ngoài vùng' : translate && stage === 2 ? 'Tính địa chỉ thật: Base + L' : stage === 1 ? translate?'Kiểm tra 0 ≤ L < Limit':'Đang kiểm tra cận dưới' : 'Đang kiểm tra cận trên',tone:complete || stage >= 1 && (translate ? !allowed : !lowerOK || stage >= 2 && !upperOK) ? 'red' : 'amber'};
     const flows = complete && allowed ? [{from:'.foundation-processor .hw-cpu .hw-visual--cpu',to:'[data-flow-node="region-inside"]',label:`Truy cập RAM tại ${number(address)}`,tone:'green',kind:'data'}] : [];
     return {
       title, why, next, focus, flows,

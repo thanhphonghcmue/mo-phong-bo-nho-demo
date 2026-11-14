@@ -20,7 +20,7 @@
     const pageClass = page => page === null || page === undefined ? 'hw-page-empty' : hardware?.pageClass(page) || `hw-page-${Number(page) % 6}`;
     const currentPointer = Number.isInteger(runtime.ptr) ? runtime.ptr : 0;
     const seedCount = state.initial?.fr?.filter(p => p !== null).length || (phase === 'start' ? frames.filter(p => p !== null).length : 0);
-    const stamp = value => value < 0 ? 'đã có từ đầu' : `lượt ${value + 1}`;
+    const stamp = value => value < 0 ? seedCount ? `ban đầu, thứ ${value + seedCount + 1}` : 'đã có từ đầu' : `lượt ${value + 1}`;
     const referenceStrip = `<div class="replacement-sequence" aria-label="Dãy trang được yêu cầu theo thứ tự"><span class="lesson-label">Dãy yêu cầu · đọc từ trái sang phải</span><div class="replacement-refs">${refs.map((p, i) => `<span class="replacement-ref ${pageClass(p)} ${i === t ? 'lesson-active' : i < runtime.done ? 'replacement-past' : ''}" ${i === t ? 'aria-current="step"' : ''}>${esc(p)}<small>lượt ${i + 1}</small></span>`).join('')}</div></div>`;
 
     const slots = `<div class="lesson-memory replacement-frames">${frames.map((page, i) => {

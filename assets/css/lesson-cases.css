@@ -1,0 +1,23 @@
+/* Slightly richer examples share the existing five-lesson controls. */
+.lesson-mode .lesson-case-note{font-size:13px;line-height:1.65;color:#66527f;background:#f5effd;border:1px solid #e1d4f2;border-radius:8px;padding:10px 12px;margin:-3px 0 16px}
+.lesson-case-note:empty{display:none}
+.lesson-mode .lesson-model-note{font-size:12px;line-height:1.75;color:#6a5b74;border-top:1px solid #e1d4ee;margin-top:16px;padding-top:12px}
+.lesson-model-note>b{color:#5a3c73}
+.lesson-mode .paging-dirty-bit{display:inline-flex;align-items:center;border:1px solid #81a383;border-radius:4px;color:#e8f5e4;background:#304c36;padding:3px 6px;font-size:12px;font-weight:650;line-height:1.5}
+.lesson-mode .paging-dirty-bit[data-dirty=true]{background:#fff1d8;border-color:#d5a24f;color:#87510e}
+.paging-state-ledger{margin-top:14px;border:1px solid #d3d9e7;border-radius:8px;background:#fff;overflow:hidden}
+.paging-state-ledger table{width:100%;border-collapse:collapse;font-size:13px;line-height:1.5;color:#344d6c;table-layout:fixed}
+.paging-state-ledger caption{text-align:left;font-size:12px;font-weight:650;color:#526987;padding:10px 12px;background:#f0f4fc}
+.paging-state-ledger th,.paging-state-ledger td{padding:8px 7px;border-top:1px solid #e2e8f2;text-align:center;overflow-wrap:anywhere}
+.paging-state-ledger thead th{font-size:12px;font-weight:650;color:#4d6484;background:#f8faff}
+.paging-state-ledger tr[aria-current=true]{background:#f2edfc;color:#694393}
+.lesson-mode .paging-io-counts{display:flex;gap:8px 14px;flex-wrap:wrap;font-size:13px;line-height:1.6;margin-top:17px;padding:12px 14px;background:#f1f5ed;color:#4c6841;border:1px solid #d9e2d2;border-radius:8px}
+.paging-io-counts b{font-size:15px;font-variant-numeric:tabular-nums}
+@media(max-width:760px){
+ .lesson-mode .lesson-case-note{font-size:12px;padding:9px 10px}
+ .lesson-mode .lesson-model-note{font-size:12px}
+ .lesson-mode .paging-dirty-bit{font-size:11px;padding:2px 5px}
+ .paging-state-ledger table{font-size:12px}.paging-state-ledger caption{font-size:11px;padding:9px}
+ .paging-state-ledger th,.paging-state-ledger td{padding:7px 4px}.paging-state-ledger thead th{font-size:11px}
+ .lesson-mode .paging-io-counts{font-size:12px;gap:7px 12px;padding:10px}.paging-io-counts b{font-size:14px}
+}

@@ -63,3 +63,19 @@ Phạm vi thay đổi là view và tài nguyên hình; engine và quy tắc thu�
 `tests/flow_browser.py` đạt **7/7 nhóm, 236 trạng thái kết xuất**, 0 JavaScript page error. Đã xác minh phép kiểm tra bị chặn không có luồng vào RAM; cấp phát chỉ chuyển dữ liệu ở bước cập nhật; TLB, bảng trang và byte cần đọc là các đích khác nhau; nạp SSD vào đúng khung trước khi OS cập nhật PTE. Bốn thuật toán thay trang có đúng khung/bit đang xử lý, chỉ bước nạp hoặc hit có chuyển dữ liệu, và không đánh dấu nạn nhân sớm.
 
 Đường nối được đo bằng tọa độ SVG trên màn hình: đầu/cuối bám biên nguồn/đích, các đoạn vuông góc và tránh các nhãn/linh kiện khác. Toàn bộ năm demo chạy lại ở 375/390px; giảm chuyển động giữ dấu hiệu tĩnh. Ảnh và kết quả lưu ở `/tmp/memory-flow-review/`. Các bộ giao diện, linh kiện và nội dung được chạy lại cùng lần cập nhật; engine vẫn đối chiếu đạt 320 trace / 6.400 trạng thái / 240 lần tiếp tục.
+
+## Các mẫu Thử thêm mở sẵn
+
+`tests/richer_examples_browser.py` đạt **9/9 nhóm, 344 trạng thái kết xuất**, 0 lỗi JavaScript. Cả năm mẫu mới được chọn sẵn khi mở trang; đổi về Làm quen khôi phục cấu hình ban đầu, không giữ nhầm RAM đầy, bit dirty hoặc trang vắng.
+
+| Nội dung | Kết quả kiểm chứng |
+|---|---|
+| Dịch địa chỉ | L=24 → PA=124; sửa L=10 vẫn giữ chế độ dịch → PA=110; L=40 bị chặn. |
+| Ba yêu cầu cấp phát | First/Best/Worst cho phần dư lần lượt `[1,2,1,7]`, `[2,8,0,1]`, `[2,4,4,1]`. |
+| Thiếu trang thật | TLB miss không công bố khung trước khi nạp; trang 3 vào khung 0; LA=13 → PA=1, một lỗi trang. |
+| Trang đã sửa | Ghi lại giữ RAM cũ, sau đó nạp mới đổi khung, rồi cập nhật PTE; Lùi khôi phục đúng dirty/PTE/I/O. Cuối 4 lượt: 2 hit, 2 fault, 2 đọc SSD, 1 ghi SSD, RAM `[2,3]`. |
+| RAM có sẵn | FIFO/LRU/Clock 2 hit/4 fault, OPT 4 hit/2 fault; nạn nhân khớp engine, trang có sẵn không bị tính thành lần nạp mới. |
+
+Các mẫu tăng mức hoàn tất ở 375/390px với điểm sáng và đầu nối mũi tên đúng. Phát hiện và sửa sai lệch đầu nối trên canvas cao: SVG nay dùng kích thước vùng trong đường viền và tỷ lệ riêng từng trục. Bộ kiểm tra hình học giữ nguyên ngưỡng 3px. Ảnh/kết quả ở `/tmp/memory-richer-examples/`.
+
+Các bộ cũ cũng chạy lại đạt 11 + 8 + 9 + 7 nhóm; các fixture Làm quen được chọn rõ khi kiểm tra kết quả cũ. Tổng cộng **44 nhóm browser đạt**; bộ thuật toán 320 trace/6.400 trạng thái/240 lần tiếp tục và 24 chuyển trạng thái của view vẫn đạt. Mỗi bước tiếp tục mang nghĩa thao tác giảng dạy; phạm vi gộp bước được ghi trong lời giải, không tuyên bố mô phỏng toàn bộ vi kiến trúc máy.

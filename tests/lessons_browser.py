@@ -76,6 +76,9 @@ def run():
         # The public UI intentionally leaves explanations folded; the content
         # acceptance checks opt in, as a learner would, before reading the prose.
         inspect_explanations = True
+        for topic,example in [('b','inside'),('a','small'),('x','miss'),('v','load'),('r','short')]:
+            select(topic)
+            page.select_option(f'#lesson-{topic}-example',example)
 
         select('b')
         for address,valid in [(99,False),(100,True),(139,True),(140,False)]:

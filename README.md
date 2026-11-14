@@ -28,13 +28,25 @@ Giao diện dùng nền sáng ấm, chữ trung tính, nút chính violet và v�
 
 Mặc định dùng số nhỏ để quan sát. Đây là **ví dụ minh họa**, không phải số liệu đo từ máy thật. Ở Demo 5 vẫn có chuỗi chuẩn giáo trình và Belady để kiểm chứng. Trang/khung, địa chỉ logic/vật lý được phân biệt ngay trong hình.
 
+Mặc định hiện chọn mức **Thử thêm** vừa phải; các mẫu ngắn cũ vẫn có trong **Làm quen**:
+
+| Demo | Ví dụ mở sẵn | Nội dung bổ sung |
+|---|---|---|
+| 1 | Base=100, Limit=40, L=24 | Kiểm tra giới hạn rồi dịch thành PA=124; có thêm L=40 để quan sát chặn truy cập. |
+| 2 | Lỗ 5/8/4/7 KB, yêu cầu 4/6/3 KB | Ba lần cấp liên tiếp, phần dư ảnh hưởng lần sau; đổi First/Best/Worst-fit để so sánh. |
+| 3 | LA=13, trang 4 byte, trang 3 chưa nạp | TLB miss → page fault → nạp vào khung 0 → điền TLB → PA=1. |
+| 4 | RAM `[0,1]`, trang 0 đã sửa, đọc `[2,1,2,3]` | 21 bước: ghi lại trang dirty trước khi thay, hai lượt hit và một lần thay trang sạch; hiện bit D, bản ghi PTE liên quan và I/O. |
+| 5 | RAM đã nạp/dùng lần lượt 1→2→3; đọc `[1,4,2,5,1,2]` | Dùng lại trang đã có rồi so sánh FIFO/LRU/OPT/Clock khi RAM đầy từ đầu. |
+
+Giao diện duyệt toàn bộ sự kiện engine; một bước là một thao tác giảng dạy, không phải một chu kỳ máy. Demo 3 gộp nạp trang và cập nhật PTE; Demo 4 tách hai việc, nhưng vẫn gộp chọn khung trống+nạp và thử lại+đọc/ghi. Không mô phỏng từng ngắt, DMA, cache CPU hoặc bộ lập lịch. Phần **Mô hình và máy thật** trong lời giải ghi rõ phạm vi từng demo.
+
 Mô hình dùng hình minh họa CPU, thanh RAM và SSD theo hình dáng linh kiện ngoài đời, kèm lớp dữ liệu màu để theo dõi từng bước. Bộ ảnh `assets/images/hardware/parts.png` được tạo bằng AI, không phải ảnh chụp hoặc dữ liệu phần cứng từ máy người dùng. Vùng/trang/khung là lớp mô phỏng logic; **một chip thật trên thanh RAM không tương ứng một khung**. GPU chỉ nằm trong mục nhận diện linh kiện tùy chọn và không tham gia năm thuật toán. Lần cập nhật này thay phần trình bày, giữ nguyên engine.
 
 Bước hiện tại có thanh hành động lớn và một điểm sáng bám đúng nơi xử lý: phép kiểm tra, lỗ trống, TLB, bản ghi bảng trang, bit R hoặc khung RAM. Vàng là đang kiểm tra, tím là thao tác bản ghi, xanh là nạp/dùng dữ liệu, đỏ là chặn/chọn ra. Mũi tên có đầu nối theo kích thước thật của phần tử và được vẽ lại khi đổi bố cục; đường nét đứt diễn tả tra cứu/báo hiệu, các hạt sáng ngắn chỉ xuất hiện ở bước chuyển dữ liệu. Bấm Lùi/Tiếp đưa điểm đang xử lý vào tầm nhìn; giảm chuyển động giữ viền và mũi tên tĩnh. Khung giải thích dùng chữ lớn hơn và nền tím nhạt, vẫn mở/thu gọn tùy ý.
 
 ## Vì sao trang đó ra trước?
 
-Với `1 2 3 1 4 2`, ba khung:
+Với ví dụ **Làm quen** `1 2 3 1 4 2`, ba khung:
 
 - **FIFO:** sau khi dùng lại trang 1, hàng nạp vẫn là `1 → 2 → 3`. Khi cần trang 4, trang **1** ra vì được nạp sớm nhất. Hàng này khác vị trí các khung RAM.
 - **LRU:** sau khi dùng lại trang 1, thứ tự lần dùng là `2 → 3 → 1`. Trang **2** ra vì lâu chưa dùng nhất.
@@ -105,11 +117,14 @@ python3 tests/lessons_browser.py
 python3 tests/interface_browser.py
 python3 tests/hardware_browser.py
 python3 tests/flow_browser.py
+python3 tests/richer_examples_browser.py
 ```
 
 Bộ `lessons_browser.py` kiểm tra **giao diện công khai**: năm demo, lý do chọn, trước/sau, biên, nhập sai, Lùi, tự chạy, 375/390px và bàn phím. Ảnh/kết quả lưu ở `/tmp/memory-lessons-review/`. Bộ `interface_browser.py` kiểm tra mở/thu gọn, bàn phím, phục hồi bước đã xem, giữ lựa chọn theo demo, nhãn chủ đề và nhãn ví dụ tự nhập; ảnh ở `/tmp/memory-interface-tests/`. Bộ `hardware_browser.py` dành cho lớp hình linh kiện. Có thể đặt `MEMORY_DEMO_URL` và `CHROMIUM_PATH`.
 
 `flow_browser.py` kiểm tra vị trí điểm sáng, hướng luồng thật, các góc vuông/đầu nối của mũi tên và việc tránh chữ/linh kiện khác trên desktop và 375/390px; ảnh/kết quả ở `/tmp/memory-flow-review/`.
+
+`richer_examples_browser.py` kiểm tra năm mẫu mở sẵn, đầu vào L khi dịch địa chỉ, phần dư liên tiếp, lỗi trang thật, ghi dirty trước khi nạp/PTE, RAM ban đầu có dữ liệu, và quay lại các mẫu làm quen. Ảnh/kết quả ở `/tmp/memory-richer-examples/`.
 
 Các bộ hồi quy cũ chạy qua `?view=diagnostic`, chỉ dành cho người bảo trì. Cách này giữ nguyên các assertion về nội dung/engine và cho phép kiểm tra lại các fixture cũ mà không đưa bảng điều khiển dài trở lại bài học:
 

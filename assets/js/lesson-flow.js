@@ -79,8 +79,10 @@
   function draw(canvas,model,id){
     canvas.querySelector('.lesson-flow-overlay')?.remove();
     if(!canvas.isConnected||!canvas.getClientRects().length)return;
-    const base=canvas.getBoundingClientRect(),width=base.width,height=base.height;
-    const svg=svgNode('svg',{class:'lesson-flow-overlay',viewBox:`0 0 ${width} ${height}`,width,height,'aria-hidden':'true'});
+    const bounds=canvas.getBoundingClientRect();
+    const base={left:bounds.left+canvas.clientLeft,top:bounds.top+canvas.clientTop};
+    const width=canvas.clientWidth,height=canvas.clientHeight;
+    const svg=svgNode('svg',{class:'lesson-flow-overlay',viewBox:`0 0 ${width} ${height}`,width,height,preserveAspectRatio:'none','aria-hidden':'true'});
     const defs=svgNode('defs');svg.append(defs);
     for(const [index,edge]of (model.flows||[]).entries()){
       const from=canvas.querySelector(edge.from),to=canvas.querySelector(edge.to);

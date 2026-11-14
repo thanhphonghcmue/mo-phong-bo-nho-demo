@@ -67,3 +67,9 @@ Các ví dụ số nhỏ là **minh họa giảng dạy**; bộ mẫu 20 tham ch
 - Bước CPU dùng dữ liệu sau xử lý lỗi trang đi trực tiếp CPU → RAM; không vẽ đường đọc thường xuyên qua OS/đĩa.
 
 Các trường hợp trên xác nhận triển khai và nội dung được kiểm tra; không phải tuyên bố chứng minh hình thức cho mọi cấu hình tùy ý.
+
+## Bổ sung mức vừa phải và phạm vi mô phỏng
+
+Giao diện hiện duyệt đầy đủ sự kiện engine, nhưng số sự kiện không phải số lệnh máy. Các thao tác đang gộp: Demo 3 nạp trang+cập nhật PTE; Demo 4 chọn khung trống+nạp và thử lại+hoàn tất đọc/ghi. Clock trong Demo 4 tổng hợp việc tìm nạn nhân; Demo 5 mới tách lần xét/hạ R. Mô hình không diễn tả chu kỳ CPU, cache dữ liệu, DMA, ngắt hoàn tất I/O hoặc lập lịch tiến trình.
+
+Các mẫu mở sẵn mới dùng dữ liệu nhỏ với nhiều nhánh hơn; mẫu làm quen vẫn giữ để đối chiếu. Demo 1 bổ sung dịch L→PA, Demo 2 xử lý ba yêu cầu trên bốn lỗ, Demo 3 có page fault thật, Demo 4 phối hợp dirty writeback/miss/hit, Demo 5 bắt đầu từ RAM đầy. Khi có RAM ban đầu, thứ tự nạp/dùng được cho rõ, không suy từ vị trí khung. Chỉ ví dụ dirty mới thêm bảng PTE gọn, bit D và I/O để thấy nguyên nhân ghi lại trang.

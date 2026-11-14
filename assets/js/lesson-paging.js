@@ -57,7 +57,7 @@
       next = p.blocked ? "RAM không còn chỗ trống; cần cơ chế thay trang ở demo 4." : p.fault ? "OS lấy trang từ đĩa và đưa vào khung trống." : "Ghi nhớ đường đi trong TLB cho lần sau.";
     } else if (load) {
       heading = `Đưa trang ${p.p} vào khung ${p.newF}`;
-      why = "OS nạp trang hợp lệ từ đĩa rồi cập nhật bảng trang. CPU vẫn sẽ đọc dữ liệu từ RAM.";
+      why = "OS nạp trang hợp lệ từ đĩa rồi cập nhật bảng trang. Demo này gộp hai việc trong một bước; Demo 4 tách riêng. CPU vẫn đọc dữ liệu từ RAM.";
       next = "Lưu bản dịch trong TLB, rồi tính địa chỉ thật.";
     } else if (cache) {
       heading = "Nhớ đường đi cho lần sau";
@@ -142,7 +142,7 @@
       next=s.pt?.[victim]?.dirty ? "Trang cũ đã sửa: ghi lại trước khi dùng lại khung." : "Trang cũ sạch: nạp trang mới vào khung đã chọn.";
     } else if(writeBack) {
       stage=2;heading=`Lưu lại trang ${victim} đã bị sửa`;
-      why="Trang bẩn (dirty) cần được ghi về đĩa trước khi khung của nó bị dùng lại; nếu không sẽ mất dữ liệu.";
+      why=`Trang ${victim} trước đó có D=1. OS vừa ghi bản đã sửa về SSD nên D chuyển 1→0. RAM vẫn giữ trang cũ; bước nạp tiếp theo mới đổi dữ liệu trong khung.`;
       next=`Nạp trang ${page} vào khung ${frame}.`;
     } else if(load) {
       stage=2;heading=`Nạp trang ${page} vào khung ${frame}`;
@@ -167,10 +167,20 @@
     } else {
       heading=title;why=e.change;next=e.next;
     }
+    const detailed=(s.sequence?.length||0)>1 && ((s.writes||0)>0 || (s.pt||[]).some(entry=>entry.dirty));
     const hw=hardware();
-    const frames=(s.ram || []).map((contents,f) => `<div class="paging-memory-chip ${pageClass(contents)} ${selected && frame===f ? choose ? "paging-chip-victim" : load || read || retry || hit ? "paging-chip-read" : "" : ""}" data-paging-frame="${f}" data-flow-node="frame-${f}"><span class="paging-chip-index">Khung ${f}</span><strong class="${contents === null ? "paging-empty-page" : "paging-page-tag"}">${contents === null ? "Trống" : `Trang ${esc(contents)}`}</strong>${selected && frame===f ? `<small>${choose ? "Sẽ nhường chỗ" : load ? "Vừa nạp vào" : read || retry ? "CPU đang dùng" : update ? "Đã nạp · đang ghi bảng trang" : "Đã chọn"}</small>` : '<small>Vùng dữ liệu mô phỏng</small>'}</div>`).join("");
+    const frames=(s.ram || []).map((contents,f) => `<div class="paging-memory-chip ${pageClass(contents)} ${selected && frame===f ? choose ? "paging-chip-victim" : load || read || retry || hit ? "paging-chip-read" : "" : ""}" data-paging-frame="${f}" data-flow-node="frame-${f}"><span class="paging-chip-index">Khung ${f}</span><strong class="${contents === null ? "paging-empty-page" : "paging-page-tag"}">${contents === null ? "Trống" : `Trang ${esc(contents)}`}</strong>${detailed && contents!==null ? `<span class="paging-dirty-bit" data-dirty="${s.pt[contents]?.dirty===true}">D=${s.pt[contents]?.dirty?1:0} · ${s.pt[contents]?.dirty?"đã sửa":"sạch"}</span>`:""}${selected && frame===f ? `<small>${choose ? "Sẽ nhường chỗ" : load ? "Vừa nạp vào" : read || retry ? "CPU đang dùng" : writeBack ? "Vừa ghi lại · D: 1 → 0" : update ? "Đã nạp · đang ghi bảng trang" : "Đã chọn"}</small>` : '<small>Vùng dữ liệu mô phỏng</small>'}</div>`).join("");
     const visibleTable=!request && !denied;
-    const table=visibleTable ? `<div data-flow-node="pte" class="paging-table-label paging-pte"><span>Bảng trang · sổ chỉ đường</span><b>Trang ${esc(page)} ${inRam ? `→ khung ${esc(s.pt[page].frame)}` : load ? "→ chưa ghi số khung" : "→ chưa có trong RAM"}</b>${load && !inRam ? '<small>Dữ liệu đã vào RAM; OS chưa cập nhật bản ghi này.</small>' : ""}</div>` : `<div data-flow-node="pte" class="paging-table-label paging-pte"><span>Bảng trang · sổ chỉ đường</span><b>${denied ? "Không có quyền dùng trang" : "Chờ MMU kiểm tra"}</b></div>`;
+    const currentTable=visibleTable ? `<div data-flow-node="pte" class="paging-table-label paging-pte"><span>Bảng trang · sổ chỉ đường</span><b>Trang ${esc(page)} ${inRam ? `→ khung ${esc(s.pt[page].frame)}` : load ? "→ chưa ghi số khung" : "→ chưa có trong RAM"}</b>${load && !inRam ? '<small>Dữ liệu đã vào RAM; OS chưa cập nhật bản ghi này.</small>' : ""}</div>` : `<div data-flow-node="pte" class="paging-table-label paging-pte"><span>Bảng trang · sổ chỉ đường</span><b>${denied ? "Không có quyền dùng trang" : "Chờ MMU kiểm tra"}</b></div>`;
+    const ledgerPages=[...new Set([...(s.ram||[]).filter(contents=>contents!==null),page,...(selected&&victim!==null?[victim]:[])])].sort((a,b)=>a-b);
+    const ledger=detailed?`<div class="paging-state-ledger" data-flow-node="pte-ledger"><table><caption>Bản ghi của các trang đang liên quan</caption><thead><tr><th scope="col">Trang</th><th scope="col">Ở RAM</th><th scope="col">Khung</th><th scope="col">Đã sửa</th></tr></thead><tbody>${ledgerPages.map(p=>{
+      const entry=s.pt[p];
+      return `<tr data-pte-page="${p}" ${p===page?'aria-current="true"':''}><th scope="row">${p}</th><td>${entry?.present?'Có':'Chưa'}</td><td>${entry?.present?entry.frame:'—'}</td><td>${entry?.dirty?'D=1':'D=0'}</td></tr>`;
+    }).join('')}</tbody></table></div>`:'';
+    // Keep the current-entry anchor and the broader ledger separate: updating
+    // one PTE does not update every row at once.
+    const table=currentTable+ledger;
+    const ioCounts=detailed?`<p class="paging-io-counts" data-flow-node="io-counts" aria-label="Các bộ đếm của ví dụ"><span>Có sẵn: <b>${s.hits||0}</b></span><span>Lỗi trang: <b>${s.faults||0}</b></span><span>Nạp từ SSD: <b>${s.reads||0}</b></span><span>Ghi lại SSD: <b>${s.writes||0}</b></span></p>`:'';
     const sequence=s.sequence || [page], seqIndex=s.seqIndex || 0;
     const sequenceHtml=sequence.length>1 ? `<div class="paging-reference-strip" aria-label="Thứ tự yêu cầu">${sequence.map((p,i)=>`<span class="${pageClass(p)}" ${i===seqIndex ? 'aria-current="step"' : ""}>Trang ${esc(p)}</span>`).join('<i aria-hidden="true">→</i>')}</div>` : "";
     const transfer=load ? `<div class="paging-transfer"><span>${oldPage == null ? "Khung trống" : `Trang ${esc(oldPage)}`}</span><b aria-hidden="true">→</b><strong>Trang ${esc(page)}</strong><span>tại khung ${esc(frame)}</span></div>` : "";
@@ -194,7 +204,7 @@
       : fault?{selector:osNode,label:'OS nhận lỗi trang · CPU đang chờ',tone:'red'}
       : locate?{selector:ssdNode,label:`Tìm bản lưu Trang ${page} trên SSD`,tone:'violet'}
       : choose?{selector:frameNode,label:`Chọn Trang ${victim} nhường Khung ${frame}`,tone:'red'}
-      : writeBack?{selector:ssdNode,label:`Ghi lại Trang ${victim} đã sửa`,tone:'amber'}
+      : writeBack?{selector:ssdNode,label:`Đã ghi lại Trang ${victim} · D: 1 → 0`,tone:'amber'}
       : load?{selector:frameNode,label:`Nạp Trang ${page} vào Khung ${frame}`,tone:'green'}
       : update?{selector:pteNode,label:`OS ghi Trang ${page} → Khung ${frame}`,tone:'violet'}
       : {selector:frameNode,label:`CPU dùng Trang ${page} trong RAM`,tone:'green'};
@@ -209,8 +219,8 @@
 
     return {
       title:heading,why,next,focus,flows,
-      html:`<div class="paging-scene demand-scene paging-hardware-scene ${denied ? "paging-trap" : ""}">${sequenceHtml}<div class="demand-hardware-layout ${direct?'is-direct':''}">${routeHtml}${io}</div><p class="paging-key">CPU chỉ dùng dữ liệu sau khi trang ở RAM và bảng trang đã được cập nhật. Ô màu là vùng nhớ phóng to, không phải từng chip RAM.</p></div>`,
-      result:read || retry ? `Trang ${page} ở khung ${frame} · ${s.hits || 0} lượt có sẵn · ${s.faults || 0} lượt thiếu trang · ${s.reads || 0} lần nạp từ đĩa` : undefined,
+      html:`<div class="paging-scene demand-scene paging-hardware-scene ${denied ? "paging-trap" : ""}">${sequenceHtml}<div class="demand-hardware-layout ${direct?'is-direct':''}">${routeHtml}${io}</div>${ioCounts}<p class="paging-key">CPU chỉ dùng dữ liệu sau khi trang ở RAM và bảng trang đã được cập nhật. Ô màu là vùng nhớ phóng to, không phải từng chip RAM.</p></div>`,
+      result:read || retry ? `Trang ${page} ở khung ${frame} · ${s.hits || 0} lượt có sẵn · ${s.faults || 0} lượt thiếu trang · ${s.reads || 0} lần nạp từ đĩa${detailed?` · ${s.writes||0} lần ghi lại đĩa`:""}` : undefined,
     };
   };
 })();
