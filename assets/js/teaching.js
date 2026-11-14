@@ -1000,6 +1000,7 @@ window.enhanceMemoryDemo = function (api) {
       bar.before(this.conclusion);
       const options = document.createElement("div");
       options.className = "teach-options";
+      options.style.display = "none";
       options.innerHTML = `<strong>TÙY CHỌN HIỂN THỊ</strong>${[
         ["explain", "Hiện giải thích bước", true],
         ["path", "Hiện đường đi dữ liệu", true],
@@ -1015,6 +1016,7 @@ window.enhanceMemoryDemo = function (api) {
       // Speed removed
       const history = document.createElement("details");
       history.className = "teach-history";
+      history.style.display = "none";
       history.open = false;
       history.innerHTML =
         "<summary>LỊCH SỬ CÁC BƯỚC ĐÃ THỰC HIỆN</summary><ol></ol>";
@@ -1022,6 +1024,7 @@ window.enhanceMemoryDemo = function (api) {
       this.history = history;
       this.concepts = document.createElement("details");
       this.concepts.className = "teach-concepts";
+      this.concepts.style.display = "none";
       this.concepts.id = id + "-concepts";
       this.concepts.innerHTML = '<summary>GIẢI THÍCH KHÁI NIỆM TRỰC QUAN <span>Hiểu nhanh thuật ngữ · sơ đồ · ví dụ</span></summary><div class="concept-body"></div>';
       mountConceptExercise(id, this.concepts);
