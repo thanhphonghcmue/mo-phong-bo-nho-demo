@@ -1381,7 +1381,7 @@ function renderB(){
       Ngoài vùng
     </div>
     <div class="b-pointer ${ptrValid ? '' : 'trap'}" style="left:${ptrPos}%">
-      <span class="plabel" style="background:${ptrValid ? 'var(--ok)' : 'var(--bad)'};color:#fff">${mode === 'translate' ? (ptrValid ? `PA=${pa} ✓` : `Offset ${offset} ✗`) : `${addr} ${ptrValid ? '✓' : '✗'}`}</span>
+      <span class="plabel" style="background:${ptrValid ? 'var(--ok)' : 'var(--bad)'};color:#fff">${mode === 'translate' ? (ptrValid ? `PA = ${pa} ✓` : `Offset ${offset} ✗ (TRAP)`) : `${addr} ${ptrValid ? '✓ (HỢP LỆ)' : '✗ (TRAP)'}`}</span>
       <span class="pin" style="color:${ptrValid ? 'var(--ok)' : 'var(--bad)'}">▼</span>
     </div>
   `;
