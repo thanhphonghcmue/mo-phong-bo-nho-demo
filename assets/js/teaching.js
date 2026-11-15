@@ -2102,7 +2102,7 @@ window.enhanceMemoryDemo = function (api) {
             const isCur = split && p === P.p;
             const hlClass = isCur ? "teach-selected" : "";
             const bit = f !== null ? '<span class="bit-v">v</span>' : '<span class="bit-i">i</span>';
-            const dispF = f !== null ? f : '<span class="muted">đĩa</span>';
+            const dispF = f !== null ? (isCur ? `<span class="badge-f">${f}</span>` : f) : '<span class="muted">đĩa</span>';
             return `<tr class="${hlClass}" data-page="${p}"><td><b>${p}</b></td><td>${dispF}</td><td>${bit}</td></tr>`;
           }).join("")}
         </tbody>
@@ -2127,8 +2127,8 @@ window.enhanceMemoryDemo = function (api) {
       <div class="pa-big">${ready ? P.phys : "?"}</div>
       <div class="pa-formula">
         ${ready
-          ? `f × ${X.pageSize} + d<br>= ${P.f} × ${X.pageSize} + ${P.d}<br>= <b>${P.phys}</b>`
-          : `f × ${X.pageSize} + d = ?<br><small class="muted">Chờ tìm số khung f</small>`}
+          ? `<span class="badge-f">f=${P.f}</span> × ${X.pageSize} + <span class="badge-d">d=${P.d}</span><br>= <b class="pa-val">${P.phys}</b>`
+          : `<span class="badge-f">f</span> × ${X.pageSize} + <span class="badge-d">d</span> = ?<br><small class="muted">Chờ tìm số khung f</small>`}
       </div>
       <p class="pa-note">${ready ? `Dữ liệu nằm tại byte <b>${P.phys}</b> trên thanh RAM vật lý.` : "Đang thực hiện quy trình dịch địa chỉ..."}</p>
     </div>`;

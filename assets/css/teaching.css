@@ -756,9 +756,9 @@ tr.teach-spotlight {
 }
 .split-card-d {
   flex: 1;
-  background: #18241f;
-  color: #ffffff;
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(245, 158, 11, 0.12);
+  color: #f59e0b;
+  border: 1.5px solid #f59e0b;
   border-radius: 8px;
   padding: 8px 4px;
   text-align: center;
@@ -766,19 +766,20 @@ tr.teach-spotlight {
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  transition: all 0.3s ease;
 }
 .split-card-d .d-num {
   font-family: var(--f-mono);
   font-size: 22px;
   font-weight: 800;
   line-height: 1.1;
-  color: #ffffff;
+  color: #f59e0b;
 }
 .split-card-d .d-text {
   font-size: 11.5px;
   margin-top: 6px;
-  color: #a0aec0;
-  font-weight: 600;
+  color: #fbbf24;
+  font-weight: 700;
 }
 .split-math-lines {
   text-align: center;
@@ -1638,4 +1639,143 @@ tr.teach-spotlight {
 }
 [data-theme="light"] .b-ram-track {
   border-color: #334155;
+}
+
+/* ================= VISUAL COLOR-CODED PIPELINE ENHANCEMENTS ================= */
+.badge-f {
+  display: inline-block;
+  background: rgba(129, 140, 248, 0.22);
+  color: #818cf8;
+  border: 1px solid #818cf8;
+  border-radius: 4px;
+  padding: 1px 6px;
+  font-weight: 800;
+  font-family: var(--f-mono);
+  line-height: 1.2;
+}
+.badge-d {
+  display: inline-block;
+  background: rgba(245, 158, 11, 0.2);
+  color: #f59e0b;
+  border: 1px solid #f59e0b;
+  border-radius: 4px;
+  padding: 1px 6px;
+  font-weight: 800;
+  font-family: var(--f-mono);
+  line-height: 1.2;
+}
+.pa-val {
+  font-size: 15px;
+  color: #38c5a4;
+  font-weight: 800;
+}
+
+/* Demo 3 Active Frame Animation on 4x4 Grid */
+.ram-16-grid .teach-frame-active {
+  border: 2px solid #818cf8 !important;
+  background: rgba(129, 140, 248, 0.25) !important;
+  box-shadow: 0 0 14px rgba(129, 140, 248, 0.65) !important;
+  transform: scale(1.08);
+  z-index: 2;
+  animation: pulse-frame 1.2s infinite alternate ease-in-out;
+}
+.ram-16-grid .teach-frame-active .f-num {
+  color: #818cf8 !important;
+}
+.ram-16-grid .teach-frame-active .f-content {
+  color: #818cf8 !important;
+  font-weight: 800;
+}
+@keyframes pulse-frame {
+  0% { box-shadow: 0 0 6px rgba(129, 140, 248, 0.4); transform: scale(1.04); }
+  100% { box-shadow: 0 0 18px rgba(129, 140, 248, 0.9); transform: scale(1.10); }
+}
+
+/* Demo 2 Hole fitting states & visual chosen tag */
+#a-ram .hole.fit {
+  background: rgba(34, 197, 94, 0.18) !important;
+  box-shadow: inset 0 0 0 2px #22c55e !important;
+}
+#a-ram .hole.fit .fr {
+  color: #4ade80 !important;
+}
+#a-ram .hole.nofit {
+  background: rgba(239, 68, 68, 0.15) !important;
+  box-shadow: inset 0 0 0 2px rgba(239, 68, 68, 0.5) !important;
+}
+#a-ram .hole.nofit .fr {
+  color: #f87171 !important;
+  opacity: 0.85;
+}
+#a-ram .hole.chosen {
+  outline: 3px solid #38c5a4 !important;
+  outline-offset: -1px;
+  background: rgba(56, 197, 164, 0.28) !important;
+  box-shadow: 0 0 16px rgba(56, 197, 164, 0.55) !important;
+  z-index: 5;
+}
+#a-ram .hole.chosen::before {
+  content: "▼ CHỌN";
+  position: absolute;
+  top: -24px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: #38c5a4;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  background: rgba(0, 0, 0, 0.9);
+  padding: 2px 7px;
+  border-radius: 4px;
+  border: 1px solid #38c5a4;
+  white-space: nowrap;
+  animation: bounceChosen 0.8s infinite alternate ease-in-out;
+}
+@keyframes bounceChosen {
+  from { transform: translateX(-50%) translateY(0); }
+  to { transform: translateX(-50%) translateY(-3px); }
+}
+
+/* Demo 1 TRAP visual pulse */
+.b-pointer {
+  transition: left 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.b-pointer.trap .plabel {
+  animation: pulse-trap 0.8s infinite alternate ease-in-out;
+}
+@keyframes pulse-trap {
+  0% { transform: scale(1); box-shadow: 0 0 6px rgba(239, 68, 68, 0.5); }
+  100% { transform: scale(1.08); box-shadow: 0 0 16px rgba(239, 68, 68, 0.9); }
+}
+
+/* Demo 5 Micro-animations for Hit & Victim */
+.slot .card.hitc {
+  border-color: #22c55e !important;
+  box-shadow: 0 0 16px rgba(34, 197, 94, 0.6) !important;
+  animation: pulse-hit 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+@keyframes pulse-hit {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.12); }
+  100% { transform: scale(1); }
+}
+.slot .card.victim {
+  border-color: #ef4444 !important;
+  background: rgba(239, 68, 68, 0.2) !important;
+  color: #ef4444 !important;
+  animation: pulse-victim 0.8s infinite alternate ease-in-out;
+}
+@keyframes pulse-victim {
+  from { transform: scale(1); box-shadow: 0 0 4px rgba(239, 68, 68, 0.4); }
+  to { transform: scale(1.06); box-shadow: 0 0 14px rgba(239, 68, 68, 0.8); }
+}
+.slot .card.new {
+  border-color: #38c5a4 !important;
+  background: rgba(56, 197, 164, 0.22) !important;
+  color: #38c5a4 !important;
+  animation: enter-new 0.5s ease-out;
+}
+@keyframes enter-new {
+  0% { transform: translateY(-10px); opacity: 0.5; }
+  100% { transform: translateY(0); opacity: 1; }
 }

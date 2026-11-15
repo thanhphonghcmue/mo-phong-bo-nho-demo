@@ -1352,7 +1352,7 @@ function renderB(){
     <div style="width:${otherW}%;background:rgba(0,0,0,0.03);display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:11px;white-space:nowrap;overflow:hidden">
       Ngoài vùng
     </div>
-    <div class="b-pointer" style="left:${ptrPos}%">
+    <div class="b-pointer ${ptrValid ? '' : 'trap'}" style="left:${ptrPos}%">
       <span class="plabel" style="background:${ptrValid ? 'var(--ok)' : 'var(--bad)'};color:#fff">${mode === 'translate' ? (ptrValid ? `PA=${pa} ✓` : `Offset ${offset} ✗`) : `${addr} ${ptrValid ? '✓' : '✗'}`}</span>
       <span class="pin" style="color:${ptrValid ? 'var(--ok)' : 'var(--bad)'}">▼</span>
     </div>
