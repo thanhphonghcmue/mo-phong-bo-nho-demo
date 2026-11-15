@@ -1553,7 +1553,21 @@ window.enhanceMemoryDemo = function (api) {
       : ["Yêu cầu", "Báo OS", "Tìm trên đĩa", "Nạp vào RAM", "Sửa bảng trang", "Thử lại"];
     const current = denied ? (stage.startsWith("CPU") ? 0 : 1)
       : hit ? (stage.startsWith("CPU") ? 0 : e.kind === "translation" ? 1 : 2) : faultStage;
-    const row = (p) => `<tr data-page="${p.page}"><td>${p.page}</td><td>${+p.present}</td><td>${p.frame ?? "—"}</td><td>${+p.dirty}</td></tr>`;
+    const row = (p) => {
+      const isReq = p.page === V.page;
+      const isVic = p.page === V.plan.victim && p.page !== V.page;
+      const rowClass = isReq ? "teach-row-active" : isVic ? "teach-row-victim" : "";
+      const pBadge = p.present
+        ? '<span class="bit-badge bit-present">1 (Có)</span>'
+        : '<span class="bit-badge bit-absent">0 (Chưa)</span>';
+      const fBadge = (p.frame !== null && p.frame !== undefined)
+        ? `<span class="badge-frame">Khung ${p.frame}</span>`
+        : '<span class="badge-disk">đĩa</span>';
+      const dBadge = p.dirty
+        ? '<span class="badge-dirty">1 (Bẩn)</span>'
+        : '<span class="badge-clean">0 (Sạch)</span>';
+      return `<tr data-page="${p.page}" class="${rowClass}"><td><b>Trang ${p.page}</b></td><td>${pBadge}</td><td>${fBadge}</td><td>${dBadge}</td></tr>`;
+    };
     const showVictim = !stage.startsWith("CPU") && !stage.startsWith("Định vị") && e.kind !== "trap";
     const focus = V.pt.filter((p) => p.page === V.page || (showVictim && p.page === V.plan.victim));
     const pte = V.pt[V.page];
@@ -1824,11 +1838,33 @@ window.enhanceMemoryDemo = function (api) {
       vBase.pt
         .filter((p) => p.mapped && p.permission && p.present)
         .map((p) => p.page);
-  $("#v-pre-hit").onclick = () =>
+  const markVPreset = (id) => {
+    document.querySelectorAll("#p4 .quick .btn").forEach(b => {
+      if (b.id && b.id.startsWith("v-pre-")) b.classList.remove("active-preset", "active-preset-trap");
+    });
+    if (id) {
+      const b = $("#" + id);
+      if (b) {
+        b.classList.add(id === "v-pre-invalid" ? "active-preset-trap" : "active-preset");
+      }
+    }
+  };
+  $("#v-pre-hit").onclick = () => {
+    markVPreset("v-pre-hit");
     startV(resident().includes(1) ? 1 : resident()[0]);
-  $("#v-pre-fault").onclick = () => startV(missing()[0]);
-  $("#v-pre-fault2").onclick = () => startV(missing()[1] ?? missing()[0]);
-  $("#v-pre-invalid").onclick = () => startV(Math.max(99, vBase.pt.length));
+  };
+  $("#v-pre-fault").onclick = () => {
+    markVPreset("v-pre-fault");
+    startV(missing()[0]);
+  };
+  $("#v-pre-fault2").onclick = () => {
+    markVPreset("v-pre-fault2");
+    startV(missing()[1] ?? missing()[0]);
+  };
+  $("#v-pre-invalid").onclick = () => {
+    markVPreset("v-pre-invalid");
+    startV(Math.max(99, vBase.pt.length));
+  };
   $("#v-reset").onclick = resetV;
   const vp = document.createElement("div");
   vp.className = "bar";
@@ -3649,6 +3685,14 @@ window.enhanceMemoryDemo = function (api) {
       const base = integer(read("b-base"), "Base", 0, 1000000000),
         limit = integer(read("b-limit"), "Limit", 1, 1000000000);
       let val;
+      document.querySelectorAll("#b-presets-check .btn, #b-presets-trans .btn").forEach(b => b.classList.remove("active-preset", "active-preset-trap"));
+      if (preset && preset !== "rand" && preset !== "t-rand") {
+        const btn = $("#b-pre-" + preset);
+        if (btn) {
+          const isTrap = preset === "over" || preset === "under" || preset === "t-over" || preset === "t-under";
+          btn.classList.add(isTrap ? "active-preset-trap" : "active-preset");
+        }
+      }
       if (B.mode === "translate") {
         if (preset === "t-std") val = 346;
         else if (preset === "t-low") val = 0;

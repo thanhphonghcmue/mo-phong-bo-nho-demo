@@ -1943,3 +1943,200 @@ tr.teach-spotlight {
 .teach-layout-x {
   padding-bottom: 4px;
 }
+
+/* ================= HIGH-CONTRAST DATA BADGES & TABLES (DEMO 4 & 5) ================= */
+.bit-badge {
+  display: inline-block;
+  padding: 2px 7px;
+  border-radius: 99px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+}
+.bit-present {
+  background: rgba(16, 185, 129, 0.16);
+  color: #10b981;
+  border: 1px solid rgba(16, 185, 129, 0.4);
+}
+.bit-absent {
+  background: rgba(239, 68, 68, 0.14);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+.badge-frame {
+  background: rgba(167, 139, 250, 0.18);
+  color: #a78bfa;
+  font-family: var(--f-mono);
+  font-weight: 800;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 11.5px;
+  border: 1px solid rgba(167, 139, 250, 0.3);
+}
+.badge-disk {
+  color: var(--muted);
+  font-size: 11.5px;
+  font-style: italic;
+  font-weight: 600;
+}
+.badge-dirty {
+  background: rgba(245, 158, 11, 0.18);
+  color: #fbbf24;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 800;
+  border: 1px solid rgba(245, 158, 11, 0.35);
+}
+.badge-clean {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.teach-table tr.teach-row-active {
+  background: rgba(56, 197, 164, 0.12) !important;
+  box-shadow: inset 3px 0 0 #38c5a4;
+  font-weight: 700;
+}
+.teach-table tr.teach-row-victim {
+  background: rgba(239, 68, 68, 0.12) !important;
+  box-shadow: inset 3px 0 0 #ef4444;
+  font-weight: 700;
+}
+
+/* Demo 4: Focus Frame prominence */
+#v-flow .teach-focus-frame {
+  border: 2px solid var(--accent) !important;
+  border-radius: 10px !important;
+  background: var(--surface) !important;
+  padding: 12px 14px !important;
+  box-shadow: 0 4px 12px rgba(56, 197, 164, 0.15);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.25s ease;
+}
+#v-flow .teach-focus-frame b {
+  font-family: var(--f-mono);
+  font-size: 22px !important;
+  font-weight: 800;
+  color: var(--accent);
+}
+#v-flow .teach-focus-frame.teach-victim {
+  border-color: var(--bad) !important;
+  background: var(--bad-soft) !important;
+  box-shadow: 0 4px 14px rgba(239, 68, 68, 0.25) !important;
+  animation: victimShake 0.4s ease-in-out;
+}
+#v-flow .teach-focus-frame.teach-victim b {
+  color: var(--bad) !important;
+}
+
+@keyframes victimShake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-4px); }
+  75% { transform: translateX(4px); }
+}
+
+/* Demo 2: Hole Selection High-Contrast Badge */
+.hole.chosen::before {
+  content: '▼ CHỌN' !important;
+  position: absolute !important;
+  top: -24px !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  background: var(--accent) !important;
+  color: var(--on-accent) !important;
+  font-size: 11px !important;
+  font-weight: 800 !important;
+  padding: 2px 7px !important;
+  border-radius: 4px !important;
+  line-height: 1.2 !important;
+  white-space: nowrap !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25) !important;
+}
+
+/* Demo 2: Comparison Cards */
+.cmp {
+  border: 1.5px solid var(--line);
+  border-radius: 12px;
+  padding: 12px 14px;
+  background: var(--surface);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  transition: all 0.2s ease;
+}
+.cmp.on {
+  border-color: var(--accent) !important;
+  box-shadow: 0 0 0 2px var(--accent), 0 4px 12px rgba(56, 197, 164, 0.18) !important;
+  background: rgba(56, 197, 164, 0.06) !important;
+}
+.cmp .k {
+  font-size: 13.5px;
+  font-weight: 800;
+  color: var(--fg);
+}
+.cmp .v.ok {
+  color: #10b981 !important;
+  font-weight: 800;
+  font-size: 15px;
+}
+.cmp .v.bad {
+  color: #ef4444 !important;
+  font-weight: 800;
+  font-size: 15px;
+}
+
+/* Demo 5: High-Contrast Statistics Widgets */
+.count {
+  border-radius: 12px;
+  padding: 10px 18px;
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  font-weight: 800;
+  border: 1.5px solid transparent;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+.count.bad {
+  background: rgba(239, 68, 68, 0.12) !important;
+  color: #ef4444 !important;
+  border-color: rgba(239, 68, 68, 0.25) !important;
+}
+.count.ok {
+  background: rgba(16, 185, 129, 0.12) !important;
+  color: #10b981 !important;
+  border-color: rgba(16, 185, 129, 0.25) !important;
+}
+.brow {
+  padding: 6px 10px;
+  border-radius: 8px;
+  transition: background 0.2s ease;
+}
+.brow:hover {
+  background: var(--free);
+}
+.brow.on {
+  outline: none !important;
+  border: 1.5px solid var(--accent) !important;
+  background: rgba(56, 197, 164, 0.08) !important;
+  box-shadow: 0 0 8px rgba(56, 197, 164, 0.2) !important;
+}
+
+/* Preset Buttons Active Highlighting */
+.btn.active-preset {
+  background: var(--accent) !important;
+  color: var(--on-accent) !important;
+  border-color: var(--accent) !important;
+  font-weight: 800 !important;
+  box-shadow: 0 0 10px rgba(56, 197, 164, 0.35) !important;
+}
+.btn.active-preset-trap {
+  background: var(--bad) !important;
+  color: #fff !important;
+  border-color: var(--bad) !important;
+  font-weight: 800 !important;
+  box-shadow: 0 0 10px rgba(239, 68, 68, 0.4) !important;
+}
