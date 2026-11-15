@@ -1267,8 +1267,15 @@ function renderB(){
       <div class="big" style="color:${st >= 1 ? (isValid ? 'var(--ok)' : 'var(--bad)') : 'inherit'}">
         0 ≤ ${offset} < ${limit}
       </div>
-      <div class="verdict ${st >= 1 ? (isValid ? 'ok' : 'bad') : ''}">
-        ${st >= 1 ? (isValid ? '✓ Hợp lệ (L < Limit)' : (offset < 0 ? '✗ VI PHẠM: L < 0' : '✗ VI PHẠM: L ≥ Limit')) : 'Chờ kiểm tra...'}
+      <div class="cmp-branches">
+        <div class="branch-pill yes ${st >= 1 && isValid ? 'active' : ''}">
+          <span class="pill-lbl">✓ Thỏa mãn (0 ≤ L < Limit):</span>
+          <span class="pill-act">→ Chuyển sang Bộ cộng Adder</span>
+        </div>
+        <div class="branch-pill no ${st >= 1 && !isValid ? 'active' : ''}">
+          <span class="pill-lbl">✗ Không thỏa mãn (Lỗi biên):</span>
+          <span class="pill-act">→ Bẫy ngắt TRAP sang HĐH ⛔</span>
+        </div>
       </div>
     </div>`;
 
@@ -1277,8 +1284,15 @@ function renderB(){
       <div class="big" style="color:${st >= 2 ? (isValid ? 'var(--ok)' : 'var(--bad)') : 'inherit'}">
         ${st >= 2 ? (isValid ? `${base} + ${offset} = ${pa}` : 'Chặn phép cộng (TRAP)') : 'PA = Base + L'}
       </div>
-      <div class="verdict ${st >= 2 ? (isValid ? 'ok' : 'bad') : ''}">
-        ${st >= 2 ? (isValid ? `✓ PA vật lý: ${pa}` : '✗ Bị chặn do vi phạm!') : 'Chờ tính toán...'}
+      <div class="cmp-branches">
+        <div class="branch-pill yes ${st >= 2 && isValid ? 'active' : ''}">
+          <span class="pill-lbl">✓ PA vật lý: ${pa}</span>
+          <span class="pill-act">→ Đưa lên bus bộ nhớ RAM</span>
+        </div>
+        <div class="branch-pill no ${st >= 2 && !isValid ? 'active' : ''}">
+          <span class="pill-lbl">✗ Bị chặn:</span>
+          <span class="pill-act">Không chuyển sang RAM ⛔</span>
+        </div>
       </div>
     </div>`;
 
@@ -1298,22 +1312,36 @@ function renderB(){
     </div>`;
 
     b2 = `<div class="${boxClass(1, st >= 1 && !cond1)}">
-      <h3>② Kiểm tra cận dưới</h3>
+      <h3>② Kiểm tra cận dưới: A ≥ Base</h3>
       <div class="big" style="color:${st >= 1 ? (cond1 ? 'var(--ok)' : 'var(--bad)') : 'inherit'}">
         ${addr} ≥ ${base}
       </div>
-      <div class="verdict ${st >= 1 ? (cond1 ? 'ok' : 'bad') : ''}">
-        ${st >= 1 ? (cond1 ? '✓ Thỏa mãn (A ≥ Base)' : '✗ VI PHẠM: A < Base') : 'Chờ kiểm tra...'}
+      <div class="cmp-branches">
+        <div class="branch-pill yes ${st >= 1 && cond1 ? 'active' : ''}">
+          <span class="pill-lbl">✓ Thỏa mãn (A ≥ Base):</span>
+          <span class="pill-act">→ Tiếp tục kiểm tra Cận trên</span>
+        </div>
+        <div class="branch-pill no ${st >= 1 && !cond1 ? 'active' : ''}">
+          <span class="pill-lbl">✗ Không thỏa mãn (A < Base):</span>
+          <span class="pill-act">→ Bẫy ngắt TRAP sang HĐH ⛔</span>
+        </div>
       </div>
     </div>`;
 
     b3 = `<div class="${boxClass(2, st >= 2 && (!cond1 || !cond2))}">
-      <h3>③ Kiểm tra cận trên</h3>
+      <h3>③ Kiểm tra cận trên: A < Base+Limit</h3>
       <div class="big" style="color:${st >= 2 ? (cond2 ? 'var(--ok)' : 'var(--bad)') : 'inherit'}">
         ${addr} < ${upper}
       </div>
-      <div class="verdict ${st >= 2 ? (cond2 ? 'ok' : 'bad') : ''}">
-        ${st >= 2 ? (cond1 ? (cond2 ? '✓ Thỏa mãn (A < Base+Limit)' : '✗ VI PHẠM: A ≥ Base+Limit') : 'Bị bỏ qua vì đã lỗi cận dưới') : 'Chờ kiểm tra...'}
+      <div class="cmp-branches">
+        <div class="branch-pill yes ${st >= 2 && cond1 && cond2 ? 'active' : ''}">
+          <span class="pill-lbl">✓ Thỏa mãn (A < Base+Limit):</span>
+          <span class="pill-act">→ Hợp lệ, Cho phép vào RAM ✓</span>
+        </div>
+        <div class="branch-pill no ${st >= 2 && (!cond1 || !cond2) ? 'active' : ''}">
+          <span class="pill-lbl">✗ Không thỏa mãn:</span>
+          <span class="pill-act">→ Bẫy ngắt TRAP sang HĐH ⛔</span>
+        </div>
       </div>
     </div>`;
 
