@@ -4,7 +4,7 @@ Web tĩnh cho bài học Hệ điều hành – Khoa CNTT, Trường Đại họ
 
 [Website GitHub Pages](https://thanhphonghcmue.github.io/mo-phong-bo-nho-demo/) · [Thiết kế Academic Tech Lab, kiểm thử và ảnh trước/sau](docs/academic-lab-design.md)
 
-Header navy, năm tab màu và cửa sổ bước từ snapshot giúp theo dõi bài khi trình chiếu. Nút và khối dùng SVG Lucide; Be Vietnam Pro/JetBrains Mono được lưu cục bộ. Design tokens và hai theme nằm trong `assets/css/teaching-scenes.css`. Hai skill UI UX Pro Max và Interface Design được cài tại `.agents/skills/`; nguồn pin revision trong `docs/design-skill-sources.json`.
+Header navy, năm tab màu và cửa sổ bước từ snapshot giúp theo dõi bài khi trình chiếu. [Typography được rà lại cho cả 5 demo](docs/typography.md): nội dung 16px, nhãn 14px, chữ phụ tối thiểu 12px; độ đậm và khoảng cách dòng được chuẩn hóa. Nút và khối dùng SVG Lucide; Be Vietnam Pro/JetBrains Mono được lưu cục bộ. Design tokens và hai theme nằm trong `assets/css/teaching-scenes.css`. Hai skill UI UX Pro Max và Interface Design được cài tại `.agents/skills/`; nguồn pin revision trong `docs/design-skill-sources.json`.
 
 ## Năm demo
 

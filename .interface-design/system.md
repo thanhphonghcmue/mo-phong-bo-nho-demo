@@ -16,7 +16,7 @@ Avoided defaults: uniform white navigation cards; a commercial hero; a dashboard
 
 - Depth: soft layered shadows on light canvas; borders and surface tints on dark. No glass or neon.
 - Spacing: 4px base; component 8/12/16px; section 16/24px. Main panel padding 16px; radius 16px; node radius 12px; button radius 9px.
-- Type: local Be Vietnam Pro 400/600/700; local JetBrains Mono 500/700 for changing numbers. Title 20–21px; principal data 25–34px; ordinary explanation 14px; metadata 10–12px.
+- Type: local Be Vietnam Pro 400/500/600/700; local JetBrains Mono 500/700 for addresses, formulas and changing numbers. Type roles (rem): metadata .75 (12px), labels .875 (14px), UI .9375 (15px), body 1 (16px), subtitle 1.25 (20px), title 1.375 (22px), numerical values 1.75/2.25 (28/36px). Prose line-height 1.6–1.7; weight 400 for reading, 500 for controls, 600 for labels/headings, 700 for numerical emphasis; font synthesis disabled. No reading text below 12px.
 - Header: 88–96px desktop; navy gradient only for product identity. Logo keeps aspect ratio in a white holder.
 - Tabs: five 96px navigation cards, one Lucide icon per topic, tinted active surface + stronger top edge + filled icon. Native buttons with roving focus and arrow/Home/End navigation.
 - Controls: 44px targets, violet primary Next, themed Play/Pause, neutral Previous/Reset. Always named; SVG is decorative.

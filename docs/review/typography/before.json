@@ -1,0 +1,1114 @@
+[
+  {
+    "id": "b",
+    "small": [
+      {
+        "text": "LUỒNG THỰC HIỆN",
+        "size": "10px",
+        "weight": "700",
+        "font": "\"Be Vietnam Pro\", Arial, sans-serif",
+        "line": "15px",
+        "cls": ""
+      },
+      {
+        "text": "✓ Thỏa mãn (A ≥ Base):",
+        "size": "11px",
+        "weight": "700",
+        "font": "\"Be Vietnam Pro\", Arial, sans-serif",
+        "line": "16.5px",
+        "cls": "pill-lbl"
+      },
+      {
+        "text": "→ Tiếp tục kiểm tra Cận trên",
+        "size": "10.5px",
+        "weight": "600",
+        "font": "\"Be Vietnam Pro\", Arial, sans-serif",
+        "line": "15.75px",
+        "cls": "pill-act"
+      },
+      {
+        "text": "✗ Không thỏa mãn (A < Base):",
+        "size": "11px",
+        "weight": "700",
+        "font": "\"Be Vietnam Pro\", Arial, sans-serif",
+        "line": "16.5px",
+        "cls": "pill-lbl"
+      },
+      {
+        "text": "→ Bẫy ngắt TRAP sang HĐH ⛔",
+        "size": "10.5px",
+        "weight": "600",
+        "font": "\"Be Vietnam Pro\", Arial, sans-serif",
+        "line": "15.75px",
+        "cls": "pill-act"
+      },
+      {
+        "text": "✓ Thỏa mãn (A < Base+Limit):",
+        "size": "11px",
+        "weight": "700",
+        "font": "\"Be Vietnam Pro\", Arial, sans-serif",
+        "line": "16.5px",
+        "cls": "pill-lbl"
+      },
+      {
+        "text": "→ Hợp lệ, Cho phép vào RAM ✓",
+        "size": "10.5px",
+        "weight": "600",
+        "font": "\"Be Vietnam Pro\", Arial, sans-serif",
+        "line": "15.75px",
+        "cls": "pill-act"
+      },
+      {
+        "text": "✗ Không thỏa mãn:",
+        "size": "11px",
+        "weight": "700",
+        "font": "\"Be Vietnam Pro\", Arial, sans-serif",
+        "line": "16.5px",
+        "cls": "pill-lbl"
+      },
+      {
+        "text": "→ Bẫy ngắt TRAP sang HĐH ⛔",
+        "size": "10.5px",
+        "weight": "600",
+        "font": "\"Be Vietnam Pro\", Arial, sans-serif",
+        "line": "15.75px",
+        "cls": "pill-act"
+      },
+      {
+        "text": "OS (0..300039)",
+        "size": "11.5px",
+        "weight": "700",
+        "font": "\"Be Vietnam Pro\", Arial, sans-serif",
+        "line": "17.25px",
+        "cls": "used"
+      },
+      {
+        "text": "Tiến trình [Base: 300040]",
+        "size": "11px",
+        "weight": "800",
+        "font": "\"Be Vietnam Pro\", Arial, sans-serif",
+        "line": "13.2px",
+        "cls": ""
+      },
+      {
+        "text": "120900 B (đến 420939)",
+        "size": "10px",
+        "weight": "700",
+        "font": "\"JetBrains Mono\", monospace",
+        "line": "12px",
+        "cls": ""
+      },
+      {
+        "text": "Ngoài vùng",
+        "size": "11px",
+        "weight": "400",
+        "font": "\"Be Vietnam Pro\", Arial, sans-serif",
+        "line": "16.5px",
+        "cls": ""
+      },
+      {
+        "text": "Địa chỉ đang kiểm tra",
+        "size": "11px",
+        "weight": "800",
+        "font": "\"JetBrains Mono\", monospace",
+        "line": "13.75px",
+        "cls": "plabel"
+      },
+      {
+        "text": "▼",
+        "size": "10px",
+        "weight": "400",
+        "font": "\"Be Vietnam Pro\", Arial, sans-serif",
+        "line": "10px",
+        "cls": "pin"
+      },
+      {
+        "text": "LỊCH SỬ CÁC BƯỚC ĐÃ THỰC HIỆN",
+        "size": "11px",
+        "weight": "400",
+        "font": "\"Be Vietnam Pro\", Arial, sans-serif",
+        "line": "16.5px",
+        "cls": ""
+      },
+      {
+        "text": "A=400000 là địa chỉ vật lý cần kiểm tra an toàn. RAM chưa được tr",
+        "size": "10.8333px",
+        "weight": "400",
+        "font": "\"Be Vietnam Pro\", Arial, sans-serif",
+        "line": "16.25px",
+        "cls": ""
+      },
+      {
+        "text": "400000 ≥ Base (300040): đạt cận dưới (A ≥ Base); chuyển sang kiểm",
+        "size": "10.8333px",
+        "weight": "400",
+        "font": "\"Be Vietnam Pro\", Arial, sans-serif",
+        "line": "16.25px",
+        "cls": ""
+      },
+      {
+        "text": "400000 < Base+Limit (420940): đạt cận trên (A < Base+Limit)..",
+        "size": "10.8333px",
+        "weight": "400",
+        "font": "\"Be Vietnam Pro\", Arial, sans-serif",
+        "line": "16.25px",
+        "cls": ""
+      }
+    ],
+    "heavy": [
+      {
+        "text": "Chờ thẩm định MMU...",
+        "size": "14px",
+        "weight": "800",
+        "font": "\"Be Vietnam Pro\", Arial, sans-serif",
+        "line": "21px",
+        "cls": "verdict"
+      },
+      {
+        "text": "Tiến trình [Base: 300040]",
+        "size": "11px",
+        "weight": "800",
+        "font": "\"Be Vietnam Pro\", Arial, sans-serif",
+        "line": "13.2px",
+        "cls": ""
+      },
+      {
+        "text": "Địa chỉ đang kiểm tra",
+        "size": "11px",
+        "weight": "800",
+        "font": "\"JetBrains Mono\", monospace",
+        "line": "13.75px",
+        "cls": "plabel"
+      },
+      {
+        "text": "Giải thích bước",
+        "size": "16px",
+        "weight": "800",
+        "font": "\"Be Vietnam Pro\", Arial, sans-serif",
+        "line": "24px",
+        "cls": ""
+      }
+    ],
+    "sizes": [
+      "10px",
+      "10.5px",
+      "10.8333px",
+      "11px",
+      "11.5px",
+      "12px",
+      "12.5px",
+      "13px",
+      "14px",
+      "16px",
+      "18px",
+      "20px",
+      "21px",
+      "24px"
+    ]
+  },
+  {
+    "id": "a",
+    "small": [
+      {
+        "text": "LUỒNG THỰC HIỆN",
+        "size": "10px",
+        "weight": "700",
+        "font": "\"Be Vietnam Pro\", Arial, sans-serif",
+        "line": "15px",
+        "cls": ""
+      },
+      {
+        "text": "LỊCH SỬ CÁC BƯỚC ĐÃ THỰC HIỆN",
+        "size": "11px",
+        "weight": "400",
+        "font": "\"Be Vietnam Pro\", Arial, sans-serif",
+        "line": "16.5px",
+        "cls": ""
+      },
+      {
+        "text": "Hàng chờ: P1=4 KB; P2=6 KB; P3=3 KB.",
+        "size": "10.8333px",
+        "weight": "400",
+        "font": "\"Be Vietnam Pro\", Arial, sans-serif",
+        "line": "16.25px",
+        "cls": ""
+      },
+      {
+        "text": "Tổng trống 24 KB; lớn nhất 8 KB.",
+        "size": "10.8333px",
+        "weight": "400",
+        "font": "\"Be Vietnam Pro\", Arial, sans-serif",
+        "line": "16.25px",
+        "cls": ""
+      },
+      {
+        "text": "5 ≥ 4 KB → ứng viên, dư 1 KB.",
+        "size": "10.8333px",
+        "weight": "400",
+        "font": "\"Be Vietnam Pro\", Arial, sans-serif",
+        "line": "16.25px",
+        "cls": ""
+      },
+      {
+        "text": "first: chọn 5 KB; dư 1 KB.",
+        "size": "10.8333px",
+        "weight": "400",
+        "font": "\"Be Vietnam Pro\", Arial, sans-serif",
+        "line": "16.25px",
+        "cls": ""
+      },
+      {
+        "text": "Chỉ phục vụ sơ đồ địa chỉ; không tham gia phần bộ nhớ trống.",
+        "size": "10px",
+        "weight": "700",
+        "font": "\"Be Vietnam Pro\", Arial, sans-serif",
+        "line": "15px",
+        "cls": ""
+      }
+    ],
+    "heavy": [
+      {
+        "text": "P14 KB",
+        "size": "15px",
+        "weight": "800",
+        "font": "\"Be Vietnam Pro\", Arial, sans-serif",
+        "line": "22.5px",
+        "cls": "req teach-source"
+      },
+      {
+        "text": "5",
+        "size": "20px",
+        "weight": "800",
+        "font": "\"JetBrains Mono\", monospace",
+        "line": "30px",
+        "cls": "fr"
+      },
+      {
+        "text": "8",
+        "size": "20px",
+        "weight": "800",
+        "font": "\"JetBrains Mono\", monospace",
+        "line": "30px",
+        "cls": "fr"
+      },
+      {
+        "text": "4",
+        "size": "20px",
+        "weight": "800",
+        "font": "\"JetBrains Mono\", monospace",
+        "line": "30px",
+        "cls": "fr"
+      },
+      {
+        "text": "7",
+        "size": "20px",
+        "weight": "800",
+        "font": "\"JetBrains Mono\", monospace",
+        "line": "30px",
+        "cls": "fr"
+      },
+      {
+        "text": "Giải thích bước",
+        "size": "16px",
+        "weight": "800",
+        "font": "\"Be Vietnam Pro\", Arial, sans-serif",
+        "line": "24px",
+        "cls": ""
+      },
+      {
+        "text": "First-fit · lỗ đầu tiên",
+        "size": "13.5px",
+        "weight": "800",
+        "font": "\"Be Vietnam Pro\", Arial, sans-serif",
+        "line": "20.25px",
+        "cls": "k"
+      },
+      {
+        "text": "Tất cả có chỗ",
+        "size": "15px",
+        "weight": "800",
+        "font": "\"Be Vietnam Pro\", Arial, sans-serif",
+        "line": "22.5px",
+        "cls": "v ok"
+      },
+      {
+        "text": "Best-fit · lỗ vừa khít nhất",
+        "size": "13.5px",
+        "weight": "800",
+        "font": "\"Be Vietnam Pro\", Arial, sans-serif",
+        "line": "20.25px",
+        "cls": "k"
+      },
+      {
+        "text": "Tất cả có chỗ",
+        "size": "15px",
+        "weight": "800",
+        "font": "\"Be Vietnam Pro\", Arial, sans-serif",
+        "line": "22.5px",
+        "cls": "v ok"
+      },
+      {
+        "text": "Worst-fit · lỗ to nhất",
+        "size": "13.5px",
+        "weight": "800",
+        "font": "\"Be Vietnam Pro\", Arial, sans-serif",
+        "line": "20.25px",
+        "cls": "k"
+      },
+      {
+        "text": "Tất cả có chỗ",
+        "size": "15px",
+        "weight": "800",
+        "font": "\"Be Vietnam Pro\", Arial, sans-serif",
+        "line": "22.5px",
+        "cls": "v ok"
+      }
+    ],
+    "sizes": [
+      "10px",
+      "10.8333px",
+      "11px",
+      "12px",
+      "12.5px",
+      "13px",
+      "13.5px",
+      "14px",
+      "15px",
+      "16px",
+      "18px",
+      "20px",
+      "21px"
+    ]
+  },
+  {
+    "id": "x",
+    "small": [
+      {
+        "text": "LUỒNG THỰC HIỆN",
+        "size": "10px",
+        "weight": "700",
+        "font": "\"Be Vietnam Pro\", Arial, sans-serif",
+        "line": "15px",
+        "cls": ""
+      },
+      {
+        "text": "01",
+        "size": "10px",
+        "weight": "500",
+        "font": "\"JetBrains Mono\", monospace",
+        "line": "normal",
+        "cls": "lab-node-step"
+      },
+      {
+        "text": "CPU gửi địa chỉ logic",
+        "size": "11px",
+        "weight": "400",
+        "font": "\"Be Vietnam Pro\", Arial, sans-serif",
+        "line": "17.6px",
+        "cls": ""
+      },
+      {
+        "text": "02",
+        "size": "10px",
+        "weight": "500",
+        "font": "\"JetBrains Mono\", monospace",
+        "line": "normal",
+        "cls": "lab-node-step"
+      },
+      {
+        "text": "MISS · chưa có",
+        "size": "11px",
+        "weight": "600",
+        "font": "\"Be Vietnam Pro\", Arial, sans-serif",
+        "line": "16.5px",
+        "cls": "scene-badge warn"
+      },
+      {
+        "text": "0/4 mục đang dùng",
+        "size": "11px",
+        "weight": "400",
+        "font": "\"Be Vietnam Pro\", Arial, sans-serif",
+        "line": "17.6px",
+        "cls": ""
+      },
+      {
+        "text": "03",
+        "size": "10px",
+        "weight": "500",
+        "font": "\"JetBrains Mono\", monospace",
+        "line": "normal",
+        "cls": "lab-node-step"
+      },
+      {
+        "text": "Present 0",
+        "size": "11px",
+        "weight": "400",
+        "font": "\"Be Vietnam Pro\", Arial, sans-serif",
+        "line": "17.6px",
+        "cls": ""
+      },
+      {
+        "text": "Khung —",
+        "size": "11px",
+        "weight": "400",
+        "font": "\"Be Vietnam Pro\", Arial, sans-serif",
+        "line": "17.6px",
+        "cls": ""
+      },
+      {
+        "text": "Chưa ở RAM · lỗi trang",
+        "size": "11px",
+        "weight": "600",
+        "font": "\"Be Vietnam Pro\", Arial, sans-serif",
+        "line": "16.5px",
+        "cls": "scene-badge warn"
+      },
+      {
+        "text": "04",
+        "size": "10px",
+        "weight": "500",
+        "font": "\"JetBrains Mono\", monospace",
+        "line": "normal",
+        "cls": "lab-node-step"
+      },
+      {
+        "text": "Giữ nguyên d = 1",
+        "size": "11px",
+        "weight": "600",
+        "font": "\"Be Vietnam Pro\", Arial, sans-serif",
+        "line": "16.5px",
+        "cls": "scene-badge purple"
+      },
+      {
+        "text": "05",
+        "size": "10px",
+        "weight": "500",
+        "font": "\"JetBrains Mono\", monospace",
+        "line": "normal",
+        "cls": "lab-node-step"
+      },
+      {
+        "text": "Khung 0",
+        "size": "10px",
+        "weight": "400",
+        "font": "\"Be Vietnam Pro\", Arial, sans-serif",
+        "line": "16px",
+        "cls": ""
+      },
+      {
+        "text": "Khung 1",
+        "size": "10px",
+        "weight": "400",
+        "font": "\"Be Vietnam Pro\", Arial, sans-serif",
+        "line": "16px",
+        "cls": ""
+      },
+      {
+        "text": "Khung 2",
+        "size": "10px",
+        "weight": "400",
+        "font": "\"Be Vietnam Pro\", Arial, sans-serif",
+        "line": "16px",
+        "cls": ""
+      },
+      {
+        "text": "Khung 3",
+        "size": "10px",
+        "weight": "400",
+        "font": "\"Be Vietnam Pro\", Arial, sans-serif",
+        "line": "16px",
+        "cls": ""
+      },
+      {
+        "text": "Khung 4",
+        "size": "10px",
+        "weight": "400",
+        "font": "\"Be Vietnam Pro\", Arial, sans-serif",
+        "line": "16px",
+        "cls": ""
+      },
+      {
+        "text": "Khung 5",
+        "size": "10px",
+        "weight": "400",
+        "font": "\"Be Vietnam Pro\", Arial, sans-serif",
+        "line": "16px",
+        "cls": ""
+      },
+      {
+        "text": "Khung 6",
+        "size": "10px",
+        "weight": "400",
+        "font": "\"Be Vietnam Pro\", Arial, sans-serif",
+        "line": "16px",
+        "cls": ""
+      },
+      {
+        "text": "Khung 7",
+        "size": "10px",
+        "weight": "400",
+        "font": "\"Be Vietnam Pro\", Arial, sans-serif",
+        "line": "16px",
+        "cls": ""
+      },
+      {
+        "text": "8 khung · 4 byte/khung",
+        "size": "11px",
+        "weight": "400",
+        "font": "\"Be Vietnam Pro\", Arial, sans-serif",
+        "line": "17.6px",
+        "cls": ""
+      },
+      {
+        "text": "LỊCH SỬ CÁC BƯỚC ĐÃ THỰC HIỆN",
+        "size": "11px",
+        "weight": "400",
+        "font": "\"Be Vietnam Pro\", Arial, sans-serif",
+        "line": "16.5px",
+        "cls": ""
+      },
+      {
+        "text": "RAM và TLB giữ nguyên.",
+        "size": "10.8333px",
+        "weight": "400",
+        "font": "\"Be Vietnam Pro\", Arial, sans-serif",
+        "line": "16.25px",
+        "cls": ""
+      },
+      {
+        "text": "p=floor(13/4)=3; d=13 mod 4=1.",
+        "size": "10.8333px",
+        "weight": "400",
+        "font": "\"Be Vietnam Pro\", Arial, sans-serif",
+        "line": "16.25px",
+        "cls": ""
+      },
+      {
+        "text": "TLB Miss: chưa có bản dịch; miss +1, chưa kết luận Page Fault.",
+        "size": "10.8333px",
+        "weight": "400",
+        "font": "\"Be Vietnam Pro\", Arial, sans-serif",
+        "line": "16.25px",
+        "cls": ""
+      },
+      {
+        "text": "PTE[3].present=0; Page Fault +1.",
+        "size": "10.8333px",
+        "weight": "400",
+        "font": "\"Be Vietnam Pro\", Arial, sans-serif",
+        "line": "16.25px",
+        "cls": ""
+      }
+    ],
+    "heavy": [
+      {
+        "text": "Giải thích bước",
+        "size": "16px",
+        "weight": "800",
+        "font": "\"Be Vietnam Pro\", Arial, sans-serif",
+        "line": "24px",
+        "cls": ""
+      }
+    ],
+    "sizes": [
+      "10px",
+      "10.8333px",
+      "11px",
+      "12px",
+      "12.5px",
+      "13px",
+      "14px",
+      "16px",
+      "18px",
+      "19px",
+      "20px",
+      "21px",
+      "22px",
+      "27px",
+      "34px"
+    ]
+  },
+  {
+    "id": "v",
+    "small": [
+      {
+        "text": "LUỒNG THỰC HIỆN",
+        "size": "10px",
+        "weight": "700",
+        "font": "\"Be Vietnam Pro\", Arial, sans-serif",
+        "line": "15px",
+        "cls": ""
+      },
+      {
+        "text": "Lượt 1/4",
+        "size": "11px",
+        "weight": "400",
+        "font": "\"Be Vietnam Pro\", Arial, sans-serif",
+        "line": "16.5px",
+        "cls": ""
+      },
+      {
+        "text": "01",
+        "size": "10px",
+        "weight": "500",
+        "font": "\"JetBrains Mono\", monospace",
+        "line": "normal",
+        "cls": "lab-node-step"
+      },
+      {
+        "text": "CPU muốn đọc",
+        "size": "11px",
+        "weight": "400",
+        "font": "\"Be Vietnam Pro\", Arial, sans-serif",
+        "line": "17.6px",
+        "cls": ""
+      },
+      {
+        "text": "MMU kiểm tra quyền và hiện diện",
+        "size": "11px",
+        "weight": "400",
+        "font": "\"Be Vietnam Pro\", Arial, sans-serif",
+        "line": "17.6px",
+        "cls": ""
+      },
+      {
+        "text": "Chưa · báo lỗi trang",
+        "size": "11px",
+        "weight": "600",
+        "font": "\"Be Vietnam Pro\", Arial, sans-serif",
+        "line": "16.5px",
+        "cls": "scene-badge warn"
+      },
+      {
+        "text": "02",
+        "size": "10px",
+        "weight": "500",
+        "font": "\"JetBrains Mono\", monospace",
+        "line": "normal",
+        "cls": "lab-node-step"
+      },
+      {
+        "text": "Đã ghi lại · Dirty 1 → 0",
+        "size": "11px",
+        "weight": "600",
+        "font": "\"Be Vietnam Pro\", Arial, sans-serif",
+        "line": "16.5px",
+        "cls": "scene-badge warn"
+      },
+      {
+        "text": "03",
+        "size": "10px",
+        "weight": "500",
+        "font": "\"JetBrains Mono\", monospace",
+        "line": "normal",
+        "cls": "lab-node-step"
+      },
+      {
+        "text": "04",
+        "size": "10px",
+        "weight": "500",
+        "font": "\"JetBrains Mono\", monospace",
+        "line": "normal",
+        "cls": "lab-node-step"
+      },
+      {
+        "text": "Khung 0 · đã chọn",
+        "size": "10px",
+        "weight": "400",
+        "font": "\"Be Vietnam Pro\", Arial, sans-serif",
+        "line": "16px",
+        "cls": ""
+      },
+      {
+        "text": "Dirty 0",
+        "size": "10px",
+        "weight": "400",
+        "font": "\"Be Vietnam Pro\", Arial, sans-serif",
+        "line": "16px",
+        "cls": ""
+      },
+      {
+        "text": "Khung 1",
+        "size": "10px",
+        "weight": "400",
+        "font": "\"Be Vietnam Pro\", Arial, sans-serif",
+        "line": "16px",
+        "cls": ""
+      },
+      {
+        "text": "Dirty 0",
+        "size": "10px",
+        "weight": "400",
+        "font": "\"Be Vietnam Pro\", Arial, sans-serif",
+        "line": "16px",
+        "cls": ""
+      },
+      {
+        "text": "05",
+        "size": "10px",
+        "weight": "500",
+        "font": "\"JetBrains Mono\", monospace",
+        "line": "normal",
+        "cls": "lab-node-step"
+      },
+      {
+        "text": "Present 0",
+        "size": "11px",
+        "weight": "400",
+        "font": "\"Be Vietnam Pro\", Arial, sans-serif",
+        "line": "17.6px",
+        "cls": ""
+      },
+      {
+        "text": "Khung —",
+        "size": "11px",
+        "weight": "400",
+        "font": "\"Be Vietnam Pro\", Arial, sans-serif",
+        "line": "17.6px",
+        "cls": ""
+      },
+      {
+        "text": "LỊCH SỬ CÁC BƯỚC ĐÃ THỰC HIỆN",
+        "size": "11px",
+        "weight": "400",
+        "font": "\"Be Vietnam Pro\", Arial, sans-serif",
+        "line": "16.5px",
+        "cls": ""
+      },
+      {
+        "text": "PTE[2]: present=0. RAM chưa thay đổi.",
+        "size": "10.8333px",
+        "weight": "400",
+        "font": "\"Be Vietnam Pro\", Arial, sans-serif",
+        "line": "16.25px",
+        "cls": ""
+      },
+      {
+        "text": "Fault +1; CPU tạm dừng LOAD M; RAM chưa đổi.",
+        "size": "10.8333px",
+        "weight": "400",
+        "font": "\"Be Vietnam Pro\", Arial, sans-serif",
+        "line": "16.25px",
+        "cls": ""
+      },
+      {
+        "text": "Tìm thấy bản lưu Trang 2 trong Backing Store.",
+        "size": "10.8333px",
+        "weight": "400",
+        "font": "\"Be Vietnam Pro\", Arial, sans-serif",
+        "line": "16.25px",
+        "cls": ""
+      },
+      {
+        "text": "Chọn Trang 0, khung 0; nạp sớm nhất; dirty=1.",
+        "size": "10.8333px",
+        "weight": "400",
+        "font": "\"Be Vietnam Pro\", Arial, sans-serif",
+        "line": "16.25px",
+        "cls": ""
+      },
+      {
+        "text": "Trang 0: dirty 1 → 0; I/O ghi +1.",
+        "size": "10.8333px",
+        "weight": "400",
+        "font": "\"Be Vietnam Pro\", Arial, sans-serif",
+        "line": "16.25px",
+        "cls": ""
+      }
+    ],
+    "heavy": [
+      {
+        "text": "Giải thích bước",
+        "size": "16px",
+        "weight": "800",
+        "font": "\"Be Vietnam Pro\", Arial, sans-serif",
+        "line": "24px",
+        "cls": ""
+      }
+    ],
+    "sizes": [
+      "10px",
+      "10.8333px",
+      "11px",
+      "12px",
+      "13px",
+      "14px",
+      "16px",
+      "18px",
+      "19px",
+      "20px",
+      "21px",
+      "22px",
+      "25px"
+    ]
+  },
+  {
+    "id": "r",
+    "small": [
+      {
+        "text": "LUỒNG THỰC HIỆN",
+        "size": "10px",
+        "weight": "700",
+        "font": "\"Be Vietnam Pro\", Arial, sans-serif",
+        "line": "15px",
+        "cls": ""
+      },
+      {
+        "text": "Tham chiếu 5/12",
+        "size": "11px",
+        "weight": "600",
+        "font": "\"Be Vietnam Pro\", Arial, sans-serif",
+        "line": "18.7px",
+        "cls": "hint"
+      },
+      {
+        "text": "RAM · 3 KHUNG VẬT LÝ",
+        "size": "11px",
+        "weight": "800",
+        "font": "\"Be Vietnam Pro\", Arial, sans-serif",
+        "line": "16.5px",
+        "cls": "zone-t"
+      },
+      {
+        "text": "Frame 0",
+        "size": "10px",
+        "weight": "600",
+        "font": "\"Be Vietnam Pro\", Arial, sans-serif",
+        "line": "17px",
+        "cls": "hint"
+      },
+      {
+        "text": "Nạp bước 1",
+        "size": "10px",
+        "weight": "600",
+        "font": "\"Be Vietnam Pro\", Arial, sans-serif",
+        "line": "17px",
+        "cls": "hint"
+      },
+      {
+        "text": "Frame 1",
+        "size": "10px",
+        "weight": "600",
+        "font": "\"Be Vietnam Pro\", Arial, sans-serif",
+        "line": "17px",
+        "cls": "hint"
+      },
+      {
+        "text": "Nạp bước 2",
+        "size": "10px",
+        "weight": "600",
+        "font": "\"Be Vietnam Pro\", Arial, sans-serif",
+        "line": "17px",
+        "cls": "hint"
+      },
+      {
+        "text": "Frame 2",
+        "size": "10px",
+        "weight": "600",
+        "font": "\"Be Vietnam Pro\", Arial, sans-serif",
+        "line": "17px",
+        "cls": "hint"
+      },
+      {
+        "text": "Nạp bước 3",
+        "size": "10px",
+        "weight": "600",
+        "font": "\"Be Vietnam Pro\", Arial, sans-serif",
+        "line": "17px",
+        "cls": "hint"
+      },
+      {
+        "text": "Đang chọn trang",
+        "size": "11px",
+        "weight": "600",
+        "font": "\"Be Vietnam Pro\", Arial, sans-serif",
+        "line": "16.5px",
+        "cls": "scene-badge warn"
+      },
+      {
+        "text": "3lỗi trang",
+        "size": "11px",
+        "weight": "800",
+        "font": "\"Be Vietnam Pro\", Arial, sans-serif",
+        "line": "16.5px",
+        "cls": "count bad"
+      },
+      {
+        "text": "1trúng",
+        "size": "11px",
+        "weight": "800",
+        "font": "\"Be Vietnam Pro\", Arial, sans-serif",
+        "line": "16.5px",
+        "cls": "count ok"
+      },
+      {
+        "text": "LỊCH SỬ CÁC BƯỚC ĐÃ THỰC HIỆN",
+        "size": "11px",
+        "weight": "400",
+        "font": "\"Be Vietnam Pro\", Arial, sans-serif",
+        "line": "16.5px",
+        "cls": ""
+      },
+      {
+        "text": "RAM: [-,-,-]; Hit=0, Fault=0, kim=0.",
+        "size": "10.8333px",
+        "weight": "400",
+        "font": "\"Be Vietnam Pro\", Arial, sans-serif",
+        "line": "16.25px",
+        "cls": ""
+      },
+      {
+        "text": "Không có Trang 1: Page Fault; còn khung trống.",
+        "size": "10.8333px",
+        "weight": "400",
+        "font": "\"Be Vietnam Pro\", Arial, sans-serif",
+        "line": "16.25px",
+        "cls": ""
+      },
+      {
+        "text": "trống → 1 tại Frame 0; Hit=0, Fault=1.",
+        "size": "10.8333px",
+        "weight": "400",
+        "font": "\"Be Vietnam Pro\", Arial, sans-serif",
+        "line": "16.25px",
+        "cls": ""
+      },
+      {
+        "text": "Không có Trang 2: Page Fault; còn khung trống.",
+        "size": "10.8333px",
+        "weight": "400",
+        "font": "\"Be Vietnam Pro\", Arial, sans-serif",
+        "line": "16.25px",
+        "cls": ""
+      },
+      {
+        "text": "trống → 2 tại Frame 1; Hit=0, Fault=2.",
+        "size": "10.8333px",
+        "weight": "400",
+        "font": "\"Be Vietnam Pro\", Arial, sans-serif",
+        "line": "16.25px",
+        "cls": ""
+      },
+      {
+        "text": "Không có Trang 3: Page Fault; còn khung trống.",
+        "size": "10.8333px",
+        "weight": "400",
+        "font": "\"Be Vietnam Pro\", Arial, sans-serif",
+        "line": "16.25px",
+        "cls": ""
+      },
+      {
+        "text": "trống → 3 tại Frame 2; Hit=0, Fault=3.",
+        "size": "10.8333px",
+        "weight": "400",
+        "font": "\"Be Vietnam Pro\", Arial, sans-serif",
+        "line": "16.25px",
+        "cls": ""
+      },
+      {
+        "text": "Có Trang 1: Page Hit; không đọc bộ nhớ phụ.",
+        "size": "10.8333px",
+        "weight": "400",
+        "font": "\"Be Vietnam Pro\", Arial, sans-serif",
+        "line": "16.25px",
+        "cls": ""
+      },
+      {
+        "text": "Trang 1 giữ ở Frame 0; Hit=1, Fault=3.",
+        "size": "10.8333px",
+        "weight": "400",
+        "font": "\"Be Vietnam Pro\", Arial, sans-serif",
+        "line": "16.25px",
+        "cls": ""
+      },
+      {
+        "text": "Không có Trang 4: Page Fault; RAM đã đầy.",
+        "size": "10.8333px",
+        "weight": "400",
+        "font": "\"Be Vietnam Pro\", Arial, sans-serif",
+        "line": "16.25px",
+        "cls": ""
+      },
+      {
+        "text": "Frame 0, Trang 1: nạp sớm nhất (bước 1).",
+        "size": "10.8333px",
+        "weight": "400",
+        "font": "\"Be Vietnam Pro\", Arial, sans-serif",
+        "line": "16.25px",
+        "cls": ""
+      }
+    ],
+    "heavy": [
+      {
+        "text": "CPU cần trang",
+        "size": "12px",
+        "weight": "800",
+        "font": "\"Be Vietnam Pro\", Arial, sans-serif",
+        "line": "18px",
+        "cls": "zone-t"
+      },
+      {
+        "text": "RAM · 3 KHUNG VẬT LÝ",
+        "size": "11px",
+        "weight": "800",
+        "font": "\"Be Vietnam Pro\", Arial, sans-serif",
+        "line": "16.5px",
+        "cls": "zone-t"
+      },
+      {
+        "text": "Giải thích bước",
+        "size": "16px",
+        "weight": "800",
+        "font": "\"Be Vietnam Pro\", Arial, sans-serif",
+        "line": "24px",
+        "cls": ""
+      },
+      {
+        "text": "3lỗi trang",
+        "size": "11px",
+        "weight": "800",
+        "font": "\"Be Vietnam Pro\", Arial, sans-serif",
+        "line": "16.5px",
+        "cls": "count bad"
+      },
+      {
+        "text": "3",
+        "size": "19px",
+        "weight": "800",
+        "font": "\"JetBrains Mono\", monospace",
+        "line": "28.5px",
+        "cls": "mono"
+      },
+      {
+        "text": "1trúng",
+        "size": "11px",
+        "weight": "800",
+        "font": "\"Be Vietnam Pro\", Arial, sans-serif",
+        "line": "16.5px",
+        "cls": "count ok"
+      },
+      {
+        "text": "1",
+        "size": "19px",
+        "weight": "800",
+        "font": "\"JetBrains Mono\", monospace",
+        "line": "28.5px",
+        "cls": "mono"
+      }
+    ],
+    "sizes": [
+      "10px",
+      "10.8333px",
+      "11px",
+      "12px",
+      "13px",
+      "14px",
+      "16px",
+      "18px",
+      "19px",
+      "20px",
+      "21px",
+      "30px"
+    ]
+  }
+]

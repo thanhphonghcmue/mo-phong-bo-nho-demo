@@ -1,6 +1,6 @@
 # Vibrant Academic Tech Lab — thiết kế và nghiệm thu
 
-Bản nền: `e8a9e43`. Mục tiêu là nâng chất lượng trình chiếu và khả năng theo dõi từng bước, giữ website HTML/CSS/JavaScript tĩnh và engine hiện có.
+Bản nền: `e8a9e43`. Typography đã được nâng cấp tiếp sau bản thiết kế này; xem [báo cáo font](typography.md) để biết thông số và kiểm tra hiện hành. Mục tiêu là nâng chất lượng trình chiếu và khả năng theo dõi từng bước, giữ website HTML/CSS/JavaScript tĩnh và engine hiện có.
 
 ## Audit: giao diện nào thực sự chạy?
 

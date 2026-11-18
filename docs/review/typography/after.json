@@ -1,0 +1,87 @@
+[
+  {
+    "id": "b",
+    "small": [
+      {
+        "text": "▼",
+        "size": "10px",
+        "weight": "600",
+        "font": "\"Be Vietnam Pro\", Arial, sans-serif",
+        "line": "15px",
+        "cls": "pin"
+      }
+    ],
+    "heavy": [],
+    "sizes": [
+      "10px",
+      "12px",
+      "13px",
+      "14px",
+      "16px",
+      "20px",
+      "22px",
+      "24px",
+      "28px"
+    ]
+  },
+  {
+    "id": "a",
+    "small": [],
+    "heavy": [],
+    "sizes": [
+      "12px",
+      "13px",
+      "14px",
+      "15px",
+      "16px",
+      "20px",
+      "22px"
+    ]
+  },
+  {
+    "id": "x",
+    "small": [],
+    "heavy": [],
+    "sizes": [
+      "12px",
+      "12.5px",
+      "13px",
+      "14px",
+      "15px",
+      "16px",
+      "20px",
+      "22px",
+      "28px",
+      "36px"
+    ]
+  },
+  {
+    "id": "v",
+    "small": [],
+    "heavy": [],
+    "sizes": [
+      "12px",
+      "13px",
+      "14px",
+      "15px",
+      "16px",
+      "20px",
+      "22px",
+      "28px"
+    ]
+  },
+  {
+    "id": "r",
+    "small": [],
+    "heavy": [],
+    "sizes": [
+      "12px",
+      "13px",
+      "14px",
+      "16px",
+      "20px",
+      "22px",
+      "28px"
+    ]
+  }
+]
