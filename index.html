@@ -7,9 +7,6 @@
 <style>[hidden]{display:none!important}body{margin:0}img{max-width:100%}
 </style>
 <title>Web Demo Quản lý Bộ nhớ - Hệ điều hành (HCMUE)</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap">
 <style>
 
 /* Layout: một sân khấu lớn mỗi tab; trên là câu hỏi, giữa là hình động, dưới là MỘT câu giải thích và nút điều khiển to */
@@ -684,25 +681,27 @@ footer{font-size:12px;color:var(--muted)}
 
 </style>
 <link rel="stylesheet" href="assets/css/teaching.css?v=a3d3862f286e">
-<link rel="stylesheet" href="assets/css/teaching-scenes.css?v=1">
-<script src="assets/js/teaching-scenes.js?v=1"></script>
-<script src="assets/js/teaching.js?v=clear-scenes-1"></script>
+<link rel="stylesheet" href="assets/css/teaching-scenes.css?v=academic-lab-2">
+<script src="assets/js/teaching-scenes.js?v=academic-lab-2"></script>
+<script src="assets/js/teaching.js?v=academic-lab-2"></script>
+<script src="assets/js/lab-interface.js?v=academic-lab-2" defer></script>
 </head>
-<body class="clear-scenes">
+<body class="clear-scenes academic-lab">
 <div class="wrap">
 
   <header class="site-header">
     <div class="header-brand">
-      <img src="assets/images/logo-it.jpg" alt="Logo Khoa CNTT - ĐH Sư Phạm TP.HCM" class="header-logo">
+      <div class="header-logo-frame"><img src="assets/images/logo-it.jpg" alt="Logo Khoa CNTT - ĐH Sư Phạm TP.HCM" class="header-logo" width="48" height="48"></div>
       <div class="header-titles">
         <h1>WEB DEMO QUẢN LÝ BỘ NHỚ</h1>
-        <p>Operating System Memory Management Visualizer · Trường ĐH Sư Phạm TP.HCM (HCMUE) · Khoa Công Nghệ Thông Tin</p>
+        <p>Operating System Memory Management Visualizer</p>
+        <small class="header-school">Trường Đại học Sư phạm TP.HCM · Khoa Công nghệ Thông tin</small>
       </div>
     </div>
     <div class="header-meta">
       <div class="badge-hcmue">
-        <span>MÔ PHỎNG HỆ ĐIỀU HÀNH</span><br>
-        <span style="color:#ffffff;font-size:11px">5 PHÂN HỆ QUẢN LÝ BỘ NHỚ</span>
+        <span>05 MÔ PHỎNG</span>
+        <span>TƯƠNG TÁC</span>
       </div>
       <button id="theme-toggle" class="theme-btn theme-toggle-btn" aria-label="Sáng / Tối" title="Sáng / Tối">
         <span class="theme-text">Sáng / Tối</span>

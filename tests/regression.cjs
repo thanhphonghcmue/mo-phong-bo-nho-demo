@@ -78,7 +78,7 @@ const fs = require("node:fs");
         assert.equal(s.hits, 0);
         assert.equal(s.reads, 1);
         assert.equal(s.writes, 0);
-        await page.click("#v-pre-fault");
+        await page.locator(".lab-case-picker").evaluate(d => d.open = true); await page.click("#v-pre-fault");
         await finish("v");
         s = await snapshot("v");
         assert.equal(s.hits, 1);
@@ -99,7 +99,7 @@ const fs = require("node:fs");
           assert.equal(s.reads, 1);
           assert.equal(s.writes, +dirty);
         }
-        await page.click("#v-pre-invalid");
+        await page.locator(".lab-case-picker").evaluate(d => d.open = true); await page.click("#v-pre-invalid");
         await finish("v");
         let s = await snapshot("v");
         assert.equal(s.denied, 1);
@@ -344,7 +344,7 @@ const fs = require("node:fs");
         await page.locator('#v-config .teach-advanced-config').evaluate(details => details.open = true);
         await page.click("#v-config-sample");
         await step("v", 3);
-        await page.click("#v-pre-hit");
+        await page.locator(".lab-case-picker").evaluate(d => d.open = true); await page.click("#v-pre-hit");
         await finish("v");
         let state = await snapshot("v");
         assert.equal(

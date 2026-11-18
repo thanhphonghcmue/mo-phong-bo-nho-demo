@@ -1,0 +1,35 @@
+[
+  {
+    "skill": "ui-ux-pro-max",
+    "source": "https://github.com/nextlevelbuilder/ui-ux-pro-max-skill.git",
+    "revision": "ed766d3bf62f32c8d27762ad49abdc3a4744c84f",
+    "installation": ".agents/skills/ui-ux-pro-max",
+    "method": "workspace-local copy of reviewed upstream skill; no global configuration changes",
+    "local_normalization": "Trailing spaces removed from vendored Python files; no semantic changes."
+  },
+  {
+    "skill": "interface-design",
+    "source": "https://github.com/Dammyjay93/interface-design.git",
+    "revision": "2f9be3206855bcb2d1d0af262c8bae25cba6658d",
+    "installation": ".agents/skills/interface-design",
+    "method": "workspace-local copy of reviewed upstream skill; no global configuration changes"
+  },
+  {
+    "reference": "Radix Colors",
+    "source": "https://github.com/radix-ui/colors.git",
+    "revision": "dbdb85470547c7d34b9001f48fddb08ded335979"
+  },
+  {
+    "reference": "Lucide Icons",
+    "source": "https://github.com/lucide-icons/lucide.git",
+    "revision": "de8d11aac831d519d2377ff516868244475fac06"
+  },
+  {
+    "assets": "Self-hosted fonts",
+    "sources": [
+      "https://cdn.jsdelivr.net/npm/@fontsource/be-vietnam-pro@5.2.8/",
+      "https://cdn.jsdelivr.net/npm/@fontsource/jetbrains-mono@5.2.6/"
+    ],
+    "license": "OFL-1.1; license texts stored with assets/fonts/"
+  }
+]

@@ -2,7 +2,9 @@
 
 Web tĩnh cho bài học Hệ điều hành – Khoa CNTT, Trường Đại học Sư phạm TP.HCM. Theo dõi **máy đang làm gì, vì sao, và bộ nhớ thay đổi thế nào**.
 
-[Website GitHub Pages](https://thanhphonghcmue.github.io/mo-phong-bo-nho-demo/) · [Báo cáo UI/UX và ảnh trước/sau](docs/ui-ux-review.md)
+[Website GitHub Pages](https://thanhphonghcmue.github.io/mo-phong-bo-nho-demo/) · [Thiết kế Academic Tech Lab, kiểm thử và ảnh trước/sau](docs/academic-lab-design.md)
+
+Header navy, năm tab màu và cửa sổ bước từ snapshot giúp theo dõi bài khi trình chiếu. Nút và khối dùng SVG Lucide; Be Vietnam Pro/JetBrains Mono được lưu cục bộ. Design tokens và hai theme nằm trong `assets/css/teaching-scenes.css`. Hai skill UI UX Pro Max và Interface Design được cài tại `.agents/skills/`; nguồn pin revision trong `docs/design-skill-sources.json`.
 
 ## Năm demo
 
@@ -45,6 +47,7 @@ Mở `http://127.0.0.1:8080`. GitHub Pages phục vụ `index.html` ở gốc re
 - `index.html`: engine và điều khiển nền.
 - `assets/js/teaching.js`: timeline, snapshot, kiểm tra đầu vào, ví dụ.
 - `assets/js/teaching-scenes.js`: lớp hiển thị chỉ đọc cho Demo 3–5.
+- `assets/js/lab-interface.js`: icon, bàn phím và stepper đọc timeline; không tạo controller mô phỏng thứ hai.
 - `assets/css/teaching.css`: phong cách nền hiện có.
 - `assets/css/teaching-scenes.css`: bố cục mới, màu theo vai trò, responsive và reduced motion.
 
@@ -60,6 +63,7 @@ node tests/regression.cjs
 node tests/custom-problems.cjs
 node tests/teaching-flow.cjs
 node tests/scenes-browser.cjs
+node tests/academic-lab.cjs
 ```
 
 Bộ `seeded-algorithms` dùng mô hình đối chứng độc lập: 320 trace, 6400 trạng thái, 240 lần tiếp tục. Các bộ trình duyệt dùng máy chủ cổng 8080. `scenes-browser` kiểm tra UI công khai ở 1366/1920/375/390 px và lưu ảnh, kết quả JSON trong `/tmp/memory-scenes-review` (đổi bằng `MEMORY_ARTIFACT_DIR`). Các script `*_browser.py` cũ phụ thuộc lớp `MemoryLessons` không còn được tải, nên không thuộc kiểm tra giao diện hiện hành.

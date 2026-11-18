@@ -1,8 +1,10 @@
 /* Read-only views. Every displayed value comes from the current timeline snapshot. */
 window.MemoryScenes = (() => {
   const esc = value => String(value ?? "—").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+  const icon = name => `<svg class="lab-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="assets/icons/lucide.svg#${name}"></use></svg>`;
   const badge = (text, tone = "") => `<span class="scene-badge ${tone}">${esc(text)}</span>`;
-  const card = (id, n, title, body, extra = "") => `<section id="${id}" class="scene-node ${extra}"><h3><span>${n}</span>${title}</h3>${body}</section>`;
+  const nodeIcons = {'x-processor':'cpu','x-tlb':'scan-line','x-pt-focus':'list-ordered','x-pa-unit':'network','x-data':'memory-stick','v-processor':'cpu','v-os':'network','v-store':'database','v-ram':'memory-stick','v-commit':'list-ordered'};
+  const card = (id, n, title, body, extra = "") => `<section id="${id}" class="scene-node ${extra}"><h3><span>${icon(nodeIcons[id])}</span><small class="lab-node-step">${n.padStart(2,'0')}</small><b class="lab-node-name">${title}</b></h3>${body}</section>`;
   const edge = (on = false) => `<span class="scene-edge ${on ? "is-flowing" : ""}" aria-hidden="true"><svg viewBox="0 0 32 24"><path d="M2 12h25m-7-7 7 7-7 7"/></svg></span>`;
   function paint(root, target) {
     root.querySelectorAll('[data-processing], .teach-spotlight').forEach(el => {
@@ -76,5 +78,5 @@ window.MemoryScenes = (() => {
     }
     return `<div class="scene-proof-heading"><b>${name}</b>${badge(decision?'Đang chọn trang':hit?'HIT · giữ trang':r.phase==='apply'?'Đã nạp trang':'Theo dõi trạng thái',decision?'warn':hit?'good':'')}</div>${body}<p class="scene-proof-note">${esc(note)}</p>`;
   }
-  return {translation,demand,replacement,paint};
+  return {translation,demand,replacement,paint,icon};
 })();

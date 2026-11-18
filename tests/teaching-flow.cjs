@@ -173,7 +173,7 @@ const path = require('node:path');
       await target('#v-flow', 'v-store'); assert.equal((await snap('v')).writes, 1); assert.equal((await snap('v')).reads, 0);
       assert.match(await text('v'), /chưa nạp trang/); await next('v'); await target('#v-flow', 'v-frame-0');
       assert.equal((await snap('v')).reads, 1); assert.equal((await snap('v')).pt[3].present, false);
-      await finish('v'); await page.click('#v-pre-hit'); await seek('v', 'Page Hit');
+      await finish('v'); await page.locator(".lab-case-picker").evaluate(d => d.open = true); await page.click("#v-pre-hit"); await seek('v', 'Page Hit');
       assert.match(await text('v'), /Không có trap Page Fault/);
       const hits = await snap('v'); await finish('v'); assert.equal((await snap('v')).reads, hits.reads);
       // This legacy fixture button was intentionally removed from the public UI.

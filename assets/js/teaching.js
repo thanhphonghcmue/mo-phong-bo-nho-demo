@@ -45,7 +45,7 @@ window.enhanceMemoryDemo = function (api) {
     timer = null;
     playing = null;
     api.stopAll();
-    $$("[data-teach-play]").forEach((b) => (b.textContent = "⏵ Tự chạy"));
+    $$("[data-teach-play]").forEach((b) => (b.innerHTML = MemoryScenes.icon("play") + "<span>Tự chạy</span>"));
   }
   function play(t) {
     if (playing === t) {
@@ -62,12 +62,12 @@ window.enhanceMemoryDemo = function (api) {
       }
       t.next();
       const b = $("#" + t.id + "-play");
-      if (b) b.textContent = "⏸ Tạm dừng";
+      if (b) b.innerHTML = MemoryScenes.icon("pause") + "<span>Tạm dừng</span>";
       const sp = (t && t.speed && t.speed.value) ? Number(t.speed.value) : 1;
       timer = setTimeout(tick, 1300 / (sp || 1));
     };
     const b = $("#" + t.id + "-play");
-    if (b) b.textContent = "⏸ Tạm dừng";
+    if (b) b.innerHTML = MemoryScenes.icon("pause") + "<span>Tạm dừng</span>";
     const sp = (t && t.speed && t.speed.value) ? Number(t.speed.value) : 1;
     timer = setTimeout(tick, 1300 / (sp || 1));
   }
@@ -1549,6 +1549,7 @@ window.enhanceMemoryDemo = function (api) {
     root.className = "teach-schematic scene-model";
     root.innerHTML = view.html;
     root.dataset.target = view.target;
+    root.dataset.denied = String(V.plan.oob && e.kind === "trap");
     stateView("v", table(["Trang", "Ánh xạ", "Quyền", "Present", "Khung", "Dirty"], V.pt.map(p => `<tr><td>${p.page}</td><td>${+p.mapped}</td><td>${+p.permission}</td><td>${+p.present}</td><td>${p.frame ?? "—"}</td><td>${+p.dirty}</td></tr>`)) + `<div class="teach-compact-frames">${V.ram.map((p,f) => `<div data-overview-frame="${f}" class="teach-frame"><small>Khung ${f}</small><b>${p === null ? "Trống" : "Trang " + p}</b></div>`).join("")}</div>`);
     if ($("#v-free-frames")) $("#v-free-frames").textContent = V.freeFrames.length ? V.freeFrames.join(" · ") : "Hết khung trống";
     if ($("#v-disk-status")) $("#v-disk-status").textContent = e.kind === "page-in" ? "Đĩa → RAM" : e.kind === "page-out" ? "RAM → Đĩa" : "Không I/O";
@@ -2402,7 +2403,7 @@ window.enhanceMemoryDemo = function (api) {
     $("#r-refs").innerHTML = R.refs
       .map(
         (p, i) =>
-          `<div class="ref ${i === t ? "now" : i < t ? "past" : ""}"><b>${p}</b><i class="${i < st.done ? (api.simR(R.refs, R.n, R.alg, R.initial)[i].hit ? "h" : "f") : ""}"></i></div>`,
+          `<div data-page-number="${p}" class="ref ${i === t ? "now" : i < t ? "past" : ""}"><b>${p}</b><i class="${i < st.done ? (api.simR(R.refs, R.n, R.alg, R.initial)[i].hit ? "h" : "f") : ""}"></i></div>`,
       )
       .join("");
     $("#r-need").innerHTML =
@@ -2425,9 +2426,11 @@ window.enhanceMemoryDemo = function (api) {
     $("#r-slots").innerHTML = st.fr
       .map(
         (p, i) =>
-          `<div class="slot" data-frame="${i}">${R.alg === "CLOCK" ? `<span class="scene-ram-hand">${st.ptr === i ? "↓ Kim Clock" : "&nbsp;"}</span>` : ""}<div id="r-frame-${i}" class="card ${p === null ? "empty" : st.phase === "victim" && i === st.slot ? "victim" : st.phase === "apply" && i === st.slot ? "hitc" : ""}">${p ?? "trống"}</div><span class="hint">Frame ${i}</span><span class="hint">${p === null ? "chưa có trang" : proof(i)}</span></div>`,
+          `<div class="slot" data-frame="${i}">${R.alg === "CLOCK" ? `<span class="scene-ram-hand">${st.ptr === i ? "↓ Kim Clock" : "&nbsp;"}</span>` : ""}<div id="r-frame-${i}" data-page-number="${p ?? ''}" class="card ${p === null ? "empty" : st.phase === "victim" && i === st.slot ? "victim" : st.phase === "apply" && i === st.slot ? "hitc" : ""}">${p ?? "trống"}</div><span class="hint">Frame ${i}</span><span class="hint">${p === null ? "chưa có trang" : proof(i)}</span></div>`,
       )
       .join("");
+    $("#r-slots").dataset.phase = st.phase;
+    $("#r-slots").dataset.signal = e.kind;
     $("#r-out").innerHTML =
       st.phase === "apply" && st.victim !== null
         ? `<span class="hint">Trang ${st.victim}: bỏ ánh xạ cũ.<br>Trang sạch: không I/O ghi.</span>`
@@ -2756,6 +2759,9 @@ window.enhanceMemoryDemo = function (api) {
         label.className = "scene-scan-result";
         label.textContent = remaining < 0 ? "Không đủ" : `Đủ · dư ${remaining} KB`;
         el.append(label);
+      }
+      if (e.title.startsWith("Cập nhật RAM") && A.runtime.pieces[i].length > (e.beforeState?.runtime?.pieces[i]?.length || 0)) {
+        [...el.querySelectorAll(".pc")].at(-1)?.classList.add("lab-page-in");
       }
     });
     allocatorA.innerHTML = `<b>HÀNG CHỜ → MEMORY ALLOCATOR (${esc(A.alg)}) → RAM VẬT LÝ</b><p>${esc(e.change)}</p>${route(e)}`;
@@ -3277,6 +3283,7 @@ window.enhanceMemoryDemo = function (api) {
         }
       }
       const label = $("#b-ram-track .plabel");
+      $("#b-ram-track").dataset.verdict = B.st < 3 ? "pending" : B.isValid ? "allowed" : "denied";
       if (label) {
         const bounds = $("#b-ram-track").getBoundingClientRect(), r = label.getBoundingClientRect();
         label.style.position = "relative";
