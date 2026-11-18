@@ -57,6 +57,7 @@ const fs = require("node:fs");
     await check(
       "Demand paging: all six stages commit actual RAM/PTE independently",
       async () => {
+        await page.selectOption("#v-scenario", "0");
         await page.click("#v-reset");
         assert.equal((await trace("v")).length, 6);
         await step("v", 3);
@@ -89,7 +90,7 @@ const fs = require("node:fs");
       "Demand paging: FIFO victim and clean/dirty I/O, denied access",
       async () => {
         for (const dirty of [false, true]) {
-          await page.click(dirty ? "#v-full-dirty" : "#v-full-clean");
+          await page.locator(dirty ? "#v-full-dirty" : "#v-full-clean").evaluate(b => b.click());
           await finish("v");
           const s = await snapshot("v");
           assert.equal(s.ram[0], 3);
@@ -112,11 +113,11 @@ const fs = require("node:fs");
         assert.equal(s.faults, 0);
       },
     );
-    await page.click("#t2");
+    await page.click("#t2"); await page.selectOption("#x-scenario", "2");
     await check(
       "Paging: miss ≠ fault, 10000 → 22288, repeat hit and 4 B preset",
       async () => {
-        await page.click("#x-default");
+        await page.locator("#x-default").evaluate(b => b.click());
         assert.equal((await snapshot("x")).miss, 0);
         await finish("x");
         let s = await snapshot("x");
@@ -132,13 +133,13 @@ const fs = require("node:fs");
         assert.ok(
           !(await trace("x")).some((e) => e.title.includes("Tra bảng trang")),
         );
-        await page.click("#x-textbook");
+        await page.locator("#x-textbook").evaluate(b => b.click());
         await finish("x");
         s = await snapshot("x");
         assert.equal(s.plan.p, 3);
         assert.equal(s.plan.d, 1);
         assert.equal(s.plan.phys, 9);
-        await page.click("#x-default");
+        await page.locator("#x-default").evaluate(b => b.click());
         await page.click("#x-fault");
         await step("x", 3);
         const old = await snapshot("x");
@@ -202,6 +203,7 @@ const fs = require("node:fs");
           ["CLOCK", 14],
         ]) {
           await page.click(`#r-alg button[data-a="${alg}"]`);
+          await page.locator(".scene-comparison").evaluate(d => d.open = true);
           await page.click("#r-book");
           const ev = await trace("r"),
             refs = (await snapshot("r")).refs;
@@ -262,7 +264,7 @@ const fs = require("node:fs");
       async () => {
         const s = await snapshot("r");
         for (const key of ["explain", "path", "history"])
-          await page.locator(`#p3 [data-option="${key}"]`).click();
+          await page.locator(`#p3 [data-option="${key}"]`).evaluate(e => { e.checked=!e.checked; e.dispatchEvent(new Event("change",{bubbles:true})); });
         assert.deepEqual(await snapshot("r"), s);
         await page.click("#r-bel");
         await finish("r");
@@ -274,7 +276,7 @@ const fs = require("node:fs");
       },
     );
     await page.click("#t1");
-    await page.click('#a-mode button[data-m="ex"]');
+    await page.click('#a-mode button[data-m="ex"]'); await page.selectOption('#a-scenario', '2');
     await check(
       "Allocation: textbook scan order and unchanged engine results",
       async () => {

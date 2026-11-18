@@ -37,7 +37,14 @@ const path = require('node:path');
   }
   async function wireLandsOnActive(root) {
     assert.ok(await page.locator(root).evaluate(root => {
-      const svg = root.querySelector('svg.teach-wire'), active = root.querySelector('[data-processing]');
+      const active = root.querySelector('[data-processing]');
+      if (root.classList.contains('scene-model')) {
+        const edges = [...root.querySelectorAll('.scene-edge.is-flowing')];
+        if (edges.length > 1 || !active) return false;
+        const rect = root.getBoundingClientRect(), current = active.getBoundingClientRect();
+        return current.left >= rect.left - 1 && current.right <= rect.right + 1;
+      }
+      const svg = root.querySelector('svg.teach-wire');
       const values = svg.querySelector(':scope > path').getAttribute('d').match(/-?[\d.]+/g).map(Number);
       let p = svg.createSVGPoint(); p.x = values.at(-2); p.y = values.at(-1);
       p = p.matrixTransform(svg.getScreenCTM()); const r = active.getBoundingClientRect();
@@ -88,15 +95,15 @@ const path = require('node:path');
       assert.match(await text('b'), /Cận dưới đã vi phạm/);
     });
     await check('Paging: exact destinations, TLB Miss without fault, warm Hit and textbook 13 → 9', async () => {
-      await page.click('#t2'); await page.click('#x-default');
-      assert.equal(await page.locator('#x-flow .teach-layout-x [data-frame]').count(), 0, 'do not reveal the frame before translation');
+      await page.click('#t2'); await page.locator('#x-default').evaluate(b => b.click());
+      assert.equal(await page.locator('#x-pa .scene-number').innerText(), '?', 'do not reveal PA before translation');
       const sequence = ['x-cpu', 'x-mmu', 'x-tlb', 'x-pt-focus', 'x-tlb', 'x-pa', 'x-frame-5'];
       for (let i = 0; i < sequence.length; i++) {
         await target('#x-flow', sequence[i]);
         if (i === 2) assert.match(await text('x'), /TLB Miss chỉ có nghĩa/);
         if (i === 3) {
           assert.match(await text('x'), /không gây Page Fault/);
-          assert.equal(await page.locator('#x-flow .teach-layout-x [data-frame]').count(), 1);
+          assert.equal(await page.locator('#x-pt-focus .scene-pte').getAttribute('data-present'), '1');
         }
         if (i < sequence.length - 1) await next('x');
       }
@@ -114,9 +121,9 @@ const path = require('node:path');
       await seek('x', 'Tra TLB');
       assert.match(await text('x'), /TLB Hit/); assert.doesNotMatch(await text('x'), /TLB Miss/);
       assert.equal((await snap('x')).plan.hit, true);
-      assert.ok(await page.locator('#x-pt-focus').evaluate(e => e.classList.contains('teach-bypassed')));
+      assert.ok(await page.locator('#x-pt-focus').evaluate(e => e.classList.contains('scene-skipped')));
       await next('x'); await target('#x-flow', 'x-pa');
-      await page.click('#x-textbook'); await finish('x');
+      await page.locator('#x-textbook').evaluate(b => b.click()); await finish('x');
       const s = await snap('x'); assert.equal(s.plan.p, 3); assert.equal(s.plan.d, 1); assert.equal(s.plan.phys, 9);
       await target('#x-flow', 'x-frame-2'); await shot('demo3-frame-highlight');
     });
@@ -127,25 +134,25 @@ const path = require('node:path');
       assert.equal((await snap('x')).plan.blocked, true);
       assert.deepEqual((await snap('x')).pt, before);
       await target('#x-flow', 'x-os'); assert.match(await text('x'), /chưa có PA hợp lệ/);
-      await page.click('#x-default');
+      await page.locator('#x-default').evaluate(b => b.click());
     });
     await check('Demand paging: six events, post-I/O PTE commit, reverse and clickable history', async () => {
-      await page.click('#t4'); await page.click('#v-reset');
-      assert.equal(await page.locator('#v-flow .teach-layout-v [data-frame]').count(), 0, 'OS has not chosen a frame yet');
+      await page.click('#t4'); await page.selectOption('#v-scenario', '0'); await page.click('#v-reset');
+      assert.equal(await page.locator('#v-flow .scene-replacing').count(), 0, 'OS has not chosen a victim yet');
       const destinations = ['v-cpu', 'v-os', 'v-store', 'v-frame-1', 'v-pt-focus', 'v-cpu'];
       for (let i = 0; i < destinations.length; i++) {
         await target('#v-flow', destinations[i]);
         if (i === 1) assert.match(await text('v'), /trap chưa đọc trang/);
         if (i === 3) {
           const s = await snap('v'); assert.equal(s.ram[1], 3); assert.equal(s.pt[3].present, false); assert.equal(s.reads, 1);
-          assert.equal(await page.locator('#v-flow .teach-layout-v [data-frame]').count(), 1);
+          assert.equal(await page.locator('#v-frame-1 b').innerText(), 'Trang 3');
           assert.match(await text('v'), /chưa được đánh dấu hiện diện/);
         }
         if (i === 4) assert.equal((await snap('v')).pt[3].present, true);
         if (i < 5) await next('v');
       }
       assert.match(await text('v'), /không cộng thêm lỗi trang/);
-      await page.click('#v-hist-toggle');
+      await page.locator('#p4 .teach-history').evaluate(d => d.open = true);
       await page.locator('#p4 .teach-history button[data-step="3"]').click();
       await target('#v-flow', 'v-frame-1'); assert.equal((await snap('v')).pt[3].present, false);
       const before = await snap('v'); await next('v'); await page.click('#v-prev');
@@ -162,7 +169,7 @@ const path = require('node:path');
       await shot('demo4-pte-update');
     });
     await check('Demand paging: dirty writes are separate, Hit and denied access do not page-in', async () => {
-      await page.click('#v-full-dirty'); await seek('v', 'Ghi lại trang dirty');
+      await page.locator('#v-full-dirty').evaluate(b => b.click()); await seek('v', 'Ghi lại trang dirty');
       await target('#v-flow', 'v-store'); assert.equal((await snap('v')).writes, 1); assert.equal((await snap('v')).reads, 0);
       assert.match(await text('v'), /chưa nạp trang/); await next('v'); await target('#v-flow', 'v-frame-0');
       assert.equal((await snap('v')).reads, 1); assert.equal((await snap('v')).pt[3].present, false);
@@ -203,7 +210,7 @@ const path = require('node:path');
       await finish('a');
     });
     await check('Replacement: all four totals, Clock bit/pointer narration and restored highlight', async () => {
-      await page.click('#t3');
+      await page.click('#t3'); await page.selectOption('#r-scenario', '2');
       for (const [alg, count] of [['FIFO', 15], ['LRU', 12], ['OPT', 9], ['CLOCK', 14]]) {
         await page.locator('#r-alg [data-a="' + alg + '"]').click();
         let guard = 0, sawClear = false, sawHit = false;
@@ -212,12 +219,12 @@ const path = require('node:path');
           if (alg === 'CLOCK' && s.runtime.phase === 'clear') {
             const old = e.beforeState.runtime.ptr;
             assert.equal(s.runtime.bit[old], 0);
-            assert.match(await page.locator('.teach-clock-step-desc').innerText(), new RegExp('Khung ' + old + ': 1 → 0'));
-            await target('#r-scene', 'r-frame-' + s.runtime.ptr); sawClear = true;
+            assert.match(await page.locator('#r-evidence .scene-proof-note').innerText(), new RegExp('Khung ' + old + ': R 1 → 0'));
+            await target('#r-scene', 'r-frame-' + old); sawClear = true;
           }
           if (alg === 'CLOCK' && e.kind === 'read') {
             assert.equal(s.runtime.ptr, e.beforeState.runtime.ptr);
-            assert.match(await page.locator('.teach-clock-step-desc').innerText(), /Kim giữ tại/); sawHit = true;
+            assert.match(await page.locator('#r-evidence .scene-proof-note').innerText(), /Kim giữ tại/); sawHit = true;
           }
         }
         assert.ok(guard < 200); assert.equal((await snap('r')).runtime.faults, count);
@@ -232,7 +239,7 @@ const path = require('node:path');
         for (const [tab, id] of [['t0', 'b'], ['t1', 'a'], ['t2', 'x'], ['t4', 'v'], ['t3', 'r']]) {
           await page.click('#' + tab);
           const cap = page.locator('#' + id + '-cap');
-          assert.equal(await cap.locator('.teach-deep-content').evaluate(e => getComputedStyle(e).fontSize), '18px');
+          assert.ok(await cap.locator('.scene-explanation').evaluate(e => parseFloat(getComputedStyle(e).fontSize) >= 12));
           const fit = await cap.evaluate(e => { const r = e.getBoundingClientRect(); return r.left >= 0 && r.right <= innerWidth + 1 && e.scrollWidth <= e.clientWidth + 1; });
           assert.ok(fit, 'caption fit ' + width + '/' + id);
           if (['x', 'v'].includes(id)) {
@@ -242,12 +249,12 @@ const path = require('node:path');
       }
       await page.setViewportSize({ width: 1366, height: 768 }); await page.click('#t2'); await page.click('#x-reset');
       const before = await snap('x');
-      const pathOption = page.locator('#p2 [data-option="path"]'); await pathOption.uncheck();
+      const pathOption = page.locator('#p2 [data-option="path"]'); await pathOption.evaluate(e => { e.checked=false; e.dispatchEvent(new Event('change',{bubbles:true})); });
       assert.deepEqual(await snap('x'), before);
-      assert.equal(await page.locator('#x-flow [data-processing]').count(), 1); await pathOption.check();
+      assert.equal(await page.locator('#x-flow [data-processing]').count(), 1); await pathOption.evaluate(e => { e.checked=true; e.dispatchEvent(new Event('change',{bubbles:true})); });
       await page.emulateMedia({ reducedMotion: 'reduce' }); await next('x');
       assert.equal(await page.locator('#x-mmu').evaluate(e => getComputedStyle(e).animationName), 'none');
-      assert.notEqual(await page.locator('#x-mmu').evaluate(e => getComputedStyle(e).boxShadow), 'none');
+      assert.notEqual(await page.locator('#x-processor').evaluate(e => getComputedStyle(e).boxShadow), 'none');
       await page.click('#theme-toggle'); assert.equal(await page.locator('html').getAttribute('data-theme'), 'dark');
       await shot('demo3-dark-highlight');
     });

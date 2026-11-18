@@ -1,0 +1,14 @@
+{
+  "passed": 8,
+  "checks": [
+    "All five default examples are medium; optional explanations are below the model",
+    "Demo 1: exclusive upper bound, early verdict hidden, trap never authorizes RAM",
+    "Demo 2: Best/Worst scan all before choosing, allocation and residual are separate",
+    "Demo 3: miss/fault/read exact byte; warm TLB skips PTE; miss resident has no fault",
+    "Demo 4: dirty write precedes read; PTE commit follows I/O; hit and denied bypass disk",
+    "Demo 5: visible FIFO/LRU evidence; OPT no early answer; Clock inspect/clear/victim restore",
+    "Desktop/mobile, optional explanation, large inputs and reduced motion preserve snapshots",
+    "Autoplay pauses on tab switch and manual navigation"
+  ],
+  "errors": []
+}

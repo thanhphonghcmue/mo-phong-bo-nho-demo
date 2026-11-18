@@ -24,7 +24,22 @@ window.enhanceMemoryDemo = function (api) {
   const { B, A, F, X, V, R } = api,
     timelines = {};
   let playing = null,
-    timer = null;
+    timer = null,
+    applyingScenario = false;
+  function markCustom(id) {
+    if (applyingScenario) return;
+    const select = $("#" + id + "-scenario");
+    if (!select) return;
+    if (!select.querySelector('[value="custom"]')) {
+      const option = document.createElement("option");
+      option.value = "custom";
+      option.textContent = "Ví dụ tự chọn / tự nhập";
+      option.disabled = true;
+      select.append(option);
+    }
+    select.value = "custom";
+    select.closest(".scene-scenarios").querySelector(".scene-scenario-hint").textContent = "Đang dùng dữ liệu đã chọn. Làm lại giữ cấu hình này.";
+  }
   function pause() {
     clearTimeout(timer);
     timer = null;
@@ -256,7 +271,7 @@ window.enhanceMemoryDemo = function (api) {
     const r = root.getBoundingClientRect(),
       a = from.getBoundingClientRect(),
       b = to.getBoundingClientRect();
-    if (!r.width || !r.height) return;
+    if (!r.width || !r.height || !a.width || !a.height || !b.width || !b.height) return;
     const ac = {
         x: a.left + a.width / 2 - r.left,
         y: a.top + a.height / 2 - r.top,
@@ -291,6 +306,15 @@ window.enhanceMemoryDemo = function (api) {
     let d = horizontal
       ? `M ${x1} ${y1} L ${mid} ${y1} L ${mid} ${y2} L ${x2} ${y2}`
       : `M ${x1} ${y1} L ${x1} ${mid} L ${x2} ${mid} L ${x2} ${y2}`;
+    if (root.id === "a-lane" && verticalToRam) {
+      // Use the label gutter; a midpoint route would cross the RAM heading.
+      const above = a.bottom <= b.top;
+      const startY = (above ? a.bottom : a.top) - r.top;
+      const turnY = startY + (above ? 6 : -8);
+      const gapY = (above ? b.top - 8 : b.bottom + 6) - r.top;
+      const endY = (above ? b.top : b.bottom) - r.top;
+      d = `M ${ac.x} ${startY} L ${ac.x} ${turnY} L 4 ${turnY} L 4 ${gapY} L ${bc.x} ${gapY} L ${bc.x} ${endY}`;
+    }
     if (root.matches("#x-flow, #v-flow"))
       d = memoryPath(root, from, to, r, a, b, d);
     const color =
@@ -354,69 +378,23 @@ window.enhanceMemoryDemo = function (api) {
   function drawEvent(t, e) {
     const id = t.id;
     const speed = Number(t.speed?.value) || 1;
+    if (id === "x" || id === "v") {
+      const root = $("#" + id + "-flow");
+      MemoryScenes.paint(root, root.dataset.target);
+      return;
+    }
+    if (id === "r") {
+      const st = R.runtime, root = $("#p3 .scene");
+      root.id = "r-scene";
+      const frame = st.phase === "clear" ? e.beforeState.runtime.ptr : st.phase === "inspect" ? st.ptr : st.slot;
+      MemoryScenes.paint(root, ["inspect", "clear", "victim", "apply"].includes(st.phase) ? `r-frame-${frame}` : "r-need");
+      return;
+    }
+
     if (id === "b") {
       const root = $("#b-flow");
       const boxes = root.querySelectorAll(".box");
       connect(root, B.st ? boxes[B.st - 1] : null, boxes[B.st], e, speed);
-    } else if (id === "v") {
-      const root = $("#v-flow");
-      const cpu = $("#v-cpu"), mmu = $("#v-mmu"), os = $("#v-os"),
-        store = $("#v-store"), pt = $("#v-pt-focus"), ram = $("#v-ram");
-      const frame = root.querySelector(`[data-frame="${V.plan.chosenFrame}"]`) || ram;
-      let from = null, to = cpu;
-      if (e.kind === "trap") {
-        from = mmu; to = os;
-      } else if (e.kind === "page-in") {
-        from = store; to = frame;
-      } else if (e.kind === "page-out") {
-        from = frame; to = store;
-      } else if (["read", "write"].includes(e.kind)) {
-        from = e.kind === "write" ? cpu : frame;
-        to = e.kind === "write" ? frame : cpu;
-      } else if (e.title.includes("Định vị")) {
-        from = os; to = store;
-      } else if (e.title.includes("chọn victim")) {
-        from = os; to = frame;
-      } else if (e.kind === "translation") {
-        from = e.title.startsWith("Page Hit") ? mmu : os;
-        to = pt;
-      }
-      connect(root, from, to, e, speed);
-    } else if (id === "x") {
-      const root = $("#x-flow"), title = e.title.toLocaleLowerCase("vi");
-      const cpu = $("#x-cpu"), mmu = $("#x-mmu"), tlb = $("#x-tlb"),
-        pt = $("#x-pt-focus"), pa = $("#x-pa"), os = $("#x-os"),
-        frame = root.querySelector(`[data-frame="${X.plan.f}"]`);
-      let from = null, to = cpu;
-      if (title.startsWith("tách")) { from = cpu; to = mmu; }
-      else if (title.startsWith("tra tlb")) { from = mmu; to = tlb; }
-      else if (title.startsWith("tra bảng")) { from = tlb; to = pt; }
-      else if (title.startsWith("điền")) { from = pt; to = tlb; }
-      else if (title.startsWith("tạo địa chỉ")) { from = tlb; to = pa; }
-      else if (e.kind === "page-in") { from = os; to = frame; }
-      else if (e.kind === "trap") { from = mmu; to = os; }
-      else if (e.kind === "read") { from = pa; to = frame; }
-      connect(root, from, to, e, speed);
-    } else if (id === "r") {
-      const root = $("#p3 .scene");
-      root.id = "r-scene";
-      const s = R.runtime, clock = R.alg === "CLOCK";
-      const slot = root.querySelector(`[data-frame="${["inspect", "clear"].includes(s.phase) ? s.ptr : s.slot}"] .card`);
-      let from = $("#r-need"), to = slot || root.querySelector(".ramzone");
-      if (s.phase === "start") { from = null; to = $("#r-need"); }
-      else if (s.phase === "request") to = root.querySelector(".ramzone");
-      else if (clock && ["inspect", "victim"].includes(s.phase)) from = null;
-      else if (clock && s.phase === "clear") {
-        const old = e.beforeState.runtime.ptr;
-        from = old < s.ptr ? root.querySelector(`[data-frame="${old}"] .card`) : null;
-      }
-      else if (e.kind === "page-in") from = root.querySelector(".disk");
-      else if (e.kind === "read") { from = slot; to = $("#r-need"); }
-      connect(root, from, to, e, speed);
-      if (clock && ["inspect", "clear", "victim"].includes(s.phase)) {
-        const row = evidence.querySelectorAll("tbody tr")[s.phase === "victim" ? s.slot : s.ptr];
-        row?.classList.add("teach-spotlight");
-      }
     } else if (id === "a" || id === "f") {
       const root = $("#" + id + "-ram").parentElement;
       root.id = id + "-lane";
@@ -438,7 +416,16 @@ window.enhanceMemoryDemo = function (api) {
           target = [...(hole?.querySelectorAll(".pc") || [])].at(-1) || hole;
         }
       }
-      connect(root, target === allocator ? $("#" + id + "-req") : allocator, target, e, speed);
+      const request = $("#" + id + "-req .req") || $("#" + id + "-req");
+      let source = request;
+      if (id === "a" && e.title.startsWith("Cập nhật")) {
+        const process = Number(e.title.match(/P(\d+)/)?.[1]);
+        source = $$("#a-queue .chip")[process - 1];
+      } else if (id === "f") {
+        const name = e.beforeState?.pending?.name;
+        source = name ? $$("#f-script .chip").find(chip => chip.textContent.includes(name)) : null;
+      }
+      connect(root, target === allocator ? null : source, target === allocator ? request : target, e, speed);
     }
   }
   function unit(id, title, body, extra = "") {
@@ -468,6 +455,17 @@ window.enhanceMemoryDemo = function (api) {
   function clearError(id) {
     const e = $("#" + id + "-error");
     if (e) e.textContent = "";
+  }
+  function stateView(id, html) {
+    if (!configs[id]) return;
+    let details = $("#" + id + "-memory-details");
+    if (!details) {
+      details = document.createElement("details");
+      details.id = id + "-memory-details";
+      details.className = "scene-state-view";
+      configs[id].append(details);
+    }
+    details.innerHTML = `<summary>Trạng thái đầy đủ · bảng trang và RAM</summary><div class="teach-table-scroll">${html}</div>`;
   }
   const names = {
     first: "First-fit",
@@ -585,6 +583,7 @@ window.enhanceMemoryDemo = function (api) {
       e.preventDefault();
       try {
         onApply();
+        markCustom(id);
         clearError(id);
         status.className = "teach-config-status";
         status.textContent =
@@ -1098,17 +1097,20 @@ window.enhanceMemoryDemo = function (api) {
       if (cap) {
         cap.classList.add("teach-narrator");
         const deepExp = renderDeepExplanation(this.id, e, i);
-        if (this.id === "r") {
-          cap.innerHTML = `<div class="teach-step-title">Bước ${i + 1} · ${esc(e.title)}</div>
-            <div class="teach-step-context"><b>${esc(e.actor)}:</b> ${esc(e.condition)}</div>
-            <div class="teach-step-change">${esc(e.change)}</div>${deepExp}`;
-        } else {
-          cap.innerHTML = `<div class="teach-step-title">Bước ${i + 1} · ${esc(e.title)}</div>
-            <div class="teach-step-context"><b>${esc(e.actor)}:</b> ${esc(e.condition)}</div>
-            <div class="teach-step-change">${esc(e.change)}</div>
-            <div class="teach-deep-exp">${deepExp}</div>`;
-        }
+        cap.innerHTML = `<div class="teach-step-title">Bước ${i + 1} · ${esc(e.title)}</div>
+          <dl class="scene-explanation"><div><dt>Đang làm</dt><dd>${esc(e.change)}</dd></div><div><dt>Vì sao</dt><dd>${esc(e.condition)}</dd></div><div><dt>Tiếp theo</dt><dd>${esc(e.next)}</dd></div></dl>
+          <details class="scene-reference"><summary>Đọc sâu hơn về bước này</summary><div class="teach-deep-exp">${deepExp}</div></details>`;
       }
+      let status = this.root.querySelector(".scene-status[data-lesson='" + this.id + "']");
+      if (!status) {
+        status = document.createElement("div");
+        status.className = "scene-status";
+        status.dataset.lesson = this.id;
+        status.setAttribute("role", "status");
+        status.setAttribute("aria-live", "polite");
+        $("#" + this.id + "-prev").parentElement.before(status);
+      }
+      status.innerHTML = `<span>BƯỚC ${i + 1}/${this.events.length}</span><strong>${esc(e.title)}</strong><small>${esc(e.change)}</small>`;
       this.noteEl.textContent = e.note || this.note;
       this.history.querySelector("ol").innerHTML = this.events
         .slice(0, this.seen + 1)
@@ -1542,62 +1544,15 @@ window.enhanceMemoryDemo = function (api) {
         ? `Trang ${p.page} · ${label}`
         : `Không có trang ${label}`;
     }
-    const stage = e.title;
-    const frame = V.plan.chosenFrame;
-    const denied = V.plan.oob, hit = V.plan.hit;
-    const faultStage = stage.startsWith("CPU") ? 0 : e.kind === "trap" ? 1
-      : stage.startsWith("Định vị") ? 2 : stage.startsWith("Cập nhật") ? 4
-        : stage.startsWith("Khởi động") ? 5 : 3;
-    const labels = denied ? ["Yêu cầu", "OS chặn"] : hit
-      ? ["Yêu cầu", "Tìm ngăn RAM", V.operation === "write" ? "Ghi RAM" : "Đọc RAM"]
-      : ["Yêu cầu", "Báo OS", "Tìm trên đĩa", "Nạp vào RAM", "Sửa bảng trang", "Thử lại"];
-    const current = denied ? (stage.startsWith("CPU") ? 0 : 1)
-      : hit ? (stage.startsWith("CPU") ? 0 : e.kind === "translation" ? 1 : 2) : faultStage;
-    const row = (p) => {
-      const isReq = p.page === V.page;
-      const isVic = p.page === V.plan.victim && p.page !== V.page;
-      const rowClass = isReq ? "teach-row-active" : isVic ? "teach-row-victim" : "";
-      const pBadge = p.present
-        ? '<span class="bit-badge bit-present">1 (Có)</span>'
-        : '<span class="bit-badge bit-absent">0 (Chưa)</span>';
-      const fBadge = (p.frame !== null && p.frame !== undefined)
-        ? `<span class="badge-frame">Khung ${p.frame}</span>`
-        : '<span class="badge-disk">đĩa</span>';
-      const dBadge = p.dirty
-        ? '<span class="badge-dirty">1 (Bẩn)</span>'
-        : '<span class="badge-clean">0 (Sạch)</span>';
-      return `<tr data-page="${p.page}" class="${rowClass}"><td><b>Trang ${p.page}</b></td><td>${pBadge}</td><td>${fBadge}</td><td>${dBadge}</td></tr>`;
-    };
-    const showVictim = !stage.startsWith("CPU") && !stage.startsWith("Định vị") && e.kind !== "trap";
-    const focus = V.pt.filter((p) => p.page === V.page || (showVictim && p.page === V.plan.victim));
-    const pte = V.pt[V.page];
-    const permissions = !pte ? "Trang ngoài miền" : !pte.mapped ? "Chưa được ánh xạ"
-      : !pte.permission ? "Không có quyền truy cập" : "Trang hợp lệ · có quyền";
-    const chosen = !denied && (hit || stage.includes("chọn victim") || ["page-in", "page-out", "translation", "read", "write"].includes(e.kind));
-    const victim = chosen && V.plan.victim !== null && V.ram[frame] !== V.page;
-    const expanded = $("#v-memory-details")?.open;
-    const frameBody = chosen
-      ? `<div id="v-frame-${frame}" data-frame="${frame}" class="teach-frame teach-focus-frame ${victim ? "teach-victim" : ""}"><span>Ngăn ${frame} (Frame)${victim ? " · nhường chỗ" : ""}</span><b>${V.ram[frame] === null ? "trống" : "Trang " + V.ram[frame]}</b>${V.policy === "CLOCK" ? `<small>R=${V.replacement.bit[frame]}</small>` : ""}</div>`
-      : '<div class="teach-frame teach-focus-frame"><span>Ngăn chứa dữ liệu</span><b>Chưa chọn ngăn</b></div>';
-    const ramBody = `<div class="teach-ram-focus"><div id="v-pt-focus" class="teach-endpoint"><b>Bảng trang</b><span>Cho biết trang nằm ở ngăn nào</span>${table(["Trang", "Trong RAM?", "Ngăn", "Dirty"], focus.length ? focus.map(row) : ['<tr><td colspan="4">Không có mục hợp lệ</td></tr>'])}</div>${frameBody}</div>`;
-    $("#v-flow").className = "teach-schematic";
-    $("#v-flow").innerHTML = stepRail(labels, current) + `<div class="teach-layout-v">
-      ${unit("v-processor", "Bộ xử lý / Bộ dịch địa chỉ", `<div id="v-cpu" class="teach-endpoint"><span>CPU · chương trình gửi yêu cầu</span><b>${V.operation === "write" ? "Ghi (STORE)" : "Đọc (LOAD)"} trang ${V.page}</b></div><div id="v-mmu" class="teach-endpoint"><span>MMU · kiểm tra trước khi vào RAM</span><b>${permissions}</b></div>`)}
-      ${unit("v-os", "Hệ điều hành (OS)", `<b>${denied ? "Xử lý lỗi bảo vệ" : hit ? "Không cần nạp trang" : stage.startsWith("CPU") ? "Chờ báo thiếu trang" : esc(labels[current])}</b><p>${!hit && !denied && !V.freeFrames.length ? `RAM đầy · chọn trang nhường chỗ theo ${names[V.policy]}` : "Quản lý các ngăn trong RAM"}</p>`)}
-      ${unit("v-store", "Bộ nhớ phụ · ổ đĩa", `<b>${denied ? "Không nạp trang bị từ chối" : "Bản lưu Trang " + V.page}</b><p>${e.kind === "page-out" ? `Nhận dữ liệu Trang ${V.plan.victim} đã sửa` : e.kind === "page-in" ? `Đọc Trang ${V.page} → ngăn ${frame}` : "Backing Store · chưa truyền dữ liệu"}</p>`)}
-      ${unit("v-ram", "RAM · bộ nhớ đang làm việc", ramBody)}
-      </div><details id="v-memory-details" class="teach-full-table teach-all-state" ${expanded ? "open" : ""}><summary>Xem toàn bộ bảng trang và RAM (${V.ram.length} khung)</summary><div class="teach-table-scroll">${table(["Trang", "Ánh xạ", "Quyền", "Present", "Frame", "Dirty"], V.pt.map(p => `<tr><td>${p.page}</td><td>${+p.mapped}</td><td>${+p.permission}</td><td>${+p.present}</td><td>${p.frame ?? "—"}</td><td>${+p.dirty}</td></tr>`))}</div><div class="teach-compact-frames">${V.ram.map((p, f) => `<div data-overview-frame="${f}" class="teach-frame"><span>Frame ${f}</span><b>${p === null ? "trống" : "Trang " + p}</b>${V.policy === "CLOCK" ? `<small>R=${V.replacement.bit[f]}${V.replacement.ptr === f ? " · kim" : ""}</small>` : ""}</div>`).join("")}</div></details>` + route(e);
-    if ($("#v-free-frames")) $("#v-free-frames").textContent = V.freeFrames.length
-      ? V.freeFrames.map((f) => "Khung " + f).join(" · ")
-      : "Hết khung trống";
-    if ($("#v-disk-status")) $("#v-disk-status").textContent =
-      e.kind === "page-in"
-        ? "Đọc trang → RAM"
-        : e.kind === "page-out"
-          ? "Ghi trang dirty → Backing Store"
-          : "Không I/O ở bước này";
-    if ($("#v-stats")) $("#v-stats").textContent =
-      `Truy cập ${V.accesses} · Hit ${V.hits} · Fault ${V.faults} · I/O đọc ${V.reads} / ghi ${V.writes}`;
+    const view = MemoryScenes.demand(V, e);
+    const root = $("#v-flow");
+    root.className = "teach-schematic scene-model";
+    root.innerHTML = view.html;
+    root.dataset.target = view.target;
+    stateView("v", table(["Trang", "Ánh xạ", "Quyền", "Present", "Khung", "Dirty"], V.pt.map(p => `<tr><td>${p.page}</td><td>${+p.mapped}</td><td>${+p.permission}</td><td>${+p.present}</td><td>${p.frame ?? "—"}</td><td>${+p.dirty}</td></tr>`)) + `<div class="teach-compact-frames">${V.ram.map((p,f) => `<div data-overview-frame="${f}" class="teach-frame"><small>Khung ${f}</small><b>${p === null ? "Trống" : "Trang " + p}</b></div>`).join("")}</div>`);
+    if ($("#v-free-frames")) $("#v-free-frames").textContent = V.freeFrames.length ? V.freeFrames.join(" · ") : "Hết khung trống";
+    if ($("#v-disk-status")) $("#v-disk-status").textContent = e.kind === "page-in" ? "Đĩa → RAM" : e.kind === "page-out" ? "RAM → Đĩa" : "Không I/O";
+    $("#v-stats").textContent = `Truy cập ${V.accesses} · Hit ${V.hits} · Fault ${V.faults} · I/O đọc ${V.reads} / ghi ${V.writes}`;
   }
   const vt = new Timeline("v", "p4", V, renderV, "");
   function syncVConfig() {
@@ -2039,151 +1994,16 @@ window.enhanceMemoryDemo = function (api) {
     return out;
   }
   function renderX(e) {
-    $("#p2 .quick > span.muted").textContent =
-      `Mỗi trang ${X.pageSize} byte · RAM có ${X.frameCount} ngăn`;
-    activeSetup(
-      "x",
-      `Địa chỉ muốn tìm: ${X.plan.addr} byte (ô nhập phía trên) · mỗi trang chứa ${X.pageSize} byte (đề cho).`,
-    );
-    const P = X.plan;
-    $("#p2 h2").textContent =
-      `Chương trình cần byte ${P.addr}. Byte đó đang ở đâu trong RAM?`;
-    $("#x-flow").className = "teach-schematic";
-    if (P.err) {
-      $("#x-flow").innerHTML =
-        unit("x-cpu", "CPU · địa chỉ logic", `LA=${esc(P.addr)}`) +
-        unit("x-mmu", "MMU", "Kiểm tra miền địa chỉ") +
-        unit("x-os", "OS · lỗi bảo vệ", "TRAP: ngoài miền địa chỉ; không nạp trang") +
-        route(e);
-      return;
-    }
-    const title = e.title,
-      lower = title.toLocaleLowerCase("vi"),
-      isRead = e.kind === "read",
-      ready = lower.startsWith("tạo địa chỉ") || isRead,
-      split = !title.startsWith("CPU");
-    const current = title.startsWith("CPU") ? 0 : lower.startsWith("tách") ? 1
-      : lower.startsWith("tra tlb") || lower.startsWith("điền") ? 2 : ready ? (isRead ? 5 : 4) : 3;
-    const tlb = table(
-      ["Page", "Frame"],
-      X.tlb.length
-        ? X.tlb.map(
-            (t) =>
-              `<tr class="${current === 2 && t.page === P.p ? "teach-selected" : ""}"><td>${t.page}</td><td>${t.frame}</td></tr>`,
-          )
-        : ['<tr><td colspan="2">TLB rỗng</td></tr>'],
-    );
-    const ptRow = (f, p) => `<tr data-page="${p}"><td>${p}</td><td>${+(f !== null)}</td><td>${f ?? "—"}</td></tr>`;
-    const tlbStatus = current < 2 ? "Chờ tra" : !P.hit && X.tlb.some(t => t.page === P.p) ? "Đã lưu bản dịch"
-      : P.hit ? "HIT" : "MISS";
-    const cached = X.tlb.find(t => t.page === P.p);
-    const knownFrame = ready || (P.hit && X.st >= 2) || (!P.hit && X.st >= 3 && X.pt[P.p] !== null);
-    const bypass = P.hit && X.st >= 2;
-    const expanded = $("#x-memory-details")?.open;
-    const act1 = current <= 1 ? "teach-col-active" : "";
-    const act2 = current === 2 ? "teach-col-active" : "";
-    const act3 = current === 3 ? "teach-col-active" : "";
-    const act4 = (current === 4 || current === 5) && !ready ? "teach-col-active" : "";
-    const act5 = ready ? "teach-col-active" : "";
-
-    const colLogic = `<div id="x-cpu" class="teach-endpoint">
-      <div class="la-big">${P.addr}</div>
-    </div>
-    <div id="x-mmu" class="teach-endpoint">
-      <div class="split-cards-row">
-        <div class="split-card-p">
-          <div class="p-num">${split ? P.p : "?"}</div>
-          <div class="p-text-1">số</div>
-          <div class="p-text-2">trang p</div>
-        </div>
-        <div class="split-card-d">
-          <div class="d-num">${split ? P.d : "?"}</div>
-          <div class="d-text">độ lệch d</div>
-        </div>
-      </div>
-      <div class="split-math-lines">
-        <div>${split ? `${P.addr} ÷ ${X.pageSize} = ${P.p}` : `${P.addr} ÷ ${X.pageSize} = ?`}</div>
-        <div>${split ? `dư ${P.d}` : "chờ tính dư"}</div>
-      </div>
-    </div>`;
-
-    const colTlb = `<p class="col-sub">Bộ đệm phần cứng nằm trong MMU — tra rất nhanh.</p>
-    <div class="tlb-badge-row">
-      <b class="teach-lookup-status ${P.hit ? "teach-hit" : current >= 2 ? "teach-miss" : ""}">${tlbStatus}</b>
-    </div>
-    <div class="teach-table-scroll">
-      <table class="teach-table tlb-fixed-table">
-        <thead><tr><th>trang</th><th>khung</th><th>dùng lúc</th></tr></thead>
-        <tbody>
-          ${Array.from({ length: 4 }, (_, i) => {
-            const t = X.tlb[i];
-            if (t) {
-              const isCur = current === 2 && t.page === P.p;
-              return `<tr class="${isCur ? "teach-selected" : ""}"><td>${t.page}</td><td>${t.frame}</td><td>${t.page === P.p ? "vừa tra" : "#" + (i+1)}</td></tr>`;
-            } else {
-              return `<tr><td class="muted">-</td><td class="muted">-</td><td class="muted">-</td></tr>`;
-            }
-          }).join("")}
-        </tbody>
-      </table>
-    </div>`;
-
-    const colPt = `<p class="col-sub">Nằm trong RAM (vùng của hệ điều hành); PTBR trỏ tới đầu bảng.</p>
-    ${bypass ? '<div class="tlb-bypass-badge">TLB Hit · Bỏ qua tra bảng trang</div>' : ""}
-    <div class="teach-table-scroll" style="max-height:190px">
-      <table class="teach-table pt-full-table">
-        <thead><tr><th>trang</th><th>khung</th><th>bit</th></tr></thead>
-        <tbody>
-          ${X.pt.map((f, p) => {
-            const isCur = split && p === P.p;
-            const hlClass = isCur ? "teach-selected" : "";
-            const bit = f !== null ? '<span class="bit-v">v</span>' : '<span class="bit-i">i</span>';
-            const dispF = f !== null ? (isCur ? `<span class="badge-f">${f}</span>` : f) : '<span class="muted">đĩa</span>';
-            return `<tr class="${hlClass}" data-page="${p}"><td><b>${p}</b></td><td>${dispF}</td><td>${bit}</td></tr>`;
-          }).join("")}
-        </tbody>
-      </table>
-    </div>`;
-
-    const colRam = `<div class="ram-16-grid">
-      ${Array.from({ length: X.frameCount }, (_, f) => {
-        const isTarget = knownFrame && f === P.f;
-        const pg = X.pt.indexOf(f);
-        const isOther = X.other.includes(f);
-        const content = pg >= 0 ? `trang ${pg}` : isOther ? "khác" : "trống";
-        const otherCls = isOther ? " frame-other" : "";
-        const cls = isTarget ? "teach-frame teach-frame-active" : ("teach-frame" + otherCls);
-        const idAttr = isTarget ? `id="x-frame-${P.f}" data-frame="${P.f}"` : `data-overview-frame="${f}"`;
-        return `<div ${idAttr} class="${cls}"><span class="f-num">${f}</span><span class="f-content">${content}</span></div>`;
-      }).join("")}
-    </div>
-    ${knownFrame ? `<small class="ram-active-note">${P.fault ? "OS vừa cấp khung" : P.hit ? "Tìm thấy từ TLB" : "Tìm thấy từ Bảng trang"}${isRead ? ` · Đọc tại vị trí +${P.d}` : ""}</small>` : '<small class="ram-active-note muted">Chờ xác định số khung...</small>'}`;
-
-    const colPa = `<div id="x-pa" class="teach-endpoint">
-      <div class="pa-big">${ready ? P.phys : "?"}</div>
-      <div class="pa-formula">
-        ${ready
-          ? `<span class="badge-f">f=${P.f}</span> × ${X.pageSize} + <span class="badge-d">d=${P.d}</span><br>= <b class="pa-val">${P.phys}</b>`
-          : `<span class="badge-f">f</span> × ${X.pageSize} + <span class="badge-d">d</span> = ?<br><small class="muted">Chờ tìm số khung f</small>`}
-      </div>
-      <p class="pa-note">${ready ? `Dữ liệu nằm tại byte <b>${P.phys}</b> trên thanh RAM vật lý.` : "Đang thực hiện quy trình dịch địa chỉ..."}</p>
-    </div>`;
-
-    $("#x-flow").innerHTML = `<div class="teach-layout-x">
-      ${unit("x-processor", "① ĐỊA CHỈ LOGIC", colLogic, act1)}
-      <div class="teach-pipeline-arrow" aria-hidden="true">→</div>
-      ${unit("x-tlb", "② TLB", colTlb, act2)}
-      <div class="teach-pipeline-arrow" aria-hidden="true">→</div>
-      ${unit("x-pt-focus", "③ BẢNG TRANG", colPt, (bypass ? "teach-bypassed " : "") + act3)}
-      <div class="teach-pipeline-arrow" aria-hidden="true">→</div>
-      ${unit("x-data", "④ RAM · 16 KHUNG", colRam, act4)}
-      <div class="teach-pipeline-arrow" aria-hidden="true">→</div>
-      ${unit("x-pa-unit", "⑤ ĐỊA CHỈ VẬT LÝ", colPa, act5)}
-    </div>` +
-    (P.fault ? unit("x-os", "OS / Backing Store", `<p>${P.blocked ? "Không có khung trống · cần thay trang" : e.kind === "page-in" ? `Đã nạp Trang ${P.p} vào Frame ${P.newF}` : "Nạp trang hợp lệ khi có Page Fault · xem chi tiết ở Demo 4"}</p>`) : "") +
-    `<details id="x-memory-details" class="teach-full-table teach-all-state" style="display:none" ${expanded ? "open" : ""}><summary>Xem toàn bộ TLB, bảng trang và RAM</summary><div class="teach-detail-grid"><div><b>TLB</b><div class="teach-table-scroll">${tlb}</div></div><div><b>Bảng trang</b><div class="teach-table-scroll">${table(["Page", "Present", "Frame"], X.pt.map(ptRow))}</div></div></div><b>RAM · ${X.frameCount} khung · ${X.pageSize} byte/khung</b><div class="teach-compact-frames">${Array.from({ length: X.frameCount }, (_, f) => `<div data-overview-frame="${f}" class="teach-frame"><span>Frame ${f}</span><b>${X.pt.includes(f) ? "Trang " + X.pt.indexOf(f) : X.other.includes(f) ? "khác" : "trống"}</b></div>`).join("")}</div></details>` + route(e);
-    $("#x-stats").textContent =
-      `TLB Hit ${X.hit} / Miss ${X.miss} · Page Fault ${X.faults}`;
+    activeSetup("x", `LA=${X.plan.addr} · trang ${X.pageSize} byte · ${X.frameCount} khung RAM.`);
+    $("#p2 .quick > span.muted").textContent = `Mỗi trang ${X.pageSize} byte · RAM ${X.frameCount} khung`;
+    $("#p2 h2").textContent = `Địa chỉ ${X.plan.addr}: tìm đúng khung, đọc đúng byte`;
+    const view = MemoryScenes.translation(X, e);
+    const root = $("#x-flow");
+    root.className = "teach-schematic scene-model";
+    root.innerHTML = view.html;
+    root.dataset.target = view.target;
+    stateView("x", table(["Trang", "Present", "Khung"], X.pt.map((f,p) => `<tr><td>${p}</td><td>${+(f !== null)}</td><td>${f ?? "—"}</td></tr>`)) + `<div class="teach-compact-frames">${Array.from({length:X.frameCount},(_,f) => `<div data-overview-frame="${f}" class="teach-frame"><small>Khung ${f}</small><b>${X.pt.includes(f) ? "Trang " + X.pt.indexOf(f) : X.other.includes(f) ? "Khác" : "Trống"}</b></div>`).join("")}</div>`);
+    $("#x-stats").textContent = `TLB Hit ${X.hit} / Miss ${X.miss} · Page Fault ${X.faults}`;
   }
   const xt = new Timeline("x", "p2", X, renderX, "");
   const defaultXConfig = () => ({
@@ -2568,7 +2388,8 @@ window.enhanceMemoryDemo = function (api) {
   }
   const evidence = document.createElement("div");
   evidence.className = "teach-evidence";
-  $("#r-cap").after(evidence);
+  evidence.id = "r-evidence";
+  $("#p3 .scene").after(evidence);
   function renderR(e) {
     activeSetup(
       "r",
@@ -2595,16 +2416,16 @@ window.enhanceMemoryDemo = function (api) {
         ? `Nạp ${stamp(st.load[i])}`
         : R.alg === "LRU"
           ? `Dùng ${stamp(st.last[i])}`
-          : R.alg === "OPT"
+          : R.alg === "OPT" && st.phase === "victim"
             ? `Dùng tiếp: ${(() => {
                 const k = R.refs.indexOf(st.fr[i], t + 1);
                 return k < 0 ? "∞" : k + 1;
               })()}`
-            : `Bit R = ${st.bit[i]}`;
+            : R.alg === "CLOCK" ? `Bit R = ${st.bit[i]}` : "Chờ quyết định";
     $("#r-slots").innerHTML = st.fr
       .map(
         (p, i) =>
-          `<div class="slot" data-frame="${i}"><div id="r-frame-${i}" class="card ${p === null ? "empty" : st.phase === "victim" && i === st.slot ? "victim" : st.phase === "apply" && i === st.slot ? "hitc" : ""}">${p ?? "trống"}</div><span class="hint">Frame ${i}</span><span class="hint">${p === null ? "chưa có trang" : proof(i)}</span></div>`,
+          `<div class="slot" data-frame="${i}">${R.alg === "CLOCK" ? `<span class="scene-ram-hand">${st.ptr === i ? "↓ Kim Clock" : "&nbsp;"}</span>` : ""}<div id="r-frame-${i}" class="card ${p === null ? "empty" : st.phase === "victim" && i === st.slot ? "victim" : st.phase === "apply" && i === st.slot ? "hitc" : ""}">${p ?? "trống"}</div><span class="hint">Frame ${i}</span><span class="hint">${p === null ? "chưa có trang" : proof(i)}</span></div>`,
       )
       .join("");
     $("#r-out").innerHTML =
@@ -2617,125 +2438,7 @@ window.enhanceMemoryDemo = function (api) {
       if (card && /^\d{3,}$/.test(card.textContent.trim()))
         card.style.fontSize = "26px";
 
-    // Redesigned algorithm evaluation explanation (no circular clock SVG)
-    let algTitle = "";
-    let bannerHtml = "";
-    let tableHeaders = [];
-    let rows = [];
-    let ruleHtml = "";
-
-    if (R.alg === "CLOCK") {
-      algTitle = "Đánh giá chọn trang · Thuật toán Clock";
-      const clearedFrame = e.beforeState?.runtime?.ptr;
-      const clockStatusDesc =
-        st.phase === "inspect"
-          ? `Kim đang kiểm tra Khung ${st.ptr} (Trang ${st.fr[st.ptr] ?? "trống"}, Bit R = ${st.bit[st.ptr]}).`
-          : st.phase === "clear"
-            ? `Đã xóa R ở Khung ${clearedFrame}: 1 → 0; RAM giữ nguyên. Kim chuyển tới Khung ${st.ptr} (R = ${st.bit[st.ptr]}).`
-            : st.phase === "victim"
-              ? `Khung ${st.slot} có R = 0 → Chọn Trang ${st.victim} làm nạn nhân (Victim) để thay thế!`
-              : st.phase === "apply"
-                ? e.kind === "read"
-                  ? `Page Hit: Trang ${pg} vẫn ở Khung ${st.slot}, đặt R = 1. Kim giữ tại Khung ${st.ptr}.`
-                  : `Đã nạp Trang ${pg} vào Khung ${st.slot}, đặt R = 1. Kim ở Khung ${st.ptr}.`
-                : `Kim quét sẵn sàng tại Khung ${st.ptr}.`;
-
-      bannerHtml = `<div class="teach-clock-banner"><div class="teach-pointer-badge">📍 Vị trí kim quét: <strong>Khung ${st.ptr}</strong></div><div class="teach-clock-step-desc">${clockStatusDesc}</div></div>`;
-      tableHeaders = ["Khung", "Trang", "Bit R", "Đánh giá / Quyết định"];
-      rows = st.fr.map((p, i) => {
-        const isVictim = st.phase === "victim" && st.slot === i;
-        const isPointer = st.ptr === i;
-        const rowClass = isVictim ? "teach-row-victim" : isPointer ? "teach-row-pointer" : "";
-        const pageText = p === null ? "<em>(trống)</em>" : `Trang <b>${p}</b>`;
-        const bitText =
-          p === null
-            ? "—"
-            : st.bit[i] === 1
-              ? '<span class="badge-bit badge-bit-1">R = 1</span>'
-              : '<span class="badge-bit badge-bit-0">R = 0</span>';
-        let evalText = "—";
-        if (isVictim) {
-          evalText = '<span class="badge-eval badge-victim">⚠️ Chọn làm Nạn nhân</span>';
-        } else if (isPointer) {
-          evalText = '<span class="badge-eval badge-pointer">👉 Kim đang trỏ</span>';
-        } else if (p !== null && st.bit[i] === 1) {
-          evalText = '<span class="badge-eval badge-second-chance">R=1: cho cơ hội khi xét</span>';
-        } else if (p !== null && st.bit[i] === 0) {
-          evalText = '<span class="badge-eval badge-ready">Sẵn sàng thay</span>';
-        }
-        return `<tr class="${rowClass}"><td>Khung ${i}</td><td>${pageText}</td><td>${bitText}</td><td>${evalText}</td></tr>`;
-      });
-      ruleHtml = `<div class="teach-rule-box"><span class="teach-rule-title">Nguyên lý Clock (Second Chance):</span><span>Kim duyệt vòng tròn qua các khung. Gặp <code>R = 1</code>: cho cơ hội thứ hai, xóa <code>R → 0</code> và chuyển kim. Gặp <code>R = 0</code>: chọn ngay làm nạn nhân để thay thế, nạp trang mới và đặt lại <code>R = 1</code>.</span></div>`;
-    } else if (R.alg === "FIFO") {
-      algTitle = "Đánh giá chọn trang · Thuật toán FIFO";
-      tableHeaders = ["Khung", "Trang", "Thời điểm nạp vào RAM", "Đánh giá"];
-      const activeLoads = st.load.filter((_, idx) => st.fr[idx] !== null);
-      const minLoad = activeLoads.length ? Math.min(...activeLoads) : Infinity;
-      rows = st.fr.map((p, i) => {
-        const isVictim = st.phase === "victim" && st.slot === i;
-        const isOldest = p !== null && st.load[i] === minLoad;
-        const rowClass = isVictim ? "teach-row-victim" : isOldest && st.phase === "victim" ? "teach-row-pointer" : "";
-        const pageText = p === null ? "<em>(trống)</em>" : `Trang <b>${p}</b>`;
-        const loadText = p === null ? "—" : stamp(st.load[i]);
-        let evalText = "—";
-        if (isVictim) {
-          evalText = '<span class="badge-eval badge-victim">⚠️ Vào sớm nhất → Chọn thay</span>';
-        } else if (isOldest) {
-          evalText = '<span class="badge-eval badge-oldest">Vào sớm nhất</span>';
-        }
-        return `<tr class="${rowClass}"><td>Khung ${i}</td><td>${pageText}</td><td>${loadText}</td><td>${evalText}</td></tr>`;
-      });
-      ruleHtml = `<div class="teach-rule-box"><span class="teach-rule-title">Nguyên lý FIFO (First-In, First-Out):</span><span>Thay thế trang đã ở trong RAM lâu nhất (thời điểm nạp sớm nhất). Khi trúng trang (Hit), thứ tự nạp của các trang giữ nguyên không đổi.</span></div>`;
-    } else if (R.alg === "LRU") {
-      algTitle = "Đánh giá chọn trang · Thuật toán LRU";
-      tableHeaders = ["Khung", "Trang", "Lần truy cập gần nhất", "Đánh giá"];
-      const activeLasts = st.last.filter((_, idx) => st.fr[idx] !== null);
-      const minLast = activeLasts.length ? Math.min(...activeLasts) : Infinity;
-      rows = st.fr.map((p, i) => {
-        const isVictim = st.phase === "victim" && st.slot === i;
-        const isOldest = p !== null && st.last[i] === minLast;
-        const rowClass = isVictim ? "teach-row-victim" : isOldest && st.phase === "victim" ? "teach-row-pointer" : "";
-        const pageText = p === null ? "<em>(trống)</em>" : `Trang <b>${p}</b>`;
-        const lastText = p === null ? "—" : stamp(st.last[i]);
-        let evalText = "—";
-        if (isVictim) {
-          evalText = '<span class="badge-eval badge-victim">⚠️ Lâu chưa dùng nhất → Chọn thay</span>';
-        } else if (isOldest) {
-          evalText = '<span class="badge-eval badge-oldest">Lâu chưa dùng nhất</span>';
-        }
-        return `<tr class="${rowClass}"><td>Khung ${i}</td><td>${pageText}</td><td>${lastText}</td><td>${evalText}</td></tr>`;
-      });
-      ruleHtml = `<div class="teach-rule-box"><span class="teach-rule-title">Nguyên lý LRU (Least Recently Used):</span><span>Thay thế trang có lần truy cập cách hiện tại xa nhất trong quá khứ. Mỗi khi truy cập (Hit hoặc Fault), mốc thời gian của trang được cập nhật lại thành mới nhất.</span></div>`;
-    } else {
-      algTitle = "Đánh giá chọn trang · Thuật toán OPT";
-      tableHeaders = ["Khung", "Trang", "Khoảng cách tương lai", "Đánh giá"];
-      rows = st.fr.map((p, i) => {
-        const isVictim = st.phase === "victim" && st.slot === i;
-        const pageText = p === null ? "<em>(trống)</em>" : `Trang <b>${p}</b>`;
-        let nextUseText = "—";
-        let isInf = false;
-        if (p !== null) {
-          const k = R.refs.indexOf(st.fr[i], t + 1);
-          if (k < 0) {
-            nextUseText = "∞ (Không dùng lại)";
-            isInf = true;
-          } else {
-            nextUseText = `Bước ${k + 1}`;
-          }
-        }
-        let evalText = "—";
-        if (isVictim) {
-          evalText = '<span class="badge-eval badge-victim">⚠️ Lâu dùng lại nhất → Chọn thay</span>';
-        } else if (isInf) {
-          evalText = '<span class="badge-eval badge-subtle">Không dùng lại</span>';
-        }
-        const rowClass = isVictim ? "teach-row-victim" : "";
-        return `<tr class="${rowClass}"><td>Khung ${i}</td><td>${pageText}</td><td>${nextUseText}</td><td>${evalText}</td></tr>`;
-      });
-      ruleHtml = `<div class="teach-rule-box"><span class="teach-rule-title">Nguyên lý OPT (Thuật toán tối ưu):</span><span>Thay thế trang mà trong tương lai sẽ lâu được dùng lại nhất (hoặc không bao giờ dùng nữa). Cần biết trước chuỗi truy cập nên dùng làm chuẩn so sánh lý thuyết.</span></div>`;
-    }
-
-    evidence.innerHTML = `<h3>${algTitle}</h3>${bannerHtml}<div>${table(tableHeaders, rows)}${ruleHtml}</div>${route(e)}`;
+    evidence.innerHTML = MemoryScenes.replacement(R, e);
     $$("#r-bars .brow").forEach(
       (b) =>
         (b.onclick = () => {
@@ -3021,6 +2724,7 @@ window.enhanceMemoryDemo = function (api) {
     return out;
   }
   function renderA(e) {
+    $("#e-wrap h2").textContent = `RAM có ${A.holes.length} vùng trống. ${names[A.alg]} chọn chỗ nào?`;
     api.configureHoleSpacing(A.gap);
     activeSetup(
       "a",
@@ -3044,6 +2748,15 @@ window.enhanceMemoryDemo = function (api) {
       el.classList.remove("fit", "nofit", "chosen");
       el.classList.toggle("teach-scan", i === A.runtime.scan);
       el.title = `Lỗ ${i + 1} · còn ${A.runtime.free[i]} KB`;
+      el.querySelector(".lbl").textContent = `Vùng ${i + 1}`;
+      if (e.title.startsWith("Chọn") && i === A.runtime.scan) el.classList.add("scene-chosen");
+      if (i === A.runtime.scan && e.title.includes("xét")) {
+        const remaining = A.runtime.free[i] - size;
+        const label = document.createElement("span");
+        label.className = "scene-scan-result";
+        label.textContent = remaining < 0 ? "Không đủ" : `Đủ · dư ${remaining} KB`;
+        el.append(label);
+      }
     });
     allocatorA.innerHTML = `<b>HÀNG CHỜ → MEMORY ALLOCATOR (${esc(A.alg)}) → RAM VẬT LÝ</b><p>${esc(e.change)}</p>${route(e)}`;
   }
@@ -3555,6 +3268,20 @@ window.enhanceMemoryDemo = function (api) {
       originalRenderB();
       $("#b-cap").classList.add("teach-narrator");
       updateBLabels();
+      if (B.st < 3) {
+        const pointer = $("#b-ram-track .b-pointer");
+        if (pointer) {
+          pointer.classList.remove("trap");
+          pointer.querySelector(".plabel").textContent = "Địa chỉ đang kiểm tra";
+          pointer.querySelector(".plabel").style.background = "var(--accent)";
+        }
+      }
+      const label = $("#b-ram-track .plabel");
+      if (label) {
+        const bounds = $("#b-ram-track").getBoundingClientRect(), r = label.getBoundingClientRect();
+        label.style.position = "relative";
+        label.style.left = Math.min(0, bounds.right - r.right) + Math.max(0, bounds.left - r.left) + "px";
+      }
     },
     "Base ≤ A < Base + Limit.",
   );
@@ -3796,6 +3523,12 @@ window.enhanceMemoryDemo = function (api) {
 
   // Wire all toggle-explain-btn across panels
   document.querySelectorAll(".toggle-explain-btn").forEach(btn => {
+    const explanation = document.getElementById(btn.dataset.target)?.querySelector(".demo-explain-col");
+    if (explanation) {
+      explanation.id = btn.dataset.target + "-explanation";
+      btn.setAttribute("aria-controls", explanation.id);
+      btn.setAttribute("aria-expanded", "false");
+    }
     btn.onclick = (ev) => {
       ev.stopPropagation();
       const targetId = btn.dataset.target;
@@ -3804,6 +3537,7 @@ window.enhanceMemoryDemo = function (api) {
         const isHidden = grid.classList.toggle("explain-hidden");
         document.querySelectorAll(`.toggle-explain-btn[data-target="${targetId}"]`).forEach(b => {
           b.textContent = isHidden ? "Hiện giải thích" : "Ẩn giải thích";
+          b.setAttribute("aria-expanded", String(!isHidden));
         });
         const timeline = targetId === "grid-p2" ? timelines.x : targetId === "grid-p4" ? timelines.v : null;
         if (timeline?.events.length) drawEvent(timeline, timeline.events[timeline.cursor]);
@@ -3842,6 +3576,88 @@ window.enhanceMemoryDemo = function (api) {
     field("r-easy-refs", "Thứ tự các trang cần dùng", joined(R.refs), "text", "Ví dụ: 1 2 3 1 4 2. Mỗi số là một trang; tối đa 48 số."),
     () => submitEasyConfig("r", { "r-c-n": read("r-easy-frames"), "r-c-refs": read("r-easy-refs"), "r-c-ram": "", "r-c-order": "", "r-c-recent": "", "r-c-bits": "", "r-c-hand": 0 }),
     () => { set("r-easy-frames", 3); set("r-easy-refs", "1 2 3 1 4 2"); });
+
+  const chooseScenario = (id, label, choices, initial = 1) => {
+    const panel = $("#" + timelines[id].panel), row = document.createElement("div");
+    row.className = "scene-scenarios";
+    row.innerHTML = `<label>${label} <select id="${id}-scenario" aria-label="${label}">${choices.map(([name], i) => `<option value="${i}">${name}</option>`).join("")}</select></label><span class="scene-scenario-hint"></span>`;
+    const heading = timelines[id].root.querySelector("h2");
+    (heading.closest(".bar") || heading).after(row);
+    const select = row.querySelector("select");
+    const apply = () => {
+      pause();
+      applyingScenario = true;
+      try { choices[+select.value][1](); }
+      finally { applyingScenario = false; }
+      row.querySelector("span").textContent = choices[+select.value][2] || "";
+    };
+    select.onchange = apply;
+    select.value = initial;
+    apply();
+  };
+  chooseScenario("b", "Ví dụ", [
+    ["Làm quen · 100 ≤ A < 140", () => { set("b-base",100); set("b-limit",40); set("b-addr",125); submitB(); }, "Kiểm tra lần lượt hai cận."],
+    ["Thử thêm · kiểm tra hai cận", () => { set("b-base",300040); set("b-limit",120900); set("b-addr",400000); submitB(); }, "Thử thêm địa chỉ ngay cận trên để thấy vì sao bị chặn."],
+    ["Đối chiếu giáo trình", () => { set("b-base",300040); set("b-limit",120900); set("b-addr",256000); submitB(); }, "Địa chỉ nằm dưới Base · không truy cập RAM."]
+  ]);
+  chooseScenario("a", "Ví dụ", [
+    ["Làm quen · một yêu cầu", () => loadAllocation([5,8,4,7],[4],1), "Quan sát quét → chọn → cấp phát."],
+    ["Thử thêm · ba yêu cầu", () => loadAllocation([5,8,4,7],[4,6,3],1), "Đổi First / Best / Worst để đối chiếu cách chọn."],
+    ["Đối chiếu giáo trình", () => loadAllocation([100,500,200,300,600],[212,417,112,426],70), "Bài kinh điển: đủ tổng chỗ chưa chắc có vùng liên tục."]
+  ]);
+  function loadAllocation(holes, reqs, gap) {
+    A.holes=holes; A.reqs=reqs; A.gap=gap;
+    set("a-holes", joined(holes)); set("a-reqs", joined(reqs)); set("a-c-gap", gap);
+    startA();
+  }
+  chooseScenario("x", "Ví dụ", [
+    ["Làm quen · TLB miss, trang đã có", () => sampleX({pageSize:4,frameCount:8,tlbCapacity:4,pt:[5,6,1,2],other:[],tlb:[],addr:13}), "13 = 3 × 4 + 1; khung 2 → PA 9. Không lỗi trang."],
+    ["Thử thêm · thiếu trang → nạp → đọc", () => sampleX({pageSize:4,frameCount:8,tlbCapacity:4,pt:[5,6,1,null],other:[],tlb:[],addr:13}), "Theo dõi TLB miss, lỗi trang và cách đọc đúng byte. Dịch lại để thấy TLB HIT."],
+    ["Đối chiếu giáo trình · trang 4 KB", () => sampleX(), "LA 10000 → trang 2, d 1808 → khung 5 → PA 22288."]
+  ]);
+  chooseScenario("v", "Ví dụ", [
+    ["Làm quen · nạp vào khung trống", () => presetV(), "Tách rõ nạp dữ liệu và cập nhật bảng trang."],
+    ["Thử thêm · RAM đầy, trang bẩn, HIT", () => submitEasyConfig("v", {"v-c-pages":8,"v-c-frames":2,"v-c-ram":"0 1","v-c-refs":"2 1 2 3","v-c-policy":"FIFO","v-c-dirty":"0","v-c-denied":"","v-c-unmapped":"","v-c-order":"0 1","v-c-recent":"0 1","v-c-bits":"1 1","v-c-hand":0,"v-op":"read"}), "Hai khung: ghi lại trang 0 → nạp trang 2 → hai HIT → thay trang sạch 1."],
+    ["Đối chiếu · truy cập không có quyền", () => presetV(false,false,7), "Trap bảo vệ khác lỗi trang: không đọc đĩa."]
+  ]);
+  chooseScenario("r", "Ví dụ", [
+    ["Làm quen · sáu tham chiếu", () => loadReplacement([1,2,3,1,4,2]), "Ba khung · có nạp trống, HIT và thay trang."],
+    ["Thử thêm · so sánh bốn quy tắc", () => loadReplacement([1,2,3,1,4,2,5,1,2,3,4,5]), "Giữ vị trí khung; theo dõi lý do chọn ngay dưới RAM."],
+    ["Đối chiếu giáo trình · 20 tham chiếu", () => loadReplacement(copy(api.BOOK)), "FIFO 15 · LRU 12 · OPT 9 · Clock 14 lỗi trang với 3 khung."]
+  ]);
+  function loadReplacement(refs) {
+    R.n=3; R.refs=refs; R.initial=seedFor(Array(3).fill(null),"",0,"",""); startR();
+  }
+  $("#a-mode [data-m='ex']").click();
+  // Keep the primary controls readable without decorative emoji glyphs.
+  for (const id of Object.keys(timelines)) {
+    for (const [suffix, label] of [["prev","Lùi"],["next","Bước tiếp"],["reset","Làm lại"]]) {
+      const button = $("#" + id + "-" + suffix);
+      if (button) button.textContent = label;
+    }
+  }
+  $("#x-go").textContent = "Dịch địa chỉ";
+  $("#v-go").textContent = "Truy cập";
+  for (const [id, buttons] of [["b",["b-go"]],["a",["a-apply"]],["x",["x-go","x-rand","x-fault","x-textbook","x-default"]],["v",["v-go","v-pre-fault","v-pre-hit","v-pre-fault2","v-pre-invalid"]],["r",["r-apply","r-book","r-bel"]]]) {
+    buttons.forEach(key => {
+      const button = $("#" + key);
+      let before;
+      button?.addEventListener("click", () => { before = timelines[id].scenario; }, true);
+      button?.addEventListener("click", () => {
+        if (timelines[id].scenario !== before) markCustom(id);
+      });
+    });
+  }
+  // Comparison remains available, but does not reveal completed-run results during each decision.
+  const comparison = $("#r-bars").closest(".stage"), fold = document.createElement("details");
+  fold.className = "scene-comparison";
+  fold.innerHTML = "<summary>So sánh kết quả 4 thuật toán · ví dụ nâng cao</summary>";
+  comparison.before(fold); fold.append(comparison);
+  // Keep the model and its controls together. Input editors remain below, collapsed.
+  for (const [id, config] of Object.entries(configs)) {
+    const controls = $("#" + id + "-next")?.parentElement;
+    if (controls) controls.after(config);
+  }
   let resizeTimer;
   window.addEventListener("resize", () => {
     clearTimeout(resizeTimer);
