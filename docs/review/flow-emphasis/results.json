@@ -1,0 +1,68 @@
+{
+  "passed": 9,
+  "checks": [
+    "Every model opens with its first operation clearly identified",
+    "Denied access never activates RAM and restores exactly when stepping backward",
+    "Paging refill returns from the page table to TLB, then reads RAM back to CPU",
+    "A warm TLB hit skips the page table and connects TLB directly to address formation",
+    "Demand paging reverses the data direction between dirty write-back and page-in",
+    "FIFO emphasizes the oldest load while selection still leaves the old page in RAM",
+    "Clock shows the inspected frame, then moves the hand without replacing a page",
+    "Light/dark, resize and reduced motion retain destinations and snapshots",
+    "Automated WCAG A/AA checks cover highlighted operations in both themes"
+  ],
+  "errors": [],
+  "failedAssets": [],
+  "accessibility": [
+    {
+      "theme": "light",
+      "id": "b",
+      "violations": []
+    },
+    {
+      "theme": "light",
+      "id": "a",
+      "violations": []
+    },
+    {
+      "theme": "light",
+      "id": "x",
+      "violations": []
+    },
+    {
+      "theme": "light",
+      "id": "v",
+      "violations": []
+    },
+    {
+      "theme": "light",
+      "id": "r",
+      "violations": []
+    },
+    {
+      "theme": "dark",
+      "id": "b",
+      "violations": []
+    },
+    {
+      "theme": "dark",
+      "id": "a",
+      "violations": []
+    },
+    {
+      "theme": "dark",
+      "id": "x",
+      "violations": []
+    },
+    {
+      "theme": "dark",
+      "id": "v",
+      "violations": []
+    },
+    {
+      "theme": "dark",
+      "id": "r",
+      "violations": []
+    }
+  ]
+}

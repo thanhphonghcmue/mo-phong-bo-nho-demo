@@ -42,6 +42,16 @@ Source: `assets/css/studio.css`; Demo 1: `assets/css/studio-base.css`.
 - Demo 2 keeps the physical allocation strip and existing scan order. Demo 5 keeps stable frame positions, selection evidence, and Clock microsteps.
 - Success, failure, pending, and skipped states use text as well as color. Keep existing finite motion; disable animation under reduced motion.
 
+## Active operation and direction
+
+- The initial operation must be unmistakable: “Bắt đầu tại đây,” an explicit step number, and a high-contrast current component. A tiny underline alone is insufficient.
+- Use a 3px semantic outline/fill for the current component and a solid 4px SVG route with a visible arrowhead. Draw the active route at full contrast from the first frame. Keep inactive pipeline arrows neutral.
+- Route endpoints come from the current event's real source and destination. TLB refill returns from the page table to TLB; a warm TLB hit bypasses the page table; dirty write-back goes RAM → disk; page-in reverses that direction. Read completion can show RAM returning data to CPU.
+- Reserve a small routing lane outside component text. Arrows must not pass through another component or hide under a step badge. Recompute positions after layout, font, resize, and theme changes.
+- A lower-bound or offset failure routes directly from the failed check to OS, around the skipped upper comparator/adder. On narrow screens the path goes around both result ports and enters OS without crossing locked RAM.
+- Demo 1 keeps only Base, Limit, address/offset and Check visible by default. Existing modes, scenario selection, presets and restore stay in native optional details. Preserve every handler and value.
+- FIFO/LRU show numbered resident-frame order. Selection retains the old page; a later installation event shows a separate backing-store source. Numbers indicate rank for the chosen rule, never the page number or physical frame address.
+
 ## Validation
 
 Review rendered desktop, tablet, mobile, and both themes. Assert snapshot parity when using Previous/Next, toggling details, changing tabs, or switching theme. Check lower/upper failures, offset failures, Base 0, and large valid values. Automated accessibility scans complement visual and keyboard review.

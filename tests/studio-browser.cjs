@@ -19,6 +19,7 @@ const path = require('node:path');
   async function shot(name){await page.evaluate(()=>scrollTo(0,0));await page.screenshot({path:path.join(out,name+'.png'),fullPage:true});}
   async function inputB({base=300040,limit=120900,value=400000,mode='check'}={}){
     await page.click('#t0');
+    if(!await page.locator('#b-options').evaluate(e=>e.open))await page.click('#b-options>summary');
     await page.click(mode==='translate'?'#b-mode-trans':'#b-mode-check');
     for(const [id,v]of Object.entries({'b-base':base,'b-limit':limit,'b-addr':value}))await page.fill('#'+id,String(v));
     await page.click('#b-go');

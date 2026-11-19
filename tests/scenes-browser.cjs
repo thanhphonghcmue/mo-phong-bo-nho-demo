@@ -30,6 +30,7 @@ const path = require('node:path');
   }
   try{
     await page.goto(process.env.MEMORY_DEMO_URL || 'http://127.0.0.1:8080');
+    await page.click('#b-options>summary');
     await check('All five default examples are medium; optional explanations are below the model',async()=>{
       for(const [tab,id]of [['t0','b'],['t1','a'],['t2','x'],['t4','v'],['t3','r']]){
         await page.click('#'+tab);assert.equal(await page.locator('#'+id+'-scenario').inputValue(),'1');

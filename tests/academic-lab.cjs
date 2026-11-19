@@ -19,6 +19,7 @@ const path = require('node:path');
   async function shot(name){await page.evaluate(()=>scrollTo(0,0));await page.screenshot({path:path.join(out,name+'.png'),fullPage:true});}
   try {
     await page.goto(process.env.MEMORY_DEMO_URL || 'http://127.0.0.1:8080');
+    await page.click('#b-options>summary');
     await page.evaluate(()=>document.fonts.ready);
     await check('One active UI, local assets, five named demos and an 80–96px academic header',async()=>{
       assert.ok(await page.evaluate(()=>!!MemoryTeaching && !!MemoryLabInterface && !window.MemoryLessons));

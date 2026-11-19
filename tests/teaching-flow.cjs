@@ -73,6 +73,7 @@ const path = require('node:path');
   }
   try {
     await page.goto(process.env.MEMORY_DEMO_URL || 'http://127.0.0.1:8080/?view=diagnostic', { waitUntil: 'domcontentloaded' });
+    await page.click('#b-options>summary');
     await check('Base/Limit: physical label, logical relocation, negative input and snapshot', async () => {
       assert.match(await page.locator('#b-flow .formula').first().innerText(), /Địa chỉ vật lý cần kiểm tra/);
       assert.match(await text('b'), /địa chỉ vật lý đầu vào/);

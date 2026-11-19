@@ -59,6 +59,7 @@ const fs = require("node:fs");
   }
   try {
     await page.goto("http://127.0.0.1:8080/?view=diagnostic", { waitUntil: "domcontentloaded" });
+    await page.click('#b-options>summary');
     await check(
       "Base/Limit: zero values, custom boundaries, draft and rejected input",
       async () => {

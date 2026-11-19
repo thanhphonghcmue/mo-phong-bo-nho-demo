@@ -104,3 +104,46 @@ body.studio-ui #p0 .btn.active-preset-trap { background:var(--studio-deny)!impor
   .studio-ui .studio-memory-owned i { display:block; }
 }
 @media(prefers-reduced-motion:reduce) { .studio-ui .studio-b-path svg { animation:none!important; } }
+
+/* Current operation is the focal point; the heavy arrow carries its real direction. */
+.studio-ui .studio-b-board { position:relative; padding-bottom:70px; min-height:390px; }
+body.studio-ui #b-flow [data-processing="true"]>.studio-b-eyebrow::after { content:none; }
+body.studio-ui #b-flow .box[data-processing="true"]:not(.studio-b-source):not(.studio-b-destination) { background:var(--studio-live-wash)!important; box-shadow:inset 0 0 0 3px var(--studio-live)!important; border-radius:8px; }
+body.studio-ui #b-flow .studio-b-source[data-processing="true"] { box-shadow:0 0 0 3px #d9b263!important; }
+body.studio-ui #b-flow .box[data-processing="true"][data-focus-tone="deny"]:not(.studio-b-destination) { background:var(--studio-deny-wash)!important; box-shadow:inset 0 0 0 3px var(--studio-deny)!important; }
+body.studio-ui #b-flow .box[data-processing="true"][data-focus-tone="skip"] { background:transparent!important; box-shadow:none!important; outline:2px dashed var(--studio-muted)!important; outline-offset:-2px!important; }
+.studio-ui .studio-b-focus-badge { display:flex; flex-wrap:wrap; gap:4px 10px; margin:8px 0 2px; padding:7px 10px; border-radius:4px; background:var(--studio-live); color:var(--lab-node-on); font:500 12px/1.5 var(--f-body); letter-spacing:0; }
+.studio-ui .studio-b-focus-badge b { font-weight:700; white-space:nowrap; }
+.studio-ui [data-focus-tone="deny"] .studio-b-focus-badge { background:var(--studio-deny); }
+.studio-ui [data-focus-tone="skip"] .studio-b-focus-badge { background:var(--studio-muted); color:var(--studio-sheet); }
+.studio-ui .studio-b-source .studio-b-focus-badge { background:#e6c17a; color:#1e302b; }
+.studio-ui .studio-b-port[data-active="true"] { border-width:3px; }
+.studio-ui .studio-b-route { position:absolute; inset:0; width:100%; height:100%; overflow:visible; pointer-events:none; color:var(--studio-live); z-index:2; }
+.studio-ui .studio-b-route.is-denied { color:var(--studio-deny); }
+.studio-ui .studio-b-route-under { fill:none; stroke:var(--studio-surface-alt); stroke-width:8; stroke-linejoin:round; }
+.studio-ui .studio-b-route-line { fill:none; stroke:currentColor; stroke-width:4; stroke-linecap:round; stroke-linejoin:round; }
+.studio-ui .studio-b-route-caption { fill:currentColor; font:600 12px var(--f-body); }
+body.studio-ui #b-ram-track[data-verdict="pending"] .plabel { background:#1e302b!important; color:#f4f2eb!important; }
+.studio-ui .studio-b-edge svg { width:26px; height:26px; stroke-width:2.5; }
+.studio-ui #b-flow[data-live-route] .studio-b-edge[data-active="true"] svg { visibility:hidden; }
+.studio-ui #b-flow[data-live-route] .studio-b-path[data-active="true"] svg { visibility:hidden; }
+.studio-ui #b-flow[data-live-route="bypass"] #studio-b-to-os { visibility:hidden; }
+body.studio-ui #p0 .stage>.quick { display:grid; grid-template-columns:minmax(130px,160px) minmax(130px,160px) minmax(190px,230px) max-content; gap:14px; margin:0; }
+body.studio-ui #p0 .stage>.quick input { width:100%!important; }
+body.studio-ui #p0 .studio-b-options { border:0; margin:0; padding:0; background:transparent; }
+.studio-ui .studio-b-options>summary { width:max-content; max-width:100%; padding:8px 0; color:var(--studio-muted); font-size:13px; }
+.studio-ui .studio-b-options[open]>summary { color:var(--studio-live); }
+.studio-ui .studio-b-options-body { display:grid; gap:14px; padding:12px 0 16px; }
+.studio-ui .studio-b-options-body .mode-bar { flex-wrap:wrap; }
+.studio-ui .studio-b-options-body .scene-scenarios { justify-content:flex-start; }
+@media(max-width:900px) {
+  .studio-ui .studio-b-board { min-height:0; padding:18px 18px 48px 32px; }
+  .studio-ui .studio-b-focus-badge { width:max-content; max-width:100%; }
+  .studio-ui #b-flow[data-live-route="bypass"] .studio-b-destination { padding-left:0; }
+}
+@media(max-width:700px) {
+  body.studio-ui #p0 .stage>.quick { grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
+  body.studio-ui #p0 .stage>.quick .field { min-width:0; }
+  body.studio-ui #p0 .stage>.quick #b-go { min-height:44px; align-self:end; }
+  body.studio-ui #p0 .stage>.quick .field:nth-child(3) label { font-size:13px; }
+}

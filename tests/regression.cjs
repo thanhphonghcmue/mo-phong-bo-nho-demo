@@ -32,6 +32,7 @@ const fs = require("node:fs");
   }
   try {
     await page.goto("http://127.0.0.1:8080/?view=diagnostic", { waitUntil: "domcontentloaded" });
+    await page.click('#b-options>summary');
     await check(
       "Demo 1: exact bounds, presets and snapshot restoration",
       async () => {
