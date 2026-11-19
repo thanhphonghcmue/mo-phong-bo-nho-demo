@@ -254,3 +254,279 @@ body.studio-ui footer { padding-top:18px; color:var(--studio-muted); }
 @media(prefers-reduced-motion:reduce) {
   body.studio-ui *,body.studio-ui *::before,body.studio-ui *::after { animation:none!important; transition:none!important; scroll-behavior:auto!important; }
 }
+
+/* ================= WORKBENCH VISUAL INTUITION ENHANCEMENTS ================= */
+
+/* Demo 2: Hole State Badges & Selection Prominence in Studio UI */
+body.studio-ui .hole.chosen {
+  outline: 3px solid var(--studio-teal) !important;
+  outline-offset: -2px;
+  z-index: 2;
+}
+body.studio-ui .hole.chosen::before {
+  content: "▼ CHỌN" !important;
+  position: absolute !important;
+  top: -24px !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  background: var(--studio-teal) !important;
+  color: #fff !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  padding: 2px 7px !important;
+  border-radius: 3px !important;
+  line-height: 1.2 !important;
+  white-space: nowrap !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2) !important;
+}
+body.studio-ui .hole.fit {
+  background: var(--lab-success-soft) !important;
+  border-color: var(--lab-success-line) !important;
+}
+body.studio-ui .hole.fit::after {
+  content: "✓ ĐỦ" !important;
+  position: absolute !important;
+  top: 4px !important;
+  right: 6px !important;
+  font-size: 10px !important;
+  font-weight: 700 !important;
+  color: var(--lab-success) !important;
+  background: var(--lab-success-soft) !important;
+  border: 1px solid var(--lab-success-line) !important;
+  padding: 1px 5px !important;
+  border-radius: 3px !important;
+  pointer-events: none !important;
+}
+body.studio-ui .hole.nofit {
+  background: var(--studio-red-soft) !important;
+  border-color: var(--studio-red-line) !important;
+  opacity: 0.75;
+}
+body.studio-ui .hole.nofit::after {
+  content: "✕ THIẾU" !important;
+  position: absolute !important;
+  top: 4px !important;
+  right: 6px !important;
+  font-size: 10px !important;
+  font-weight: 700 !important;
+  color: var(--studio-red) !important;
+  background: var(--studio-red-soft) !important;
+  border: 1px solid var(--studio-red-line) !important;
+  padding: 1px 5px !important;
+  border-radius: 3px !important;
+  pointer-events: none !important;
+}
+body.studio-ui .hole.chosen::after {
+  content: "★ TỐI ƯU" !important;
+  position: absolute !important;
+  top: 4px !important;
+  right: 6px !important;
+  font-size: 10px !important;
+  font-weight: 700 !important;
+  color: var(--studio-teal) !important;
+  background: var(--studio-teal-soft) !important;
+  border: 1px solid var(--studio-teal-line) !important;
+  padding: 1px 5px !important;
+  border-radius: 3px !important;
+  pointer-events: none !important;
+  z-index: 3 !important;
+}
+body.studio-ui .hole .lbl {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--studio-muted);
+}
+body.studio-ui .hole.chosen .lbl {
+  color: var(--studio-teal) !important;
+  font-weight: 700 !important;
+}
+
+/* Demo 3: Pipeline Active Units & Bypass */
+body.studio-ui .scene-node:has([data-processing="true"]),
+body.studio-ui .scene-node[data-processing="true"] {
+  background: var(--studio-teal-soft) !important;
+  box-shadow: inset 0 -3px var(--studio-teal) !important;
+}
+body.studio-ui .teach-bypassed {
+  border-style: dashed !important;
+  opacity: 0.65 !important;
+  position: relative !important;
+}
+body.studio-ui .teach-bypassed::after {
+  content: "⚡ BỎ QUA (TLB HIT)" !important;
+  position: absolute !important;
+  top: 8px !important;
+  right: 8px !important;
+  background: var(--studio-teal-soft) !important;
+  color: var(--studio-teal) !important;
+  font-size: 10px !important;
+  font-weight: 700 !important;
+  padding: 2px 6px !important;
+  border-radius: 3px !important;
+  border: 1px solid var(--studio-teal-line) !important;
+}
+
+/* Demo 4: Focus Frame & Badges */
+body.studio-ui .bit-badge {
+  display: inline-block;
+  padding: 2px 7px;
+  border-radius: 3px;
+  font-size: 11px;
+  font-weight: 600;
+}
+body.studio-ui .bit-present {
+  background: var(--studio-teal-soft);
+  color: var(--studio-teal);
+  border: 1px solid var(--studio-teal-line);
+}
+body.studio-ui .bit-absent {
+  background: var(--studio-red-soft);
+  color: var(--studio-red);
+  border: 1px solid var(--studio-red-line);
+}
+body.studio-ui .badge-frame {
+  background: var(--studio-inset);
+  color: var(--studio-ink);
+  font-family: var(--f-mono);
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 11.5px;
+  border: 1px solid var(--studio-line);
+}
+body.studio-ui .badge-dirty {
+  background: var(--studio-brass-soft);
+  color: var(--studio-brass);
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 11px;
+  font-weight: 600;
+  border: 1px solid var(--studio-brass-line);
+}
+
+/* Demo 5: Replacement Slot Cards, Badges, and Stats */
+body.studio-ui #r-scene .slot .card.victim {
+  border: 2px solid var(--studio-red) !important;
+  background: var(--studio-red-soft) !important;
+  color: var(--studio-red) !important;
+  position: relative !important;
+}
+body.studio-ui #r-scene .slot .card.victim::after {
+  content: "✕ ĐUỔI RA" !important;
+  position: absolute !important;
+  top: -10px !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  background: var(--studio-red) !important;
+  color: #fff !important;
+  font-size: 10px !important;
+  font-weight: 700 !important;
+  padding: 1px 6px !important;
+  border-radius: 3px !important;
+  white-space: nowrap !important;
+}
+body.studio-ui #r-scene .slot .card.hitc {
+  border: 2px solid var(--studio-teal) !important;
+  background: var(--studio-teal-soft) !important;
+  color: var(--studio-teal) !important;
+  position: relative !important;
+}
+body.studio-ui #r-scene .slot .card.hitc::after {
+  content: "✓ HIT" !important;
+  position: absolute !important;
+  top: -10px !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  background: var(--studio-teal) !important;
+  color: #fff !important;
+  font-size: 10px !important;
+  font-weight: 700 !important;
+  padding: 1px 6px !important;
+  border-radius: 3px !important;
+  white-space: nowrap !important;
+}
+body.studio-ui #r-scene .slot .card.new {
+  border: 2px solid var(--studio-teal) !important;
+  background: var(--studio-teal-soft) !important;
+  color: var(--studio-teal) !important;
+  position: relative !important;
+}
+body.studio-ui #r-scene .slot .card.new::after {
+  content: "+ NẠP MỚI" !important;
+  position: absolute !important;
+  top: -10px !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  background: var(--studio-teal) !important;
+  color: #fff !important;
+  font-size: 10px !important;
+  font-weight: 700 !important;
+  padding: 1px 6px !important;
+  border-radius: 3px !important;
+  white-space: nowrap !important;
+}
+
+body.studio-ui .badge-hint {
+  display: inline-block;
+  font-size: 10.5px;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 3px;
+  background: var(--studio-inset);
+  border: 1px solid var(--studio-line);
+  color: var(--studio-ink);
+  white-space: nowrap;
+}
+body.studio-ui .badge-hint.badge-oldest,
+body.studio-ui .badge-hint.badge-lru {
+  background: var(--studio-brass-soft) !important;
+  border-color: var(--studio-brass-line) !important;
+  color: var(--studio-brass) !important;
+}
+body.studio-ui .badge-hint.badge-opt-never,
+body.studio-ui .badge-hint.badge-bit-0 {
+  background: var(--studio-red-soft) !important;
+  border-color: var(--studio-red-line) !important;
+  color: var(--studio-red) !important;
+}
+body.studio-ui .badge-hint.badge-bit-1 {
+  background: var(--studio-teal-soft) !important;
+  border-color: var(--studio-teal-line) !important;
+  color: var(--studio-teal) !important;
+}
+
+/* Demo 5 Stats Pills in Studio UI */
+body.studio-ui #r-counts {
+  display: flex;
+  gap: 10px;
+}
+body.studio-ui #r-counts .count {
+  border-radius: 4px !important;
+  padding: 6px 14px !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+}
+body.studio-ui #r-counts .count.bad {
+  background: var(--studio-red-soft) !important;
+  border: 1px solid var(--studio-red-line) !important;
+  color: var(--studio-red) !important;
+}
+body.studio-ui #r-counts .count.ok {
+  background: var(--studio-teal-soft) !important;
+  border: 1px solid var(--studio-teal-line) !important;
+  color: var(--studio-teal) !important;
+}
+
+/* Preset Buttons Active Highlighting in Studio UI */
+body.studio-ui .btn.active-preset {
+  background: var(--studio-teal) !important;
+  color: #fff !important;
+  border-color: var(--studio-teal) !important;
+  font-weight: 600 !important;
+}
+body.studio-ui .btn.active-preset-trap {
+  background: var(--studio-red) !important;
+  color: #fff !important;
+  border-color: var(--studio-red) !important;
+  font-weight: 600 !important;
+}
