@@ -139,8 +139,13 @@
     element.querySelector("ol").innerHTML = events.slice(start, end).map((event, offset) => {
       const step = start + offset, visited = step <= position.seen, active = step === position.cursor;
       const done = step < position.cursor;
-      const title = visited ? shortTitle(event.title) : "Chưa thực hiện";
-      return `<li class="${active ? "is-current" : done ? "is-done" : visited ? "is-visited" : "is-pending"}"><button type="button" data-lab-step="${step}" ${visited ? "" : "disabled"} ${active ? 'aria-current="step"' : ""} aria-label="${visited ? 'Xem bước' : 'Chưa thực hiện bước'} ${step + 1}${visited ? ': ' + esc(event.title) : ''}" title="${visited ? esc(event.title) : 'Chưa thực hiện'}"><span class="lab-step-dot">${done ? icon("check") : step + 1}</span><span class="lab-step-label">${esc(title)}</span></button></li>`;
+      const state = event.state;
+      const skipped = visited && id === "b" && step === 2 &&
+        (state.mode === "translate" ? !state.isValid : !state.cond1);
+      const title = !visited ? "Chưa thực hiện" : skipped
+        ? (state.mode === "translate" ? "Bỏ qua cộng Base" : "Bỏ qua cận trên")
+        : shortTitle(event.title);
+      return `<li class="${active ? "is-current" : done ? "is-done" : visited ? "is-visited" : "is-pending"}${skipped ? ' is-skipped' : ''}"><button type="button" data-lab-step="${step}" ${visited ? "" : "disabled"} ${active ? 'aria-current="step"' : ""} aria-label="${visited ? 'Xem bước' : 'Chưa thực hiện bước'} ${step + 1}${visited ? ': ' + esc(title) : ''}" title="${esc(title)}"><span class="lab-step-dot">${skipped ? '–' : done ? icon("check") : step + 1}</span><span class="lab-step-label">${esc(title)}</span></button></li>`;
     }).join("");
     if (focused !== null) element.querySelector(`[data-lab-step="${focused}"]`)?.focus({preventScroll:true});
     if (id === "r") {

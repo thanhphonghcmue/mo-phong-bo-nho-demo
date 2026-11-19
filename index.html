@@ -682,11 +682,14 @@ footer{font-size:12px;color:var(--muted)}
 </style>
 <link rel="stylesheet" href="assets/css/teaching.css?v=a3d3862f286e">
 <link rel="stylesheet" href="assets/css/teaching-scenes.css?v=readable-type-3">
+<link rel="stylesheet" href="assets/css/studio.css?v=workbench-1">
+<link rel="stylesheet" href="assets/css/studio-base.css?v=workbench-1">
 <script src="assets/js/teaching-scenes.js?v=academic-lab-2"></script>
-<script src="assets/js/teaching.js?v=academic-lab-2"></script>
-<script src="assets/js/lab-interface.js?v=academic-lab-2" defer></script>
+<script src="assets/js/studio-base.js?v=workbench-1"></script>
+<script src="assets/js/teaching.js?v=workbench-1"></script>
+<script src="assets/js/lab-interface.js?v=workbench-1" defer></script>
 </head>
-<body class="clear-scenes academic-lab">
+<body class="clear-scenes academic-lab studio-ui">
 <div class="wrap">
 
   <header class="site-header">
@@ -791,7 +794,7 @@ footer{font-size:12px;color:var(--muted)}
           <div>
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
               <span class="lane-label">Thước ánh xạ Bộ nhớ RAM vật lý</span>
-              <span class="muted" style="font-size:12px;font-family:var(--f-mono)">Vùng hợp lệ: [<span id="b-val-range">300040 → 420939</span>]</span>
+              <span class="muted" style="font-size:12px;font-family:var(--f-mono)">Vùng hợp lệ: <span id="b-val-range">[300040, 420940)</span></span>
             </div>
             <div class="b-ram-track" id="b-ram-track"></div>
             <div class="b-ram-legend">

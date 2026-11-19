@@ -392,6 +392,7 @@ window.enhanceMemoryDemo = function (api) {
     }
 
     if (id === "b") {
+      if (window.StudioBase) { StudioBase.paint(B); return; }
       const root = $("#b-flow");
       const boxes = root.querySelectorAll(".box");
       connect(root, B.st ? boxes[B.st - 1] : null, boxes[B.st], e, speed);
@@ -3289,6 +3290,7 @@ window.enhanceMemoryDemo = function (api) {
         label.style.position = "relative";
         label.style.left = Math.min(0, bounds.right - r.right) + Math.max(0, bounds.left - r.left) + "px";
       }
+      if (window.StudioBase) StudioBase.render(B);
     },
     "Base ≤ A < Base + Limit.",
   );

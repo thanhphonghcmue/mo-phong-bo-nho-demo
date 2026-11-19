@@ -1,51 +1,49 @@
-# Memory Lab — Vibrant Academic Tech Lab
+# Memory Workbench
 
-## Intent and domain
+## Intent
 
-For a HCMUE lecturer presenting operating-system memory algorithms and a student following one click at a time. The focal element is the operation happening now; the learner must see which address/page/frame is involved and why it changes.
+A HCMUE lecturer presents memory-management algorithms while students follow each operation. The model must show the current address/page/frame, the condition being evaluated, and the destination of a successful or denied request.
 
-Domain: address bounds, page/offset translation, TLB lookup, page-table entries, finite RAM frames, dirty write-back, FIFO/LRU/OPT/Clock evidence.
+This side-branch redesign retains MemoryTeaching as the sole simulation controller. Views read snapshots; presentation changes must preserve trace length, history, rewind, autoplay, and algorithm results.
 
-Color world: navy instrument panel, white lecture canvas, coral protection signals, amber scan cursor, royal-blue address bus, violet OS control, teal data movement.
+## Visual direction
 
-Signature: a bounded, snapshot-backed event window above a memory workbench. It shows visited steps and the current operation; unseen event names stay hidden. The signature appears in bounds checks, allocation scans, address translation, page-in and Clock microsteps.
+Warm paper, dark instrument surfaces, restrained technical typography. Five connected navigation tabs share one visual language. The main model carries the contrast; controls and optional details sit quietly around it.
 
-Avoided defaults: uniform white navigation cards; a commercial hero; a dashboard of unrelated counters. Use five subject identities, a compact navy header and one simulation surface instead.
+Avoid repeated pastel cards, rounded containers around every label, decorative gradients, glows, and animated emphasis unrelated to an event. Use spacing, alignment, a dark RAM material, and one current operation instead.
 
-## System
+## Tokens and components
 
-- Depth: soft layered shadows on light canvas; borders and surface tints on dark. No glass or neon.
-- Spacing: 4px base; component 8/12/16px; section 16/24px. Main panel padding 16px; radius 16px; node radius 12px; button radius 9px.
-- Type: local Be Vietnam Pro 400/500/600/700; local JetBrains Mono 500/700 for addresses, formulas and changing numbers. Type roles (rem): metadata .75 (12px), labels .875 (14px), UI .9375 (15px), body 1 (16px), subtitle 1.25 (20px), title 1.375 (22px), numerical values 1.75/2.25 (28/36px). Prose line-height 1.6–1.7; weight 400 for reading, 500 for controls, 600 for labels/headings, 700 for numerical emphasis; font synthesis disabled. No reading text below 12px.
-- Header: 88–96px desktop; navy gradient only for product identity. Logo keeps aspect ratio in a white holder.
-- Tabs: five 96px navigation cards, one Lucide icon per topic, tinted active surface + stronger top edge + filled icon. Native buttons with roving focus and arrow/Home/End navigation.
-- Controls: 44px targets, violet primary Next, themed Play/Pause, neutral Previous/Reset. Always named; SVG is decorative.
-- Stepper: at most 5 events desktop, 3 mobile. Only visited events are clickable. Existing MemoryTeaching.seek restores state. Open-ended free allocation says “còn tiếp”; it never claims an unknown final count.
-- Models: one active focus, role-colored components, consistent page identity through reference/RAM/evidence, fixed frame positions. Success and denial use labels as well as color.
-- Motion: 180–320ms, one-shot, opacity/transform. Newly allocated pages animate only at a real allocation event. No endless victim/trap bounce. Reduced motion removes animation.
+Source: `assets/css/studio.css`; Demo 1: `assets/css/studio-base.css`.
 
-## Colors
-
-Source of truth: `assets/css/teaching-scenes.css`.
-
-| Token | Light | Use |
+| Role | Light | Dark |
 |---|---|---|
-| lab-navy | #102447 | Header |
-| lab-canvas | #F3F6FC | Page |
-| lab-ink / secondary | #18243B / #52647A | Text |
-| lab-action | #6254E8 | Next and primary access |
-| Demo 1 / 2 / 3 / 4 / 5 | #DC4267 / #D97706 / #2563EB / #7C3AED / #0D9488 | Navigation identity |
-| lab-success / danger | #18734E / #BB2948 | Hit, allowed / denied, victim |
-| lab-warning / data / mapping | #8B5200 / #09776C / #7137BF | Scan / page-in / lookup-control |
+| Canvas / sheet | #f2f0e9 / #fbfaf6 | #15201d / #1e2c26 |
+| Ink / secondary | #1b2926 / #53635c | #edf0e4 / #becbbf |
+| Action / data | #075e54 | #a1d1b9 |
+| Scan | #80551c | #e4c48e |
+| Denial | #ac382a | #f5b09a |
+| Physical RAM material | #243d31 | #243d31 |
 
-Demo text and solid badges use stronger shades than the accent swatches when required for contrast. Dark tokens use brighter ink on separately defined dark washes; swapping themes is atomic to avoid interpolated low-contrast frames. A topic's coral/teal identity never implies success/failure.
+- Local Be Vietnam Pro for Vietnamese UI and prose; JetBrains Mono for numerical values, formulas, and small instrument labels. Preserve the established 12/14/16px reading roles. Headings 22–24px; focal numbers 30–38px. Prose line-height 1.6–1.7.
+- Spacing 4px base, 12/16/24px groups. Flat panels with fine rules; 2–4px control radii. The bounded Demo 1 workbench can use a larger corner radius.
+- Header is dark and compact on desktop. Navigation is one contiguous strip; active tab is solid teal with white text. Native tab buttons retain roving keyboard focus and arrow/Home/End navigation.
+- Primary Next/check is solid teal; Play is outlined. Native inputs retain labels and visible focus. Do not wrap every control group in a new card.
+- The visited-step rail hides future event names. Its check means completed; a skipped operation explicitly says “Bỏ qua” and uses a dash instead of a check.
+- Explanations, history, and advanced inputs remain below the model and optional. On mobile, controls flow in the document so a tall sticky toolbar cannot cover the model or inputs.
 
-## References and critique
+## Model rules
 
-UI UX Pro Max: search and apply keyboard focus, contextual live status, reduced motion and contrast guidelines. Automatic education style searches returned portfolio/children's directions; these were rejected as unsuitable, and the user's explicit Academic Tech Lab direction controls the design.
+- Demo 1 is one bench: CPU request → lower guard → upper guard/adder → distinct RAM and OS ports. The four teaching events remain unchanged.
+- For a lower-bound failure, visibly skip the upper comparator. For an invalid offset, skip the adder and never display PA. RAM remains locked. Activate the trap/OS path only at the final event.
+- A valid request reaches RAM only after MMU authorization. Pointer labels remain pending until then. The physical range uses `[Base, Base + Limit)` and identifies the final allowed byte separately.
+- RAM is an illustrative bounded strip; the allocated region may be enlarged for legibility. Label it “thước minh họa.” Use the same swatches in its legend as in the strip.
+- Demo 3/4 use a continuous connected pipeline. Dark RAM retains fixed frame locations. Page identities remain consistent across reference, table, RAM, and evidence.
+- Demo 2 keeps the physical allocation strip and existing scan order. Demo 5 keeps stable frame positions, selection evidence, and Clock microsteps.
+- Success, failure, pending, and skipped states use text as well as color. Keep existing finite motion; disable animation under reduced motion.
 
-Interface Design: domain exploration, one focal point, type/space hierarchy, native controls, token architecture, and rendered desktop/mobile critique.
+## Validation
 
-Radix Colors: read light/dark scales and use the separation of surface/border/solid/high-contrast text roles. Lucide: local SVG sprite only. No React dependency, no animation library.
+Review rendered desktop, tablet, mobile, and both themes. Assert snapshot parity when using Previous/Next, toggling details, changing tabs, or switching theme. Check lower/upper failures, offset failures, Base 0, and large valid values. Automated accessibility scans complement visual and keyboard review.
 
-Review decisions: compact example/input row on desktop; RAM before/after actions stay legible; comparisons and detailed explanation remain collapsible; the second allocation mode retains the same engine/controller. Detailed source revisions and test evidence live under `docs/`.
+Evidence and commands: `docs/memory-workbench-review.md`. Existing UI UX Pro Max and Interface Design guidance informs focus, contrast, hierarchy, and rendered critique; the memory model and the user's requested workflow determine the layout.

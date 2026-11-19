@@ -20,12 +20,15 @@ const path = require('node:path');
   try {
     await page.goto(process.env.MEMORY_DEMO_URL || 'http://127.0.0.1:8080');
     await page.evaluate(()=>document.fonts.ready);
-    await check('One active UI, local assets, five identities and an 80–96px academic header',async()=>{
+    await check('One active UI, local assets, five named demos and an 80–96px academic header',async()=>{
       assert.ok(await page.evaluate(()=>!!MemoryTeaching && !!MemoryLabInterface && !window.MemoryLessons));
       assert.equal(await page.locator('.lab-nav-icon').count(),5);
       assert.equal(await page.locator('.lab-stepper').count(),6,'5 demos, including the alternate allocation mode');
       const h=await page.locator('.site-header').evaluate(e=>e.getBoundingClientRect().height);assert.ok(h>=80&&h<=96,'header height '+h);
-      const colors=await page.locator('.dash-tab').evaluateAll(es=>es.map(e=>getComputedStyle(e).getPropertyValue('--demo')));assert.equal(new Set(colors).size,5);
+      const names=await page.locator('.dash-tab .t').allTextContents();assert.equal(new Set(names).size,5);
+      const selected=await page.locator('.dash-tab[aria-selected="true"]').evaluate(e=>getComputedStyle(e).backgroundColor);
+      const idle=await page.locator('.dash-tab[aria-selected="false"]').first().evaluate(e=>getComputedStyle(e).backgroundColor);
+      assert.notEqual(selected,idle,'the current demo is visible in the shared workbench navigation');
       assert.equal(await page.evaluate(()=>document.fonts.check('14px "Be Vietnam Pro"')),true);
       assert.equal(await page.locator('script[src*="lessons.js"]').count(),0);
       assert.deepEqual(errors,[]);assert.deepEqual(failedAssets,[]);

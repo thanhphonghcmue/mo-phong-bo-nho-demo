@@ -1,0 +1,100 @@
+{
+  "passed": 9,
+  "checks": [
+    "One active UI, local assets, five named demos and an 80–96px academic header",
+    "The stepper hides unseen names, restores visited snapshots and adds no duplicate events",
+    "Open-ended free allocation shows continuation instead of a fake final count",
+    "Semantic scan, allocation, allowed/denied and Clock visuals follow current snapshots",
+    "Keyboard tabs use one focus stop and preserve all simulation snapshots",
+    "Alternate Demand Paging cases open, close and retain the single controller",
+    "Rendered desktop models and light/dark WCAG A/AA scans",
+    "1920/1366/768/390/375 widths: no page overflow, readable model and bounded step window",
+    "Reduced motion, 200% text, finite animations and relative deployment paths"
+  ],
+  "errors": [],
+  "failedAssets": [],
+  "subpath": false,
+  "axe": "4.10.3",
+  "accessibility": [
+    {
+      "theme": "light",
+      "id": "b",
+      "violations": [],
+      "manualReview": [
+        "aria-prohibited-attr",
+        "color-contrast"
+      ]
+    },
+    {
+      "theme": "light",
+      "id": "a",
+      "violations": [],
+      "manualReview": [
+        "aria-prohibited-attr",
+        "color-contrast"
+      ]
+    },
+    {
+      "theme": "light",
+      "id": "x",
+      "violations": [],
+      "manualReview": []
+    },
+    {
+      "theme": "light",
+      "id": "v",
+      "violations": [],
+      "manualReview": [
+        "aria-prohibited-attr"
+      ]
+    },
+    {
+      "theme": "light",
+      "id": "r",
+      "violations": [],
+      "manualReview": [
+        "color-contrast"
+      ]
+    },
+    {
+      "theme": "dark",
+      "id": "b",
+      "violations": [],
+      "manualReview": [
+        "aria-prohibited-attr",
+        "color-contrast"
+      ]
+    },
+    {
+      "theme": "dark",
+      "id": "a",
+      "violations": [],
+      "manualReview": [
+        "aria-prohibited-attr",
+        "color-contrast"
+      ]
+    },
+    {
+      "theme": "dark",
+      "id": "x",
+      "violations": [],
+      "manualReview": []
+    },
+    {
+      "theme": "dark",
+      "id": "v",
+      "violations": [],
+      "manualReview": [
+        "aria-prohibited-attr"
+      ]
+    },
+    {
+      "theme": "dark",
+      "id": "r",
+      "violations": [],
+      "manualReview": [
+        "color-contrast"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,96 @@
+{
+  "passed": 9,
+  "checks": [
+    "Initial request waits at the first operation and exposes no access verdict",
+    "Physical addresses at both valid endpoints enter RAM only at the final step",
+    "Lower-bound failure visibly blocks the path and skips the upper comparator",
+    "Exclusive upper bound fails at the second comparator and routes only to OS",
+    "Logical translation reveals PA only after the adder; invalid offsets never reach RAM",
+    "Previous/Next restores complete snapshots and the corresponding branch exactly",
+    "Base zero and rejected input stay correct; tab switching pauses autoplay",
+    "All five demos fit desktop, tablet and mobile; large bounds retain readable labels",
+    "Allowed, denied and translated access keep WCAG A/AA contrast in both themes"
+  ],
+  "errors": [],
+  "failedAssets": [],
+  "accessibility": [
+    {
+      "theme": "light",
+      "fixture": {
+        "value": 400000
+      },
+      "violations": []
+    },
+    {
+      "theme": "light",
+      "fixture": {
+        "value": 256000
+      },
+      "violations": []
+    },
+    {
+      "theme": "light",
+      "fixture": {
+        "value": 420940
+      },
+      "violations": []
+    },
+    {
+      "theme": "light",
+      "fixture": {
+        "base": 14000,
+        "value": -5,
+        "mode": "translate"
+      },
+      "violations": []
+    },
+    {
+      "theme": "light",
+      "fixture": {
+        "base": 14000,
+        "value": 346,
+        "mode": "translate"
+      },
+      "violations": []
+    },
+    {
+      "theme": "dark",
+      "fixture": {
+        "value": 400000
+      },
+      "violations": []
+    },
+    {
+      "theme": "dark",
+      "fixture": {
+        "value": 256000
+      },
+      "violations": []
+    },
+    {
+      "theme": "dark",
+      "fixture": {
+        "value": 420940
+      },
+      "violations": []
+    },
+    {
+      "theme": "dark",
+      "fixture": {
+        "base": 14000,
+        "value": -5,
+        "mode": "translate"
+      },
+      "violations": []
+    },
+    {
+      "theme": "dark",
+      "fixture": {
+        "base": 14000,
+        "value": 346,
+        "mode": "translate"
+      },
+      "violations": []
+    }
+  ]
+}
