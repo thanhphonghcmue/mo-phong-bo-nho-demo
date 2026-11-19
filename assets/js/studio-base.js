@@ -27,14 +27,59 @@ window.StudioBase = (() => {
       :st===0?'CPU gửi yêu cầu. MMU chưa cho phép truy cập RAM.'
       :trans?st===1?'Độ lệch hợp lệ. Bước tiếp sẽ cộng Base để tìm địa chỉ vật lý.':'Đã tìm địa chỉ vật lý. Chờ MMU cho phép truy cập.'
       :st===1?'Đạt cận dưới. Tiếp theo kiểm tra địa chỉ có vượt vùng được cấp hay không.':'Đạt cả hai cận. Chờ MMU cho phép truy cập.';
-    root.innerHTML=`<div class="studio-b-board">
+    const logicTree = trans ? `
+      <div class="studio-b-logic-flow" aria-label="Sơ đồ logic phần cứng MMU">
+        <div class="b-logic-step ${st===0?'is-active':st>0?'is-done':''}">
+          <span class="b-logic-num">1</span>
+          <div class="b-logic-body"><small>CPU phát độ lệch</small><strong>L = ${esc(value)}</strong></div>
+        </div>
+        <div class="b-logic-arrow ${st>=1?'is-flowing':''}">→</div>
+        <div class="b-logic-step ${st===1?'is-active':''} ${st>=1?(s.isValid?'is-pass':'is-fail'):''}">
+          <span class="b-logic-num">2</span>
+          <div class="b-logic-body"><small>0 ≤ L &lt; Limit (${s.limit}) ?</small><strong>${st<1?'Chờ kiểm tra':s.isValid?'✓ HỢP LỆ':'✕ VƯỢT LIMIT (TRAP)'}</strong></div>
+        </div>
+        <div class="b-logic-arrow ${st>=2&&s.isValid?'is-flowing':''}">→</div>
+        <div class="b-logic-step ${st===2?'is-active':''} ${st>=2?(s.isValid?'is-pass':'is-skip'):st>=1&&!s.isValid?'is-skip':''}">
+          <span class="b-logic-num">3</span>
+          <div class="b-logic-body"><small>Bộ cộng Base + L</small><strong>${!s.isValid&&st>=1?'⚡ BỎ QUA (OFFSET SAI)':st<2?'PA = Base + L':`PA = ${s.pa}`}</strong></div>
+        </div>
+        <div class="b-logic-arrow ${st>=3?'is-flowing':''}">→</div>
+        <div class="b-logic-step ${st===3?'is-active':''} ${st>=3?(s.isValid?'is-pass':'is-fail'):st>=1&&!s.isValid?'is-fail':''}">
+          <span class="b-logic-num">4</span>
+          <div class="b-logic-body"><small>Kết quả</small><strong>${st<3?(!s.isValid&&st>=1?'⚠️ SẼ TRAP (KHÓA RAM)':'Chờ quyết định'):s.isValid?`✓ ĐỌC RAM [${s.pa}]`:'⚠️ TRAP OS (KHÓA RAM)'}</strong></div>
+        </div>
+      </div>
+    ` : `
+      <div class="studio-b-logic-flow" aria-label="Sơ đồ logic phần cứng MMU">
+        <div class="b-logic-step ${st===0?'is-active':st>0?'is-done':''}">
+          <span class="b-logic-num">1</span>
+          <div class="b-logic-body"><small>CPU phát địa chỉ</small><strong>A = ${esc(value)}</strong></div>
+        </div>
+        <div class="b-logic-arrow ${st>=1?'is-flowing':''}">→</div>
+        <div class="b-logic-step ${st===1?'is-active':''} ${st>=1?(s.cond1?'is-pass':'is-fail'):''}">
+          <span class="b-logic-num">2</span>
+          <div class="b-logic-body"><small>A ≥ Base (${s.base}) ?</small><strong>${st<1?'Chờ kiểm tra':s.cond1?'✓ ĐẠT CẬN DƯỚI':'✕ THẤP HƠN BASE (TRAP)'}</strong></div>
+        </div>
+        <div class="b-logic-arrow ${st>=2&&s.cond1?'is-flowing':''}">→</div>
+        <div class="b-logic-step ${st===2?'is-active':''} ${st>=2?(!s.cond1?'is-skip':s.cond2?'is-pass':'is-fail'):st>=1&&!s.cond1?'is-skip':''}">
+          <span class="b-logic-num">3</span>
+          <div class="b-logic-body"><small>A &lt; Base+Limit (${s.base+s.limit}) ?</small><strong>${!s.cond1&&st>=1?'⚡ BỎ QUA (DƯỚI SAI)':st<2?'Chờ kiểm tra':s.cond2?'✓ ĐẠT CẬN TRÊN':'✕ VƯỢT CẬN TRÊN (TRAP)'}</strong></div>
+        </div>
+        <div class="b-logic-arrow ${st>=3?'is-flowing':''}">→</div>
+        <div class="b-logic-step ${st===3?'is-active':''} ${st>=3?(s.isValid?'is-pass':'is-fail'):st>=1&&!s.cond1?'is-fail':''}">
+          <span class="b-logic-num">4</span>
+          <div class="b-logic-body"><small>Kết quả</small><strong>${st<3?(!s.cond1&&st>=1?'⚠️ SẼ TRAP (KHÓA RAM)':'Chờ quyết định'):s.isValid?`✓ VÀO RAM [${s.addr}]`:'⚠️ TRAP OS (KHÓA RAM)'}</strong></div>
+        </div>
+      </div>
+    `;
+    root.innerHTML=`${logicTree}<div class="studio-b-board">
       <section id="studio-b-cpu" class="box studio-b-source"><div class="studio-b-eyebrow">01 / CPU</div><h3>Yêu cầu truy cập</h3><strong class="studio-b-address">${esc(value)}</strong><p class="formula">${trans?'Độ lệch logic L':'Địa chỉ vật lý cần kiểm tra A'}</p><span class="studio-b-source-foot">${trans?'Tính từ đầu tiến trình':'Chưa đọc hay ghi dữ liệu'}</span></section>
       <div class="studio-b-edge" data-active="${st===1}">${icon('arrow-right')}</div>
-      <section id="studio-b-lower" class="box studio-b-gate" data-state="${lowerState}"><div class="studio-b-eyebrow">02 / MMU</div><h3>${trans?'Kiểm tra độ lệch':'Cận dưới'}</h3><div class="studio-b-equation">${lowFormula}</div>${label(lowerState)}<p>${trans?'L phải không âm và nhỏ hơn Limit.':`Base = ${s.base} là địa chỉ đầu tiên được phép.`}</p>${lowerState==='fail'?`<div class="studio-b-stop">${icon('shield-check')} Không đi tiếp vào RAM</div>`:''}</section>
+      <section id="studio-b-lower" class="box studio-b-gate" data-state="${lowerState}"><div class="studio-b-eyebrow">02 / MMU</div><h3>${trans?'Kiểm tra độ lệch':'Cận dưới'}</h3><div class="studio-b-equation">${lowFormula}</div>${label(lowerState)}<p>${trans?'L phải không âm và nhỏ hơn Limit.':`Base = ${s.base} là địa chỉ đầu tiên được phép.`}</p>${lowerState==='fail'?`<div class="studio-b-stop">${icon('shield-check')} <b>Chặn tại đây</b>: Vi phạm cận dưới!</div>`:''}</section>
       <div class="studio-b-edge" data-active="${st===2&&!failed}">${icon('arrow-right')}</div>
-      <section id="studio-b-upper" class="box studio-b-gate" data-state="${upperState}" data-skipped="${upperState==='skipped'}"><div class="studio-b-eyebrow">03 / MMU</div><h3>${trans?'Cộng địa chỉ gốc':'Cận trên'}</h3>${trans?`<div class="studio-b-equation">${upperFormula}</div><strong id="studio-b-pa" class="studio-b-address">${st>=2&&s.isValid?s.pa:'?'}</strong>`:`<div class="studio-b-equation">${upperState==='skipped'?'A < Base + Limit':upperFormula}</div>`}${label(upperState)}<p>${upperState==='skipped'?(trans?'Độ lệch sai: không cộng, không tạo PA.':'Cận dưới đã chặn. Không kiểm tra thêm.'):trans?(st>=2?`${s.base} + ${s.offset} = ${s.pa}`:'Chỉ cộng sau khi độ lệch hợp lệ.'):`Địa chỉ cuối được phép: ${s.base+s.limit-1}. Cận ${s.base+s.limit} không thuộc vùng.`}</p></section>
+      <section id="studio-b-upper" class="box studio-b-gate" data-state="${upperState}" data-skipped="${upperState==='skipped'}"><div class="studio-b-eyebrow">03 / MMU</div><h3>${trans?'Cộng địa chỉ gốc':'Cận trên'}</h3>${trans?`<div class="studio-b-equation">${upperFormula}</div><strong id="studio-b-pa" class="studio-b-address">${st>=2&&s.isValid?s.pa:'?'}</strong>`:`<div class="studio-b-equation">${upperState==='skipped'?'A < Base + Limit':upperFormula}</div>`}${label(upperState)}<p>${upperState==='skipped'?(trans?'Độ lệch sai: không cộng, không tạo PA.':'Cận dưới đã chặn. Bỏ qua kiểm tra này.'):trans?(st>=2?`${s.base} + ${s.offset} = ${s.pa}`:'Chỉ cộng sau khi độ lệch hợp lệ.'):`Địa chỉ cuối được phép: ${s.base+s.limit-1}. Cận ${s.base+s.limit} không thuộc vùng.`}</p>${upperState==='fail'?`<div class="studio-b-stop">${icon('shield-check')} <b>Chặn tại đây</b>: Vượt quá cận trên!</div>`:''}</section>
       <div class="studio-b-exits">${arrow('studio-b-to-ram',allowed,allowed?'Cho phép':'Chờ kiểm tra','allow')}${arrow('studio-b-to-os',final&&failed,final&&failed?'TRAP':'Đường xử lý lỗi','trap')}</div>
-      <section class="box studio-b-destination"><div class="studio-b-eyebrow">04 / KẾT QUẢ</div><div id="studio-b-ram" class="studio-b-port studio-b-ram" data-active="${allowed}" data-locked="${!allowed}">${icon('memory-stick')}<div><h3>RAM</h3><b>${allowed?`Truy cập byte ${trans?s.pa:s.addr}`:failed?'Đã khóa truy cập':'Chưa được truy cập'}</b><p>${allowed?'MMU đã cấp quyền.':'Không có dữ liệu được đọc/ghi.'}</p></div></div><div id="studio-b-os" class="studio-b-port studio-b-os" data-active="${final&&failed}">${icon('cpu')}<div><h3>Hệ điều hành</h3><b>${final&&failed?'Nhận trap bảo vệ':failed?'Chờ trap từ MMU':'Chưa nhận trap'}</b><p>${final&&failed?'Xử lý yêu cầu truy cập sai.':'Chỉ xử lý khi MMU báo lỗi.'}</p></div></div></section>
+      <section class="box studio-b-destination"><div class="studio-b-eyebrow">04 / KẾT QUẢ</div><div id="studio-b-ram" class="studio-b-port studio-b-ram" data-active="${allowed}" data-locked="${!allowed}">${icon('memory-stick')}<div><h3>RAM</h3><b>${allowed?`✓ Truy cập byte ${trans?s.pa:s.addr}`:failed?'🔒 Đã khóa truy cập':'Chưa được truy cập'}</b><p>${allowed?'MMU đã cấp quyền.':'Không có dữ liệu được đọc/ghi.'}</p></div></div><div id="studio-b-os" class="studio-b-port studio-b-os" data-active="${final&&failed}">${icon('cpu')}<div><h3>Hệ điều hành</h3><b>${final&&failed?'⚠️ Nhận trap bảo vệ':failed?'Chờ trap từ MMU':'Chưa nhận trap'}</b><p>${final&&failed?'Xử lý ngắt truy cập trái phép.':'Chỉ xử lý khi MMU báo lỗi.'}</p></div></div></section>
     </div><div class="studio-b-outcome ${branch}" role="note"><b>${failed?'ĐỊA CHỈ BỊ CHẶN':allowed?'TRUY CẬP ĐƯỢC PHÉP':'ĐANG KIỂM TRA'}</b><span>${esc(message)}</span></div>`;
     $('#p0 h2').textContent=trans?'Từ độ lệch đến đúng byte trong RAM':'Một địa chỉ có được vào RAM?';
     $('#b-mode-check').textContent='Kiểm tra địa chỉ';$('#b-mode-trans').textContent='Dịch địa chỉ';

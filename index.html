@@ -680,16 +680,16 @@ footer{font-size:12px;color:var(--muted)}
 }
 
 </style>
-<link rel="stylesheet" href="assets/css/teaching.css?v=wb-20261119">
-<link rel="stylesheet" href="assets/css/teaching-scenes.css?v=wb-20261119">
-<link rel="stylesheet" href="assets/css/studio.css?v=wb-20261119">
-<link rel="stylesheet" href="assets/css/studio-base.css?v=wb-20261119">
-<link rel="stylesheet" href="assets/css/studio-flow.css?v=wb-20261119">
-<script src="assets/js/teaching-scenes.js?v=wb-20261119"></script>
-<script src="assets/js/studio-base.js?v=wb-20261119"></script>
-<script src="assets/js/teaching.js?v=wb-20261119"></script>
-<script src="assets/js/lab-interface.js?v=wb-20261119" defer></script>
-<script src="assets/js/studio-flow.js?v=wb-20261119" defer></script>
+<link rel="stylesheet" href="assets/css/teaching.css?v=wb-20261119b">
+<link rel="stylesheet" href="assets/css/teaching-scenes.css?v=wb-20261119b">
+<link rel="stylesheet" href="assets/css/studio.css?v=wb-20261119b">
+<link rel="stylesheet" href="assets/css/studio-base.css?v=wb-20261119b">
+<link rel="stylesheet" href="assets/css/studio-flow.css?v=wb-20261119b">
+<script src="assets/js/teaching-scenes.js?v=wb-20261119b"></script>
+<script src="assets/js/studio-base.js?v=wb-20261119b"></script>
+<script src="assets/js/teaching.js?v=wb-20261119b"></script>
+<script src="assets/js/lab-interface.js?v=wb-20261119b" defer></script>
+<script src="assets/js/studio-flow.js?v=wb-20261119b" defer></script>
 </head>
 <body class="clear-scenes academic-lab studio-ui">
 <div class="wrap">
@@ -911,12 +911,18 @@ footer{font-size:12px;color:var(--muted)}
         <h2>Bài tập mẫu: RAM đã có sẵn 5 lỗ trống</h2>
         <div class="demo-stage-grid explain-hidden" id="grid-p1-ex">
           <div class="demo-canvas-col">
-            <div class="scroll"><div class="lane">
-              <span class="lane-label">Tiến trình đang xin</span>
-              <div class="req-row" id="a-req"></div>
+            <div class="scroll"><div class="lane" id="a-lane">
+              <div class="a-dispatch-deck">
+                <div class="a-dispatch-current">
+                  <span class="lane-label">Tiến trình đang xin</span>
+                  <div class="req-row" id="a-req"></div>
+                </div>
+                <div class="a-dispatch-queue">
+                  <div class="queue" id="a-queue"></div>
+                </div>
+              </div>
               <span class="lane-label" style="margin-top:14px">RAM (CÁC Ô SỌC XÁM LÀ VÙNG ĐÃ CÓ CHƯƠNG TRÌNH KHÁC)</span>
               <div class="ram" id="a-ram"></div>
-              <div class="queue" id="a-queue"></div>
               <div class="ruler" id="a-ruler"></div>
             </div></div>
             <div class="legend"><span><i style="background:var(--ok-soft);border:1px solid var(--ok)"></i>đủ chỗ</span><span><i style="background:var(--bad-soft);border:1px solid var(--bad)"></i>không đủ</span><span><i style="background:var(--used)"></i>đã có chương trình khác</span></div>
