@@ -128,6 +128,7 @@ body.studio-ui #b-flow .box[data-processing="true"][data-focus-tone="skip"] { ba
 .studio-ui .studio-b-route-under { fill:none; stroke:var(--studio-surface-alt); stroke-width:8; stroke-linejoin:round; }
 .studio-ui .studio-b-route-line { fill:none; stroke:currentColor; stroke-width:4; stroke-linecap:round; stroke-linejoin:round; }
 .studio-ui .studio-b-route-caption { fill:currentColor; font:600 12px var(--f-body); }
+body.studio-ui #b-flow[data-branch="denied"] .studio-b-ram { opacity:1; }
 body.studio-ui #b-ram-track[data-verdict="pending"] .plabel { background:#1e302b!important; color:#f4f2eb!important; }
 .studio-ui .studio-b-edge svg { width:26px; height:26px; stroke-width:2.5; }
 .studio-ui #b-flow[data-live-route] .studio-b-edge[data-active="true"] svg { visibility:hidden; }

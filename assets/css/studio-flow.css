@@ -31,7 +31,9 @@ body.studio-ui .studio-flow-line { stroke:currentColor; stroke-width:4px; }
 body.studio-ui .studio-flow-host #r-scene .slot .card:is(.victim,.new,.hitc)::after { color:var(--lab-node-on)!important; font-size:12px!important; }
 body.studio-ui .studio-flow-host #r-scene .slot .card.victim::after { content:"CHỌN RA"!important; }
 body.studio-ui .studio-flow-host #r-scene .slot .card.new::after { content:"NẠP MỚI"!important; }
-body.studio-ui #a-lane .hole.chosen::after { content:"ĐÃ CHỌN"!important; }
+body.studio-ui #a-lane :is(.hole.chosen,.hole.scene-chosen)::after { content:"ĐÃ CHỌN"!important; }
+body.studio-ui #a-lane .hole>.studio-flow-badge { display:none; }
+body.studio-ui #r-scene .scene-ram-hand { color:#ecd5a5!important; font-size:12px!important; }
 body.studio-ui .btn:is(.active-preset,.active-preset-trap) { color:var(--lab-node-on)!important; box-shadow:none!important; }
 body.studio-ui #x-flow .scene-os { margin-top:40px; position:relative; }
 body.studio-ui #x-flow .scene-os.studio-flow-current { outline:3px solid var(--flow-color); outline-offset:3px; }

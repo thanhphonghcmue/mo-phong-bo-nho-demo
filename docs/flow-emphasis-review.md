@@ -1,6 +1,6 @@
 # Mũi tên và bước đang thực hiện
 
-Bản bổ sung trên `design/memory-workbench`, dựa trên `4f0ccee` và giữ các cập nhật giao diện của nhánh. Luồng và thuật toán giữ nguyên; thay đổi tập trung vào vị trí bắt đầu, bước hiện tại, hướng di chuyển và biểu mẫu cơ bản.
+Bản bổ sung trên `design/memory-workbench`, giữ các cập nhật giao diện `4f0ccee` và `52413f5` của nhánh. Luồng và thuật toán giữ nguyên; thay đổi tập trung vào vị trí bắt đầu, bước hiện tại, hướng di chuyển và biểu mẫu cơ bản.
 
 ## Thay đổi nhìn thấy
 
