@@ -186,7 +186,17 @@ body.studio-ui .teach-evidence { background:transparent; border:0; border-top:1p
 body.studio-ui .scene-proof-heading { color:var(--studio-ink); font-size:15px; }
 body.studio-ui .scene-token { border-radius:2px; background:var(--studio-sheet); font-size:14px; }
 body.studio-ui .scene-proof-note { color:var(--studio-muted); }
-body.studio-ui .scene-ram-hand { color:#ecd5a5; }
+body.studio-ui .scene-ram-hand {
+  display: block !important;
+  min-height: 22px !important;
+  line-height: 22px !important;
+  text-align: center !important;
+  color: var(--studio-brass, #ecd5a5) !important;
+  font-family: var(--f-mono) !important;
+  font-size: 11.5px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.04em !important;
+}
 body.studio-ui #r-counts .count { border-radius:3px; background:transparent!important; border:0; padding:4px 8px; }
 body.studio-ui .demo-controls-bar { padding-top:14px!important; border-top-color:var(--studio-line)!important; gap:8px; }
 body.studio-ui .explain-card { border:0; border-top:2px solid var(--studio-teal); background:var(--studio-inset); border-radius:0; padding:18px 20px; }
@@ -258,12 +268,13 @@ body.studio-ui footer { padding-top:18px; color:var(--studio-muted); }
 /* ================= WORKBENCH VISUAL INTUITION ENHANCEMENTS ================= */
 
 /* Demo 2: Hole State Badges & Selection Prominence in Studio UI */
-body.studio-ui .hole.chosen {
+body.studio-ui :is(.hole.chosen, .hole.scene-chosen) {
   outline: 3px solid var(--studio-teal) !important;
   outline-offset: -2px;
-  z-index: 2;
+  background: var(--studio-teal-soft) !important;
+  z-index: 3;
 }
-body.studio-ui .hole.chosen::before {
+body.studio-ui :is(.hole.chosen, .hole.scene-chosen)::before {
   content: "▼ CHỌN" !important;
   position: absolute !important;
   top: -24px !important;
@@ -278,6 +289,7 @@ body.studio-ui .hole.chosen::before {
   line-height: 1.2 !important;
   white-space: nowrap !important;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2) !important;
+  z-index: 4 !important;
 }
 body.studio-ui .hole.fit {
   background: var(--lab-success-soft) !important;
@@ -316,7 +328,7 @@ body.studio-ui .hole.nofit::after {
   border-radius: 3px !important;
   pointer-events: none !important;
 }
-body.studio-ui .hole.chosen::after {
+body.studio-ui :is(.hole.chosen, .hole.scene-chosen)::after {
   content: "★ TỐI ƯU" !important;
   position: absolute !important;
   top: 4px !important;
@@ -336,9 +348,29 @@ body.studio-ui .hole .lbl {
   font-weight: 600;
   color: var(--studio-muted);
 }
-body.studio-ui .hole.chosen .lbl {
+body.studio-ui :is(.hole.chosen, .hole.scene-chosen) .lbl {
   color: var(--studio-teal) !important;
   font-weight: 700 !important;
+}
+body.studio-ui .hole.teach-scan {
+  outline: 2px dashed var(--studio-brass) !important;
+  outline-offset: -1px;
+}
+body.studio-ui .scene-scan-result {
+  position: absolute !important;
+  top: -30px !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  padding: 2px 8px !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  border-radius: 3px !important;
+  white-space: nowrap !important;
+  background: var(--studio-sheet) !important;
+  border: 1px solid var(--studio-brass-line) !important;
+  color: var(--studio-brass) !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15) !important;
+  z-index: 5 !important;
 }
 
 /* Demo 3: Pipeline Active Units & Bypass */
@@ -431,7 +463,7 @@ body.studio-ui #r-scene .slot .card.hitc {
   color: var(--studio-teal) !important;
   position: relative !important;
 }
-body.studio-ui #r-scene .slot .card.hitc::after {
+body.studio-ui #r-slots:not([data-signal="page-in"]) .slot .card.hitc::after {
   content: "✓ HIT" !important;
   position: absolute !important;
   top: -10px !important;
@@ -445,12 +477,7 @@ body.studio-ui #r-scene .slot .card.hitc::after {
   border-radius: 3px !important;
   white-space: nowrap !important;
 }
-body.studio-ui #r-scene .slot .card.new {
-  border: 2px solid var(--studio-teal) !important;
-  background: var(--studio-teal-soft) !important;
-  color: var(--studio-teal) !important;
-  position: relative !important;
-}
+body.studio-ui #r-slots[data-signal="page-in"] .slot .card.hitc::after,
 body.studio-ui #r-scene .slot .card.new::after {
   content: "+ NẠP MỚI" !important;
   position: absolute !important;

@@ -43,6 +43,9 @@ body.studio-ui #b-flow .studio-b-destination { gap:12px; padding:0 0 0 12px; }
 body.studio-ui #b-flow .studio-b-port p { font-size:12px; }
 .studio-ui .studio-b-ram[data-active="true"] { color:var(--studio-live,#126c55); border:2px solid var(--studio-live,#126c55); background:var(--studio-live-wash,#dceee3); }
 .studio-ui .studio-b-os[data-active="true"] { color:var(--studio-deny,#ad3c28); border:2px solid var(--studio-deny,#ad3c28); background:var(--studio-deny-wash,#f7e1d7); }
+.studio-ui #b-flow[data-branch="denied"] .studio-b-ram { opacity:0.65; border:1px dashed var(--studio-rule,#c2cdc2); background:var(--studio-surface-alt,#e8ece5); }
+.studio-ui #b-flow[data-branch="denied"] .studio-b-ram b::before { content:"🔒 "; }
+.studio-ui #b-flow[data-branch="denied"] .studio-b-os[data-active="true"] b::before { content:"⚠️ "; }
 .studio-ui .studio-b-outcome { display:flex; flex-wrap:wrap; align-items:baseline; gap:8px 20px; padding:16px 20px; border:1px solid var(--studio-rule,#d0d6cd); border-top:0; border-radius:0 0 8px 8px; font-size:14px; color:var(--studio-ink,#1e302b); }
 .studio-ui .studio-b-outcome>b { flex:none; font-size:12px; font-weight:600; letter-spacing:.04em; }
 .studio-ui .studio-b-outcome.denied { background:var(--studio-deny-wash,#f7e1d7); border-color:var(--studio-deny,#ad3c28); }
@@ -60,6 +63,8 @@ body.studio-ui #b-ram-track .studio-memory-owned b { font:500 clamp(13px,1.25vw,
 body.studio-ui #b-ram-track .plabel { color:#f4f2eb!important; background:#1e302b!important; padding:5px 8px!important; font:500 12px/1.5 var(--f-mono)!important; border-radius:4px!important; }
 body.studio-ui #b-ram-track[data-verdict="denied"] .plabel { background:var(--studio-deny,#ad3c28)!important; color:var(--lab-node-on,#fff)!important; }
 body.studio-ui #b-ram-track[data-verdict="allowed"] .plabel { background:var(--studio-live,#126c55)!important; color:var(--lab-node-on,#fff)!important; }
+body.studio-ui #b-ram-track[data-verdict="denied"] .pin { color:var(--studio-deny,#ad3c28)!important; }
+body.studio-ui #b-ram-track[data-verdict="allowed"] .pin { color:var(--studio-live,#126c55)!important; }
 body.studio-ui #b-ram-track .b-pointer { top:-34px!important; }
 .studio-ui #p0 .lab-lesson-heading { border-left:0!important; padding-left:0!important; }
 .studio-ui #b-presets-check,.studio-ui #b-presets-trans { margin-bottom:8px; }
