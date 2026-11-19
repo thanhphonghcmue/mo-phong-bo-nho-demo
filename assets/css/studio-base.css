@@ -239,3 +239,20 @@ body.studio-ui #p0 .studio-b-options { border:0; margin:0; padding:0; background
   body.studio-ui #p0 .stage>.quick #b-go { min-height:44px; align-self:end; }
   body.studio-ui #p0 .stage>.quick .field:nth-child(3) label { font-size:13px; }
 }
+
+/* Dark mode theme consistency for Demo 1 */
+:root[data-theme="dark"] body.studio-ui .studio-b-logic-flow { background:#1e2c26; border-color:#3b4c40; }
+:root[data-theme="dark"] body.studio-ui .b-logic-step { background:#27372d; border-color:#3b4c40; }
+:root[data-theme="dark"] body.studio-ui .b-logic-step .b-logic-body strong { color:#edf0e4; }
+:root[data-theme="dark"] body.studio-ui .b-logic-step .b-logic-body small { color:#becbbf; }
+:root[data-theme="dark"] body.studio-ui .b-logic-step.is-active { background:#203f33; border-color:var(--studio-live,#a1d1b9); }
+:root[data-theme="dark"] body.studio-ui .b-logic-step.is-fail { background:#3d2822; border-color:var(--studio-deny,#f5b09a); }
+:root[data-theme="dark"] body.studio-ui #b-flow .box { background:#1e2c26!important; border-color:#3b4c40!important; }
+:root[data-theme="dark"] body.studio-ui #b-flow .box[data-processing="true"]:not(.studio-b-source):not(.studio-b-destination) { background:#253b30!important; border-color:var(--studio-live,#a1d1b9)!important; box-shadow:0 0 0 2.5px var(--studio-live,#a1d1b9), 0 6px 18px rgba(0,0,0,0.3)!important; }
+:root[data-theme="dark"] body.studio-ui #b-flow .box[data-processing="true"][data-focus-tone="deny"]:not(.studio-b-destination) { background:#3b2823!important; border-color:var(--studio-deny,#f5b09a)!important; box-shadow:0 0 0 2.5px var(--studio-deny,#f5b09a), 0 6px 18px rgba(0,0,0,0.3)!important; }
+:root[data-theme="dark"] body.studio-ui .studio-b-port { background:#27372d; border-color:#3b4c40; }
+:root[data-theme="dark"] body.studio-ui .studio-b-equation { color:#edf0e4; }
+:root[data-theme="dark"] body.studio-ui .studio-b-board { background:#15201d; border-color:#3b4c40; }
+:root[data-theme="dark"] body.studio-ui .studio-b-outcome { background:#1e2c26; border-color:#3b4c40; color:#edf0e4; }
+:root[data-theme="dark"] body.studio-ui .studio-b-outcome.denied { background:#3b2823; border-color:var(--studio-deny,#f5b09a); }
+:root[data-theme="dark"] body.studio-ui .studio-b-outcome.allowed { background:#203f33; border-color:var(--studio-live,#a1d1b9); }

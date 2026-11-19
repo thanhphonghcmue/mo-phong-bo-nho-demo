@@ -664,3 +664,120 @@ body.studio-ui .btn.active-preset-trap {
   border-color: var(--studio-red) !important;
   font-weight: 600 !important;
 }
+
+/* Dark Mode Overrides for Workbench & Stations */
+:root[data-theme="dark"] body.studio-ui .a-dispatch-deck {
+  background: #1e2c26;
+  border-color: #3b4c40;
+}
+:root[data-theme="dark"] body.studio-ui .a-dispatch-current {
+  border-color: #3b4c40;
+}
+:root[data-theme="dark"] body.studio-ui .scene-node {
+  background: #1e2c26 !important;
+  border-color: #3b4c40 !important;
+}
+:root[data-theme="dark"] body.studio-ui .scene-node:has([data-processing="true"]),
+:root[data-theme="dark"] body.studio-ui .scene-node[data-processing="true"],
+:root[data-theme="dark"] body.studio-ui .scene-node.studio-flow-current-node {
+  background: #25372e !important;
+  border-color: var(--studio-teal, #a1d1b9) !important;
+  box-shadow: 0 0 0 2px var(--studio-teal, #a1d1b9), 0 6px 18px rgba(0, 0, 0, 0.35) !important;
+}
+:root[data-theme="dark"] body.studio-ui .scene-node h3 {
+  border-color: #3b4c40;
+  color: #edf0e4 !important;
+}
+:root[data-theme="dark"] body.studio-ui .lab-node-name {
+  color: #edf0e4 !important;
+}
+:root[data-theme="dark"] body.studio-ui .scene-number,
+:root[data-theme="dark"] body.studio-ui .scene-value,
+:root[data-theme="dark"] body.studio-ui .scene-math {
+  color: #edf0e4 !important;
+}
+:root[data-theme="dark"] body.studio-ui .scene-node p {
+  color: #becbbf !important;
+}
+:root[data-theme="dark"] body.studio-ui .scene-node small {
+  color: #9eb1a0 !important;
+}
+:root[data-theme="dark"] body.studio-ui .scene-split > div {
+  background: #27372d !important;
+  border-color: #3b4c40 !important;
+}
+:root[data-theme="dark"] body.studio-ui .scene-split > div b {
+  color: #edf0e4 !important;
+}
+:root[data-theme="dark"] body.studio-ui .scene-pte span {
+  background: #27372d !important;
+  border-color: #3b4c40 !important;
+  color: #edf0e4 !important;
+}
+:root[data-theme="dark"] body.studio-ui .scene-sequence {
+  background: #15201d;
+  border-color: #3b4c40;
+}
+:root[data-theme="dark"] body.studio-ui .scene-sequence > span {
+  background: #27372d;
+  border-color: #3b4c40;
+  color: #edf0e4;
+}
+:root[data-theme="dark"] body.studio-ui .scene-symbol {
+  background: #27372d;
+  border-color: #3b4c40;
+  color: #edf0e4;
+}
+:root[data-theme="dark"] body.studio-ui .scene-branch {
+  background: #27372d;
+  color: #edf0e4;
+}
+:root[data-theme="dark"] body.studio-ui .ref {
+  background: #27372d;
+  border-color: #3b4c40;
+  color: #edf0e4;
+}
+:root[data-theme="dark"] body.studio-ui .ref.now {
+  background: #3c3425 !important;
+  border-color: var(--studio-brass, #e4c48e) !important;
+}
+:root[data-theme="dark"] body.studio-ui .ref b {
+  color: #edf0e4;
+}
+:root[data-theme="dark"] body.studio-ui #a-ram .hole {
+  background: #1e2c26;
+  border-color: #4b5b4e;
+  color: #edf0e4;
+}
+:root[data-theme="dark"] body.studio-ui #a-ram .used {
+  background: repeating-linear-gradient(135deg, #27372d, #27372d 5px, #1c2822 5px, #1c2822 11px) !important;
+}
+:root[data-theme="dark"] body.studio-ui .scene-scan-result {
+  background: #27372d !important;
+  border-color: var(--studio-brass, #e4c48e) !important;
+  color: var(--studio-brass, #e4c48e) !important;
+}
+
+/* Button tactile feel & micro-interactions */
+body.studio-ui .btn {
+  transition: transform 0.12s ease, background 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+body.studio-ui .btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.06);
+}
+body.studio-ui .btn:active:not(:disabled) {
+  transform: translateY(1px);
+  box-shadow: none;
+}
+body.studio-ui .btn.primary {
+  box-shadow: 0 2px 6px rgba(18, 92, 80, 0.2);
+}
+body.studio-ui .btn.primary:hover:not(:disabled) {
+  box-shadow: 0 4px 12px rgba(18, 92, 80, 0.3);
+}
+
+/* Stepper glowing active pulse */
+body.studio-ui .is-current .lab-step-dot {
+  box-shadow: 0 0 0 4px var(--studio-teal-soft) !important;
+}
