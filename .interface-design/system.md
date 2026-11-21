@@ -53,6 +53,15 @@ Source: `assets/css/studio.css`; Demo 1: `assets/css/studio-base.css`.
 - FIFO/LRU show numbered resident-frame order. Selection retains the old page; a later installation event shows a separate backing-store source. Numbers indicate rank for the chosen rule, never the page number or physical frame address.
 - Demo 5 keeps detailed ordering evidence collapsed under “Vì sao chọn trang này?” by default. Preserve the user's open preference across steps and use the visible summary as the route source while evidence is hidden. Name example sequences by their actual length (6/12/20 accesses); optional totals say what they measure: page faults.
 
+## Phone and tablet refinements
+
+- At 820px and below show all five topics in one equal-width tab row. Use short visible titles and complete accessible names; retain the full navigation labels and subject badges on desktop.
+- At 600px and below the header keeps the Vietnamese product title, school and logo. The theme control is a 44px icon with an accessible label; the duplicate English subtitle is omitted to give the model more room.
+- At 900px and below the four-step Demo 1 summary fits in a two-by-two path, 1 → 2 ↓ 3 ← 4. Text stays readable and no step requires sideways panning. Step-number ink follows the theme, including skipped and denied states.
+- Keep the allocation instruction and process queue at viewport width and fixed horizontally while the physical RAM strip pans. Route request arrows through a free gutter, and redraw them on scroll.
+- Stacked translation/page-in cards use content height instead of a desktop minimum. Model prose is at least 14px and key metadata 12px; selected RAM labels retain contrast against their dark material.
+- Free-allocation process colors preserve all six identities with readable theme-specific ink. Completed labels remain readable; the selected algorithm comparison row still shows a separate keyboard focus ring.
+
 ## Validation
 
 Review rendered desktop, tablet, mobile, and both themes. Assert snapshot parity when using Previous/Next, toggling details, changing tabs, or switching theme. Check lower/upper failures, offset failures, Base 0, and large valid values. Automated accessibility scans complement visual and keyboard review.

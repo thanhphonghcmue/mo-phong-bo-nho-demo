@@ -10,6 +10,8 @@ Bổ sung mới: [bước hiện tại, mũi tên nổi bật và biểu mẫu c
 
 Điều chỉnh theo góp ý: [hai chế độ Demo 1, phần giải thích tùy chọn và tên ví dụ Demo 5](docs/choices-review.md).
 
+Rà soát toàn trang: [điều hướng điện thoại, cuộn RAM và độ tương phản](docs/ui-polish-review.md).
+
 Nền giấy ấm, header mực đậm, tab liền và cửa sổ bước từ snapshot giúp theo dõi bài khi trình chiếu. RAM dùng bề mặt tối; thao tác, bước dò xét và truy cập bị chặn có màu và nhãn riêng. [Hệ typography của cả 5 demo](docs/typography.md) dùng Be Vietnam Pro/JetBrains Mono cục bộ, cùng SVG Lucide. Lớp giao diện hiện hành và hai theme nằm trong `assets/css/studio.css`; Demo 1 có lớp trình bày riêng trong `studio-base.css` và `studio-base.js`. Hai skill UI UX Pro Max và Interface Design được cài tại `.agents/skills/`; nguồn pin revision trong `docs/design-skill-sources.json`.
 
 ## Năm demo
@@ -73,6 +75,7 @@ node tests/academic-lab.cjs
 node tests/studio-browser.cjs
 node tests/flow-emphasis.cjs
 node tests/requested-ui.cjs
+node tests/mobile-polish.cjs
 ```
 
 Bộ `seeded-algorithms` dùng mô hình đối chứng độc lập: 320 trace, 6400 trạng thái, 240 lần tiếp tục. Các bộ trình duyệt dùng máy chủ cổng 8080. `scenes-browser` kiểm tra UI công khai ở 1366/1920/375/390 px và lưu ảnh, kết quả JSON trong `/tmp/memory-scenes-review` (đổi bằng `MEMORY_ARTIFACT_DIR`). Các script `*_browser.py` cũ phụ thuộc lớp `MemoryLessons` không còn được tải, nên không thuộc kiểm tra giao diện hiện hành.

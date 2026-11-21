@@ -170,6 +170,14 @@
       const lane=rect(root,host).top+18;
       return `M ${as.cx} ${as.top} V ${lane} H ${bs.cx} V ${bs.top}`;
     }
+    if(id === "a" && matchMedia("(max-width:900px)").matches) {
+      const gutter=rect(root.parentElement,host).left+8;
+      if(target.closest("#a-ram")) {
+        const entry=b.left+Math.min(12,b.width/2), lane=b.top-16;
+        return `M ${a.left} ${a.cy} H ${gutter} V ${lane} H ${entry} V ${b.top}`;
+      }
+      return `M ${a.left} ${a.cy} H ${gutter} V ${b.cy} H ${b.left}`;
+    }
     const lane=Math.max(a.bottom+16,b.top-20);
     return b.top>=a.bottom ? `M ${a.cx} ${a.bottom} V ${lane} H ${b.cx} V ${b.top}` : `M ${a.cx} ${a.top} V ${b.bottom+18} H ${b.cx} V ${b.bottom}`;
   }
@@ -195,6 +203,9 @@
     if(event.target.id === "r-choice-details") { decorate("r"); redraw(); }
   },true);
   window.addEventListener("resize",redraw);
+  document.addEventListener("scroll",event=>{
+    if(event.target.matches?.('.scroll:has(>#a-lane)'))redraw();
+  },{capture:true,passive:true});
   new MutationObserver(redraw).observe(document.documentElement,{attributes:true,attributeFilter:["data-theme"]});
   document.fonts.ready.then(redraw);
   window.StudioFlow=Object.freeze({refresh,version:"flow-emphasis-1"});

@@ -1,0 +1,11 @@
+{
+  "passed": 4,
+  "checks": [
+    "All five topics are visible on a phone and keyboard tab navigation still works",
+    "The complete four-step summary fits and its numbers keep readable dark/light contrast",
+    "Allocation instructions and queue remain visible while the physical RAM is panned",
+    "Stacked cards use content height and selected comparison rows show keyboard focus"
+  ],
+  "errors": [],
+  "assets": []
+}

@@ -9,16 +9,17 @@
   const lessons = {b:"p0", a:"p1", f:"p1", x:"p2", v:"p4", r:"p3"};
   const steppers = new Map();
   const nav = [
-    ["t0", "01", "Bảo vệ địa chỉ", "shield-check"],
-    ["t1", "02", "Cấp phát bộ nhớ", "layers"],
-    ["t2", "03", "Phân trang & TLB", "network"],
-    ["t4", "04", "Bộ nhớ ảo", "hard-drive-download"],
-    ["t3", "05", "Thay thế trang", "repeat-2"],
+    ["t0", "01", "Bảo vệ địa chỉ", "shield-check", "Bảo vệ"],
+    ["t1", "02", "Cấp phát bộ nhớ", "layers", "Cấp phát"],
+    ["t2", "03", "Phân trang & TLB", "network", "Phân trang"],
+    ["t4", "04", "Bộ nhớ ảo", "hard-drive-download", "Bộ nhớ ảo"],
+    ["t3", "05", "Thay thế trang", "repeat-2", "Thay trang"],
   ];
-  nav.forEach(([id, number, title, symbol]) => {
+  nav.forEach(([id, number, title, symbol, compact]) => {
     const button = $("#" + id);
     button.querySelector(".n").textContent = "DEMO " + number;
-    button.querySelector(".t").textContent = title;
+    button.querySelector(".t").innerHTML = `<span class="lab-tab-full">${esc(title)}</span><span class="lab-tab-short" aria-hidden="true">${esc(compact)}</span>`;
+    button.setAttribute("aria-label", `Demo ${number}: ${title}`);
     button.insertAdjacentHTML("afterbegin", `<span class="lab-nav-icon">${icon(symbol)}</span>`);
     button.querySelector(".teach-pillar svg")?.remove();
     button.tabIndex = button.getAttribute("aria-selected") === "true" ? 0 : -1;

@@ -1,0 +1,282 @@
+[
+  {
+    "theme": "light",
+    "steps": 30,
+    "processColors": [
+      "var(--p1)",
+      "var(--p2)",
+      "var(--p3)",
+      "var(--p4)",
+      "var(--p5)",
+      "var(--p6)"
+    ],
+    "groups": {
+      "queue": {
+        "tag": "SPAN",
+        "cls": "chip  ",
+        "parent": "f-script",
+        "text": "2. Mở B · 300",
+        "color": "rgb(255, 255, 255)",
+        "bg": [
+          181,
+          82,
+          122
+        ],
+        "opacity": 1,
+        "ratio": 4.716242890042079,
+        "filter": "none",
+        "process": "var(--p2)",
+        "step": 0
+      },
+      "compaction": {
+        "tag": "SPAN",
+        "cls": "chip act-compact ",
+        "parent": "f-script",
+        "text": "10. Dồn nén",
+        "color": "rgb(255, 255, 255)",
+        "bg": [
+          7,
+          94,
+          84
+        ],
+        "opacity": 1,
+        "ratio": 7.669455828036712,
+        "filter": "none",
+        "process": "",
+        "step": 0
+      },
+      "request": {
+        "tag": "DIV",
+        "cls": "req enter teach-spotlight",
+        "parent": "f-req",
+        "text": "B 300 KB",
+        "color": "rgb(255, 255, 255)",
+        "bg": [
+          181,
+          82,
+          122
+        ],
+        "opacity": 1,
+        "ratio": 4.716242890042079,
+        "filter": "none",
+        "process": "var(--p2)",
+        "step": 4
+      },
+      "small": {
+        "tag": "SMALL",
+        "cls": "",
+        "parent": "",
+        "text": "300 KB",
+        "color": "rgb(255, 255, 255)",
+        "bg": [
+          181,
+          82,
+          122
+        ],
+        "opacity": 1,
+        "ratio": 4.716242890042079,
+        "filter": "none",
+        "process": "var(--p2)",
+        "step": 4
+      },
+      "completed": {
+        "tag": "SPAN",
+        "cls": "chip done teach-source",
+        "parent": "f-script",
+        "text": "2. Mở B · 300",
+        "color": "rgb(255, 255, 255)",
+        "bg": [
+          181,
+          82,
+          122
+        ],
+        "opacity": 1,
+        "ratio": 4.716242890042079,
+        "filter": "none",
+        "process": "var(--p2)",
+        "step": 6
+      },
+      "RAM": {
+        "tag": "BUTTON",
+        "cls": "blk enter teach-spotlight",
+        "parent": "f-ram",
+        "text": "B 300 KB · @200",
+        "color": "rgb(255, 255, 255)",
+        "bg": [
+          181,
+          82,
+          122
+        ],
+        "opacity": 1,
+        "ratio": 4.716242890042079,
+        "filter": "none",
+        "process": "var(--p2)",
+        "step": 6
+      },
+      "waiting": {
+        "tag": "SPAN",
+        "cls": "chip wait",
+        "parent": "f-req",
+        "text": "G · 200 KB · đang chờ",
+        "color": "rgb(255, 255, 255)",
+        "bg": [
+          187,
+          41,
+          72
+        ],
+        "opacity": 1,
+        "ratio": 5.959627338622231,
+        "filter": "none",
+        "process": "",
+        "step": 25
+      }
+    },
+    "ring": {
+      "visible": true,
+      "style": "solid",
+      "width": "3px",
+      "color": "rgb(7, 94, 84)",
+      "offset": "3px"
+    }
+  },
+  {
+    "theme": "dark",
+    "steps": 30,
+    "processColors": [
+      "var(--p1)",
+      "var(--p2)",
+      "var(--p3)",
+      "var(--p4)",
+      "var(--p5)",
+      "var(--p6)"
+    ],
+    "groups": {
+      "queue": {
+        "tag": "SPAN",
+        "cls": "chip  ",
+        "parent": "f-script",
+        "text": "4. Mở D · 250",
+        "color": "rgb(11, 18, 16)",
+        "bg": [
+          185,
+          151,
+          236
+        ],
+        "opacity": 1,
+        "ratio": 7.850982825980291,
+        "filter": "none",
+        "process": "var(--p4)",
+        "step": 0
+      },
+      "compaction": {
+        "tag": "SPAN",
+        "cls": "chip act-compact ",
+        "parent": "f-script",
+        "text": "10. Dồn nén",
+        "color": "rgb(23, 37, 28)",
+        "bg": [
+          161,
+          209,
+          185
+        ],
+        "opacity": 1,
+        "ratio": 9.360983300375613,
+        "filter": "none",
+        "process": "",
+        "step": 0
+      },
+      "request": {
+        "tag": "DIV",
+        "cls": "req enter teach-spotlight",
+        "parent": "f-req",
+        "text": "D 250 KB",
+        "color": "rgb(11, 18, 16)",
+        "bg": [
+          185,
+          151,
+          236
+        ],
+        "opacity": 1,
+        "ratio": 7.850982825980291,
+        "filter": "none",
+        "process": "var(--p4)",
+        "step": 10
+      },
+      "small": {
+        "tag": "SMALL",
+        "cls": "",
+        "parent": "",
+        "text": "250 KB",
+        "color": "rgb(11, 18, 16)",
+        "bg": [
+          185,
+          151,
+          236
+        ],
+        "opacity": 1,
+        "ratio": 7.850982825980291,
+        "filter": "none",
+        "process": "var(--p4)",
+        "step": 10
+      },
+      "completed": {
+        "tag": "SPAN",
+        "cls": "chip done teach-source",
+        "parent": "f-script",
+        "text": "4. Mở D · 250",
+        "color": "rgb(11, 18, 16)",
+        "bg": [
+          185,
+          151,
+          236
+        ],
+        "opacity": 1,
+        "ratio": 7.850982825980291,
+        "filter": "none",
+        "process": "var(--p4)",
+        "step": 12
+      },
+      "RAM": {
+        "tag": "BUTTON",
+        "cls": "blk enter teach-spotlight",
+        "parent": "f-ram",
+        "text": "D 250 KB · @600",
+        "color": "rgb(11, 18, 16)",
+        "bg": [
+          185,
+          151,
+          236
+        ],
+        "opacity": 1,
+        "ratio": 7.850982825980291,
+        "filter": "none",
+        "process": "var(--p4)",
+        "step": 12
+      },
+      "waiting": {
+        "tag": "SPAN",
+        "cls": "chip wait",
+        "parent": "f-req",
+        "text": "G · 200 KB · đang chờ",
+        "color": "rgb(23, 37, 28)",
+        "bg": [
+          255,
+          165,
+          183
+        ],
+        "opacity": 1,
+        "ratio": 8.588254557642045,
+        "filter": "none",
+        "process": "",
+        "step": 25
+      }
+    },
+    "ring": {
+      "visible": true,
+      "style": "solid",
+      "width": "3px",
+      "color": "rgb(161, 209, 185)",
+      "offset": "3px"
+    }
+  }
+]

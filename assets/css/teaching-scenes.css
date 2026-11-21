@@ -489,6 +489,30 @@
 .academic-lab .cmp .v { font-weight:600; }
 .academic-lab #r-counts .count { font-weight:500; }
 .academic-lab #r-counts .mono { font-weight:700; }
+/* The free-allocation path keeps each process color readable in every state. */
+.academic-lab #f-wrap {
+  --p3:#4b721b;
+  --p5:#99600c;
+  --p6:#247564;
+}
+:root[data-theme="dark"] .academic-lab #f-wrap {
+  --p3:#a5c862;
+  --p5:#e8ad4f;
+  --p6:#6ccab5;
+}
+.academic-lab #f-wrap .req small,
+.academic-lab #f-script .chip.done { opacity:1; }
+.academic-lab #f-wrap .chip:is(.act-compact,.wait) { color:var(--lab-node-on)!important; }
+.academic-lab #f-wrap .chip.act-close {
+  background:var(--studio-inset);
+  color:var(--studio-ink);
+  box-shadow:inset 0 0 0 1px var(--studio-line);
+}
+/* A selected algorithm still needs a distinct keyboard focus indicator. */
+.academic-lab #r-bars .brow.on:focus-visible {
+  outline:3px solid var(--lab-focus)!important;
+  outline-offset:3px;
+}
 @media(max-width:600px) {
   .academic-lab .scene-scenarios { max-width:100%; }
   .academic-lab .scene-scenarios :is(label,select) { min-width:0; }
