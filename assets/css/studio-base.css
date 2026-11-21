@@ -228,6 +228,9 @@ body.studio-ui #p0 .studio-b-options { border:0; margin:0; padding:0; background
 .studio-ui .studio-b-options-body { display:grid; gap:14px; padding:12px 0 16px; }
 .studio-ui .studio-b-options-body .mode-bar { flex-wrap:wrap; }
 .studio-ui .studio-b-options-body .scene-scenarios { justify-content:flex-start; }
+body.studio-ui #p0 .stage>.mode-bar { flex-wrap:wrap; margin-bottom:0!important; }
+body.studio-ui #p0 .stage>.mode-bar .btn-mode { min-height:44px; padding:10px 16px; font-size:14px; }
+body.studio-ui #p0 .stage>.mode-bar .btn-mode[aria-pressed="true"] { background:var(--studio-live); border-color:var(--studio-live); color:var(--lab-node-on); }
 @media(max-width:900px) {
   .studio-ui .studio-b-board { min-height:0; padding:18px 18px 48px 32px; }
   .studio-ui .studio-b-focus-badge { width:max-content; max-width:100%; }

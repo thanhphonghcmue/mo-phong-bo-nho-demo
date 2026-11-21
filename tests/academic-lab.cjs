@@ -61,6 +61,7 @@ const path = require('node:path');
       await seek('a',placement-1);assert.equal(await page.locator('#a-ram .lab-page-in').count(),0);
       await seek('a',placement);assert.equal(await page.locator('#a-ram .lab-page-in').count(),1);
       await page.click('#t3');await page.locator('#r-alg [data-a="CLOCK"]').click();
+      await page.click('#r-choice-summary');
       const clock=await trace('r'), victim=clock.findIndex(e=>e.state.runtime.phase==='victim');await seek('r',victim);
       const s=await snap('r');assert.equal(await page.locator(`#r-slots [data-frame="${s.runtime.ptr}"] .scene-ram-hand`).innerText(),'↓ Kim Clock');
       assert.match(await page.locator('#r-slots .victim').evaluate(e=>getComputedStyle(e,'::after').content),/CHỌN RA/);

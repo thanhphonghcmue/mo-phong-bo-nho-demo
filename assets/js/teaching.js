@@ -2391,7 +2391,12 @@ window.enhanceMemoryDemo = function (api) {
   const evidence = document.createElement("div");
   evidence.className = "teach-evidence";
   evidence.id = "r-evidence";
-  $("#p3 .scene").after(evidence);
+  const evidenceDetails = document.createElement("details");
+  evidenceDetails.id = "r-choice-details";
+  evidenceDetails.className = "studio-r-details";
+  evidenceDetails.innerHTML = '<summary id="r-choice-summary">Vì sao chọn trang này?</summary>';
+  evidenceDetails.append(evidence);
+  $("#p3 .scene").after(evidenceDetails);
   function renderR(e) {
     activeSetup(
       "r",
@@ -3630,9 +3635,9 @@ window.enhanceMemoryDemo = function (api) {
     ["Đối chiếu · truy cập không có quyền", () => presetV(false,false,7), "Trap bảo vệ khác lỗi trang: không đọc đĩa."]
   ]);
   chooseScenario("r", "Ví dụ", [
-    ["Làm quen · sáu tham chiếu", () => loadReplacement([1,2,3,1,4,2]), "Ba khung · có nạp trống, HIT và thay trang."],
-    ["Thử thêm · so sánh bốn quy tắc", () => loadReplacement([1,2,3,1,4,2,5,1,2,3,4,5]), "Giữ vị trí khung; theo dõi lý do chọn ngay dưới RAM."],
-    ["Đối chiếu giáo trình · 20 tham chiếu", () => loadReplacement(copy(api.BOOK)), "FIFO 15 · LRU 12 · OPT 9 · Clock 14 lỗi trang với 3 khung."]
+    ["Chuỗi ngắn · 6 lượt truy cập", () => loadReplacement([1,2,3,1,4,2]), "Ba khung · có nạp trống, HIT và thay trang."],
+    ["Ví dụ 12 lượt truy cập", () => loadReplacement([1,2,3,1,4,2,5,1,2,3,4,5]), "Chọn FIFO, LRU, OPT hoặc Clock để chạy cùng chuỗi; mở phần giải thích khi cần."],
+    ["Ví dụ giáo trình · 20 lượt truy cập", () => loadReplacement(copy(api.BOOK)), "FIFO 15 · LRU 12 · OPT 9 · Clock 14 lỗi trang với 3 khung."]
   ]);
   function loadReplacement(refs) {
     R.n=3; R.refs=refs; R.initial=seedFor(Array(3).fill(null),"",0,"",""); startR();
@@ -3660,7 +3665,7 @@ window.enhanceMemoryDemo = function (api) {
   // Comparison remains available, but does not reveal completed-run results during each decision.
   const comparison = $("#r-bars").closest(".stage"), fold = document.createElement("details");
   fold.className = "scene-comparison";
-  fold.innerHTML = "<summary>So sánh kết quả 4 thuật toán · ví dụ nâng cao</summary>";
+  fold.innerHTML = "<summary>Xem số lỗi trang của 4 thuật toán</summary>";
   comparison.before(fold); fold.append(comparison);
   // Keep the model and its controls together. Input editors remain below, collapsed.
   for (const [id, config] of Object.entries(configs)) {

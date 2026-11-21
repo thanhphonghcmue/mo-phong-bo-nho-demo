@@ -111,8 +111,9 @@ const path = require('node:path');
       const blocked=await snap('v');assert.deepEqual([blocked.denied,blocked.faults,blocked.reads,blocked.writes],[1,0,0,0]);
       await page.selectOption('#v-scenario','1');
     });
-    await check('Demo 5: visible FIFO/LRU evidence; OPT no early answer; Clock inspect/clear/victim restore',async()=>{
+    await check('Demo 5: optional FIFO/LRU evidence; OPT no early answer; Clock inspect/clear/victim restore',async()=>{
       await page.click('#t3');await page.selectOption('#r-scenario','1');
+      await page.click('#r-choice-summary');
       for(const alg of ['FIFO','LRU','OPT','CLOCK']){
         await page.locator(`#r-alg [data-a="${alg}"]`).click();const events=await trace('r');let hits=0,clears=0;
         for(let i=0;i<events.length;i++){

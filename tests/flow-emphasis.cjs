@@ -93,7 +93,8 @@ const path = require('node:path');
       assert.equal(await page.locator('#studio-b-to-ram').getAttribute('data-active'), 'false');
       assert.match(await page.locator('#b-flow .studio-b-focus-badge').innerText(), /BƯỚC\s*1\s*Bắt đầu tại đây/i);
       assert.equal(await page.locator('#b-options').getAttribute('open'), null);
-      assert.equal(await page.locator('#b-mode-check').isVisible(), false);
+      assert.equal(await page.locator('#b-mode-check').isVisible(), true);
+      assert.equal(await page.locator('#b-mode-trans').isVisible(), true);
       for (const id of ['b-base', 'b-limit', 'b-addr', 'b-go']) assert.equal(await page.locator('#' + id).isVisible(), true);
       for (const id of ['a', 'x', 'v', 'r']) {
         await page.click(tabs[id]); await seek(id, 0);
@@ -161,6 +162,7 @@ const path = require('node:path');
 
     await check('FIFO emphasizes the oldest load while selection still leaves the old page in RAM', async () => {
       await page.click(tabs.r); await page.locator('#r-alg [data-a="FIFO"]').click();
+      await page.click('#r-choice-summary');
       const events = await trace('r'), victim = events.findIndex(e => e.state.runtime.phase === 'victim');
       assert.ok(victim > 0); await seek('r', victim); const state = await snap('r');
       assert.equal(state.runtime.fr[state.runtime.slot], state.runtime.victim);

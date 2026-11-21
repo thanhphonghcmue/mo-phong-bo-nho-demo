@@ -212,6 +212,7 @@ const path = require('node:path');
     });
     await check('Replacement: all four totals, Clock bit/pointer narration and restored highlight', async () => {
       await page.click('#t3'); await page.selectOption('#r-scenario', '2');
+      await page.click('#r-choice-summary');
       for (const [alg, count] of [['FIFO', 15], ['LRU', 12], ['OPT', 9], ['CLOCK', 14]]) {
         await page.locator('#r-alg [data-a="' + alg + '"]').click();
         let guard = 0, sawClear = false, sawHit = false;

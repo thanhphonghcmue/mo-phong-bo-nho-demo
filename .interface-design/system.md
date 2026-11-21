@@ -49,8 +49,9 @@ Source: `assets/css/studio.css`; Demo 1: `assets/css/studio-base.css`.
 - Route endpoints come from the current event's real source and destination. TLB refill returns from the page table to TLB; a warm TLB hit bypasses the page table; dirty write-back goes RAM → disk; page-in reverses that direction. Read completion can show RAM returning data to CPU.
 - Reserve a small routing lane outside component text. Arrows must not pass through another component or hide under a step badge. Recompute positions after layout, font, resize, and theme changes.
 - A lower-bound or offset failure routes directly from the failed check to OS, around the skipped upper comparator/adder. On narrow screens the path goes around both result ports and enters OS without crossing locked RAM.
-- Demo 1 keeps only Base, Limit, address/offset and Check visible by default. Existing modes, scenario selection, presets and restore stay in native optional details. Preserve every handler and value.
+- Demo 1 always shows both mode buttons above Base, Limit, address/offset and Check. Active mode has visible selection and aria-pressed. Scenario selection, presets and restore stay in native optional details. Preserve every handler and value.
 - FIFO/LRU show numbered resident-frame order. Selection retains the old page; a later installation event shows a separate backing-store source. Numbers indicate rank for the chosen rule, never the page number or physical frame address.
+- Demo 5 keeps detailed ordering evidence collapsed under “Vì sao chọn trang này?” by default. Preserve the user's open preference across steps and use the visible summary as the route source while evidence is hidden. Name example sequences by their actual length (6/12/20 accesses); optional totals say what they measure: page faults.
 
 ## Validation
 

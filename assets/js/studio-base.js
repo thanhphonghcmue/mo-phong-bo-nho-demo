@@ -16,6 +16,8 @@ window.StudioBase = (() => {
     root.dataset.branch=branch;root.dataset.failedGate=failGate;
     root.classList.add('studio-base');
     const value=trans?s.offset:s.addr;
+    const offsetFault=value<0?'ĐỘ LỆCH ÂM (L < 0)':'L ≥ LIMIT';
+    const lowerFailure=trans?(value<0?'Độ lệch L không được âm.':`Độ lệch L phải nhỏ hơn Limit (${s.limit}).`):'Địa chỉ nhỏ hơn Base.';
     const lowerState=st<1?'pending':(trans?s.isValid:s.cond1)?'pass':'fail';
     const upperState=trans?(st<2?'pending':s.isValid?'pass':'skipped'):lowFail?'skipped':st<2?'pending':s.cond2?'pass':'fail';
     const label=state=>tag({pending:'Chưa xét',pass:'Đạt',fail:'Chặn tại đây',skipped:'Bỏ qua'}[state],state);
@@ -36,7 +38,7 @@ window.StudioBase = (() => {
         <div class="b-logic-arrow ${st>=1?'is-flowing':''}">→</div>
         <div class="b-logic-step ${st===1?'is-active':''} ${st>=1?(s.isValid?'is-pass':'is-fail'):''}">
           <span class="b-logic-num">2</span>
-          <div class="b-logic-body"><small>0 ≤ L &lt; Limit (${s.limit}) ?</small><strong>${st<1?'Chờ kiểm tra':s.isValid?'✓ HỢP LỆ':'✕ VƯỢT LIMIT (TRAP)'}</strong></div>
+          <div class="b-logic-body"><small>0 ≤ L &lt; Limit (${s.limit}) ?</small><strong>${st<1?'Chờ kiểm tra':s.isValid?'✓ HỢP LỆ':`✕ ${offsetFault} (TRAP)`}</strong></div>
         </div>
         <div class="b-logic-arrow ${st>=2&&s.isValid?'is-flowing':''}">→</div>
         <div class="b-logic-step ${st===2?'is-active':''} ${st>=2?(s.isValid?'is-pass':'is-skip'):st>=1&&!s.isValid?'is-skip':''}">
@@ -75,7 +77,7 @@ window.StudioBase = (() => {
     root.innerHTML=`${logicTree}<div class="studio-b-board">
       <section id="studio-b-cpu" class="box studio-b-source"><div class="studio-b-eyebrow">01 / CPU</div><h3>Yêu cầu truy cập</h3><strong class="studio-b-address">${esc(value)}</strong><p class="formula">${trans?'Độ lệch logic L':'Địa chỉ vật lý cần kiểm tra A'}</p><span class="studio-b-source-foot">${trans?'Tính từ đầu tiến trình':'Chưa đọc hay ghi dữ liệu'}</span></section>
       <div class="studio-b-edge" data-active="${st===1}">${icon('arrow-right')}</div>
-      <section id="studio-b-lower" class="box studio-b-gate" data-state="${lowerState}"><div class="studio-b-eyebrow">02 / MMU</div><h3>${trans?'Kiểm tra độ lệch':'Cận dưới'}</h3><div class="studio-b-equation">${lowFormula}</div>${label(lowerState)}<p>${trans?'L phải không âm và nhỏ hơn Limit.':`Base = ${s.base} là địa chỉ đầu tiên được phép.`}</p>${lowerState==='fail'?`<div class="studio-b-stop">${icon('shield-check')} <b>Chặn tại đây</b>: Vi phạm cận dưới!</div>`:''}</section>
+      <section id="studio-b-lower" class="box studio-b-gate" data-state="${lowerState}"><div class="studio-b-eyebrow">02 / MMU</div><h3>${trans?'Kiểm tra độ lệch':'Cận dưới'}</h3><div class="studio-b-equation">${lowFormula}</div>${label(lowerState)}<p>${trans?'L phải không âm và nhỏ hơn Limit.':`Base = ${s.base} là địa chỉ đầu tiên được phép.`}</p>${lowerState==='fail'?`<div class="studio-b-stop">${icon('shield-check')} <b>Chặn tại đây</b>: ${esc(lowerFailure)}</div>`:''}</section>
       <div class="studio-b-edge" data-active="${st===2&&!failed}">${icon('arrow-right')}</div>
       <section id="studio-b-upper" class="box studio-b-gate" data-state="${upperState}" data-skipped="${upperState==='skipped'}"><div class="studio-b-eyebrow">03 / MMU</div><h3>${trans?'Cộng địa chỉ gốc':'Cận trên'}</h3>${trans?`<div class="studio-b-equation">${upperFormula}</div><strong id="studio-b-pa" class="studio-b-address">${st>=2&&s.isValid?s.pa:'?'}</strong>`:`<div class="studio-b-equation">${upperState==='skipped'?'A < Base + Limit':upperFormula}</div>`}${label(upperState)}<p>${upperState==='skipped'?(trans?'Độ lệch sai: không cộng, không tạo PA.':'Cận dưới đã chặn. Bỏ qua kiểm tra này.'):trans?(st>=2?`${s.base} + ${s.offset} = ${s.pa}`:'Chỉ cộng sau khi độ lệch hợp lệ.'):`Địa chỉ cuối được phép: ${s.base+s.limit-1}. Cận ${s.base+s.limit} không thuộc vùng.`}</p>${upperState==='fail'?`<div class="studio-b-stop">${icon('shield-check')} <b>Chặn tại đây</b>: Vượt quá cận trên!</div>`:''}</section>
       <div class="studio-b-exits">${arrow('studio-b-to-ram',allowed,allowed?'Cho phép':'Chờ kiểm tra','allow')}${arrow('studio-b-to-os',final&&failed,final&&failed?'TRAP':'Đường xử lý lỗi','trap')}</div>
@@ -83,6 +85,8 @@ window.StudioBase = (() => {
     </div><div class="studio-b-outcome ${branch}" role="note"><b>${failed?'ĐỊA CHỈ BỊ CHẶN':allowed?'TRUY CẬP ĐƯỢC PHÉP':'ĐANG KIỂM TRA'}</b><span>${esc(message)}</span></div>`;
     $('#p0 h2').textContent=trans?'Từ độ lệch đến đúng byte trong RAM':'Một địa chỉ có được vào RAM?';
     $('#b-mode-check').textContent='Kiểm tra địa chỉ';$('#b-mode-trans').textContent='Dịch địa chỉ';
+    $('#b-mode-check').setAttribute('aria-pressed',String(!trans));
+    $('#b-mode-trans').setAttribute('aria-pressed',String(trans));
     $('label[for="b-base"]').textContent='Base · địa chỉ đầu';
     $('label[for="b-limit"]').textContent='Limit · số byte';
     $('#b-addr-lbl').textContent=trans?'Độ lệch logic (L)':'Địa chỉ cần kiểm tra (A)';
@@ -172,10 +176,13 @@ window.StudioBase = (() => {
     const stage=$('#p0 .stage'),quick=stage.querySelector(':scope>.quick');
     if($('#b-options'))return;
     const options=document.createElement('details');options.id='b-options';options.className='studio-b-options';
-    options.innerHTML='<summary>Đổi chế độ · Thử ví dụ khác</summary><div class="studio-b-options-body"></div>';
+    options.innerHTML='<summary>Thử ví dụ khác</summary><div class="studio-b-options-body"></div>';
     quick.after(options);
+    const modes=stage.querySelector('.mode-bar');
+    modes.setAttribute('role','group');modes.setAttribute('aria-label','Chế độ mô phỏng địa chỉ');
+    quick.before(modes);
     const body=options.lastElementChild;
-    body.append(stage.querySelector('.mode-bar'),stage.querySelector('.scene-scenarios'),$('#b-presets-check'),$('#b-presets-trans'));
+    body.append(stage.querySelector('.scene-scenarios'),$('#b-presets-check'),$('#b-presets-trans'));
   }
   document.addEventListener('DOMContentLoaded',compactControls,{once:true});
   window.addEventListener('resize',schedulePaint,{passive:true});

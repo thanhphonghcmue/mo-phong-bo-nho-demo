@@ -36,10 +36,11 @@
     }
     if (id === "r") {
       const r = s.runtime;
+      const decisionSource = $("#r-choice-details")?.open ? "r-evidence" : "r-choice-summary";
       if (r.phase === "start") return [null,"r-need","Bắt đầu tại CPU · RAM giữ trạng thái ban đầu","start"];
       if (r.phase === "request") return ["r-refs","r-need",`CPU cần trang ${s.refs[r.t]} · kiểm tra trong RAM`,"request"];
-      if (r.phase === "victim") return ["r-evidence",`r-frame-${r.slot}`,`Chọn trang ${r.victim} nhường chỗ · chưa nạp trang mới`,"selection"];
-      if (r.phase === "inspect") return ["r-evidence",`r-frame-${r.ptr}`,`Clock xét khung ${r.ptr} · R = ${r.bit[r.ptr]}`,"inspect"];
+      if (r.phase === "victim") return [decisionSource,`r-frame-${r.slot}`,`Chọn trang ${r.victim} nhường chỗ · chưa nạp trang mới`,"selection"];
+      if (r.phase === "inspect") return [decisionSource,`r-frame-${r.ptr}`,`Clock xét khung ${r.ptr} · R = ${r.bit[r.ptr]}`,"inspect"];
       if (r.phase === "clear") return [`r-frame-${e.beforeState.runtime.ptr}`,`r-frame-${r.ptr}`,`Hạ R = 0 · chuyển kim sang khung ${r.ptr}`,"clock"];
       if (r.phase === "apply" && e.kind === "read") return [`r-frame-${r.slot}`,"r-need",`HIT · đọc trang ${s.refs[r.t]} từ khung ${r.slot}`,"read"];
       if (r.phase === "apply") return ["studio-r-store",`r-frame-${r.slot}`,`Nạp trang ${s.refs[r.t]} từ bộ nhớ phụ vào khung ${r.slot}`,"page-in"];
@@ -144,10 +145,11 @@
         const lane=Math.max(as.bottom,bs.bottom)+16;
         return `M ${a.right} ${a.cy} H ${a.right+8} V ${lane} H ${b.left-8} V ${b.cy} H ${b.left}`;
       }
-      if (source.id === "r-evidence") {
+      if (source.id === "r-evidence" || source.id === "r-choice-summary") {
         const lane=(bs.bottom+a.top)/2;
         const entry=b.left-14;
-        return `M ${a.cx} ${a.top} V ${lane} H ${entry} V ${b.cy} H ${b.left}`;
+        const exit=source.id === "r-evidence" ? a.right-8 : a.cx;
+        return `M ${exit} ${a.top} V ${lane} H ${entry} V ${b.cy} H ${b.left}`;
       }
       if (source.id === "r-refs") {
         const lane=(a.bottom+b.top)/2;
@@ -189,6 +191,9 @@
   function refresh() { ["a","x","v","r"].forEach(decorate); redraw(); }
   window.addEventListener("memory-lesson-step",event=>{if(["a","x","v","r"].includes(event.detail.id)){decorate(event.detail.id);redraw();}});
   document.addEventListener("click",event=>{if(event.target.closest('[role="tab"],#a-mode'))requestAnimationFrame(refresh);});
+  document.addEventListener("toggle",event=>{
+    if(event.target.id === "r-choice-details") { decorate("r"); redraw(); }
+  },true);
   window.addEventListener("resize",redraw);
   new MutationObserver(redraw).observe(document.documentElement,{attributes:true,attributeFilter:["data-theme"]});
   document.fonts.ready.then(redraw);

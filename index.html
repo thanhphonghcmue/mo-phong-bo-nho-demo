@@ -680,16 +680,16 @@ footer{font-size:12px;color:var(--muted)}
 }
 
 </style>
-<link rel="stylesheet" href="assets/css/teaching.css?v=wb-20261119c">
-<link rel="stylesheet" href="assets/css/teaching-scenes.css?v=wb-20261119c">
-<link rel="stylesheet" href="assets/css/studio.css?v=wb-20261119c">
-<link rel="stylesheet" href="assets/css/studio-base.css?v=wb-20261119c">
-<link rel="stylesheet" href="assets/css/studio-flow.css?v=wb-20261119c">
-<script src="assets/js/teaching-scenes.js?v=wb-20261119c"></script>
-<script src="assets/js/studio-base.js?v=wb-20261119c"></script>
-<script src="assets/js/teaching.js?v=wb-20261119c"></script>
-<script src="assets/js/lab-interface.js?v=wb-20261119c" defer></script>
-<script src="assets/js/studio-flow.js?v=wb-20261119c" defer></script>
+<link rel="stylesheet" href="assets/css/teaching.css?v=choices-20261121">
+<link rel="stylesheet" href="assets/css/teaching-scenes.css?v=choices-20261121">
+<link rel="stylesheet" href="assets/css/studio.css?v=choices-20261121">
+<link rel="stylesheet" href="assets/css/studio-base.css?v=choices-20261121">
+<link rel="stylesheet" href="assets/css/studio-flow.css?v=choices-20261121">
+<script src="assets/js/teaching-scenes.js?v=choices-20261121"></script>
+<script src="assets/js/studio-base.js?v=choices-20261121"></script>
+<script src="assets/js/teaching.js?v=choices-20261121"></script>
+<script src="assets/js/lab-interface.js?v=choices-20261121" defer></script>
+<script src="assets/js/studio-flow.js?v=choices-20261121" defer></script>
 </head>
 <body class="clear-scenes academic-lab studio-ui">
 <div class="wrap">
@@ -1677,7 +1677,7 @@ function renderA(){
   // request block (same scale as RAM)
   const cur = !done ? sim.ev[placed] : null;
   $('#a-req').innerHTML = cur
-    ? `<div class="req ${picking ? '' : 'enter'}" style="width:${pct(cur.r)};min-width:70px;background:${pc(cur.k)}">P${cur.k+1}<small>${cur.r} KB</small></div><span class="muted" style="font-size:14px">← cùng tỉ lệ với RAM bên dưới</span>`
+    ? `<div class="req ${picking ? '' : 'enter'}" style="width:${pct(cur.r)};min-width:70px;background:${pc(cur.k)}">P${cur.k+1}<small>${cur.r} KB</small></div>`
     : `<span class="muted">Hết tiến trình.</span>`;
   const lastPlaced = placed > 0 ? sim.ev[placed-1] : null;
   let html = `<div class="used" style="width:${pct(USED)}"></div>`;

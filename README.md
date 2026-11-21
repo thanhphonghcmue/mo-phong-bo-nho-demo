@@ -8,6 +8,8 @@ Bản giao diện thử nghiệm trên nhánh `design/memory-workbench`: [ảnh 
 
 Bổ sung mới: [bước hiện tại, mũi tên nổi bật và biểu mẫu cơ bản](docs/flow-emphasis-review.md).
 
+Điều chỉnh theo góp ý: [hai chế độ Demo 1, phần giải thích tùy chọn và tên ví dụ Demo 5](docs/choices-review.md).
+
 Nền giấy ấm, header mực đậm, tab liền và cửa sổ bước từ snapshot giúp theo dõi bài khi trình chiếu. RAM dùng bề mặt tối; thao tác, bước dò xét và truy cập bị chặn có màu và nhãn riêng. [Hệ typography của cả 5 demo](docs/typography.md) dùng Be Vietnam Pro/JetBrains Mono cục bộ, cùng SVG Lucide. Lớp giao diện hiện hành và hai theme nằm trong `assets/css/studio.css`; Demo 1 có lớp trình bày riêng trong `studio-base.css` và `studio-base.js`. Hai skill UI UX Pro Max và Interface Design được cài tại `.agents/skills/`; nguồn pin revision trong `docs/design-skill-sources.json`.
 
 ## Năm demo
@@ -20,7 +22,7 @@ Nền giấy ấm, header mực đậm, tab liền và cửa sổ bước từ s
 | 4 · Demand Paging | CPU/MMU → OS → ổ đĩa → RAM → cập nhật bảng trang/chạy lại | Nhánh có/chưa có trang; ghi lại trang bẩn trước khi nạp; không đổi Present sớm. |
 | 5 · Thay trang | Chuỗi tham chiếu → các khung RAM cố định → bằng chứng | FIFO: thứ tự nạp; LRU: thứ tự dùng; OPT: tương lai tại bước chọn; Clock: kim và bit R. |
 
-Mỗi demo có ba nhóm **Làm quen / Thử thêm / Đối chiếu giáo trình**, mặc định là **Thử thêm**. Lùi/Bước tiếp phục hồi cùng snapshot; chuyển tab, đổi đề hoặc bấm Lùi dừng tự chạy. **Hiện giải thích** mở phần bên dưới mô hình; quy tắc chọn trang ở Demo 5 luôn hiện. Bảng đầy đủ, nhập đề chi tiết, lịch sử và so sánh chỉ mở khi cần. Trên điện thoại, các khối chuyển thành luồng dọc và thanh điều khiển bám mép dưới.
+Demo 1–4 có ba nhóm **Làm quen / Thử thêm / Đối chiếu giáo trình**, mặc định là **Thử thêm**. Demo 5 đặt tên ví dụ theo chuỗi **6 / 12 / 20 lượt truy cập**, mặc định là 12 lượt. Hai chế độ của Demo 1 luôn hiện để chọn ngay. Lùi/Bước tiếp phục hồi cùng snapshot; chuyển tab, đổi đề hoặc bấm Lùi dừng tự chạy. **Hiện giải thích** mở phần bên dưới mô hình; **Vì sao chọn trang này?** mở lý do chọn trang của Demo 5. Bảng đầy đủ, nhập đề chi tiết, lịch sử và tổng số lỗi trang của từng thuật toán chỉ mở khi cần. Trên điện thoại, các khối chuyển thành luồng dọc; thanh điều khiển nằm trong trang để không che mô hình.
 
 Các nhãn bài học: **AN TOÀN** (Demo 1), **HIỆU QUẢ** (Demo 2–3), **KHÔNG GIỚI HẠN** (Demo 4–5). Nhãn cuối nói về ý tưởng bộ nhớ ảo; RAM và không gian địa chỉ thực tế luôn hữu hạn.
 
@@ -70,6 +72,7 @@ node tests/scenes-browser.cjs
 node tests/academic-lab.cjs
 node tests/studio-browser.cjs
 node tests/flow-emphasis.cjs
+node tests/requested-ui.cjs
 ```
 
 Bộ `seeded-algorithms` dùng mô hình đối chứng độc lập: 320 trace, 6400 trạng thái, 240 lần tiếp tục. Các bộ trình duyệt dùng máy chủ cổng 8080. `scenes-browser` kiểm tra UI công khai ở 1366/1920/375/390 px và lưu ảnh, kết quả JSON trong `/tmp/memory-scenes-review` (đổi bằng `MEMORY_ARTIFACT_DIR`). Các script `*_browser.py` cũ phụ thuộc lớp `MemoryLessons` không còn được tải, nên không thuộc kiểm tra giao diện hiện hành.

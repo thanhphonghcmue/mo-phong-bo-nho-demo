@@ -1,0 +1,15 @@
+{
+  "passed": 7,
+  "checks": [
+    "Both Demo 1 modes are usable without opening optional examples",
+    "Offset errors identify the actual invalid bound and never authorize RAM",
+    "Example names describe their actual reference sequence, not an unexplained comparison",
+    "Replacement order stays optional; closed evidence cannot become a route source",
+    "Clock and backward navigation preserve state with optional evidence closed",
+    "Visible modes, disclosures and arrows remain usable on desktop, tablet and mobile",
+    "Step numbers keep readable contrast in light and dark, without changing snapshots"
+  ],
+  "errors": [],
+  "failedAssets": [],
+  "accessibility": []
+}
